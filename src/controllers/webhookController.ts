@@ -1,12 +1,14 @@
 // ===============================
 // File: src/controllers/webhookController.ts
 // ===============================
+
 import { Request, Response } from 'express';
 
 /**
- * Controller do Webhook: apenas confirma que recebeu a requisição.
+ * Webhook controller stub
+ * Recebe requisições do Twilio (WhatsApp) e retorna 200 OK
  */
-export function handleWebhook(req: Request, res: Response) {
-  // TODO: aqui você irá processar a mensagem recebida do Twilio/WhatsApp
-  return res.sendStatus(200);
+export function webhookController(req: Request, res: Response): void {
+  // TODO: implementar lógica de roteamento de mensagens
+  res.sendStatus(200);
 }

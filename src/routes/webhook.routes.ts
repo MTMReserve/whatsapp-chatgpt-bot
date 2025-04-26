@@ -2,11 +2,11 @@
 // File: src/routes/webhook.routes.ts
 // ===============================
 import { Router } from 'express';
-import { handleWebhook } from '../controllers/webhookController';
+import { webhookController } from '../controllers/webhookController';
 
 const router = Router();
 
-// Rota principal de recepção de webhook do Twilio
-router.post('/', handleWebhook);
+// Rota para receber notificações do WhatsApp via Twilio
+router.post('/', webhookController);
 
 export default router;

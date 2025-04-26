@@ -1,6 +1,7 @@
+## Versão: v0.1.1-mvp1
+
 📋 CHANGELOG - whatsapp-chatgpt-bot
 📅 Data: 26/04/2025
-🧱 Versão: v0.1.1-mvp1
 ✨ Adições
 ✅ Estrutura inicial de projeto criada:
 
@@ -84,3 +85,43 @@ Infraestrutura básica do sistema.
 Ambiente de testes sólido e funcional.
 
 Preparação total para desenvolvimento dos próximos módulos de negócio (funil de vendas via WhatsApp).
+
+## [v0.2.0] - 2025-04-26
+
+### ✨ Novidades
+
+- Implementação do middleware de **Rate Limiter** usando `rate-limiter-flexible`.
+- Implementação do **Error Middleware** para captura de exceções e resposta 500.
+- Implementação do **Validation Middleware** usando `zod` para validação de payloads.
+- Criação do **Webhook Controller** para receber POST de integrações (Twilio).
+
+### 🛠 Melhorias
+
+- Correção definitiva de tipagens em `rateLimiterMiddleware.ts` (tratamento seguro do `req.ip`).
+- Coerção automática de tipos numéricos no `env.ts` (`z.coerce.number()` aplicado).
+- Separação limpa entre carregamento (`loadEnv`) e acesso (`getEnv`) às variáveis de ambiente.
+- Logger centralizado configurado com Winston (`utils/logger.ts`) e integrado ao servidor Express.
+
+### 🐛 Correções
+
+- Corrigido erro de compilação causado por imports incorretos de variáveis de ambiente.
+- Corrigido erro de tipagem no TypeScript nas chamadas de RateLimiterMemory.
+- Corrigido `server.ts` para usar bootstrap correto e modularização do Express App.
+
+### 🧪 Testes
+
+- Testes unitários de Clients OpenAI e Twilio funcionando.
+- Teste de integração `POST /webhook` respondendo corretamente `200 OK`.
+- Cobertura de testes gerais acima de 80% (`npm test --coverage`).
+
+---
+
+# 📌 Resumo da Versão
+
+Essa versão consolida toda a infraestrutura base do projeto:
+
+- Configuração de ambiente segura.
+- Comunicação com APIs externas (OpenAI + Twilio).
+- Proteções básicas (rate limit, validações, tratamento de erro).
+- Estrutura modularizada de App e Server.
+- Primeira rota de Webhook ativa e testada.
