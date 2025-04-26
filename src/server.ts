@@ -1,26 +1,43 @@
-import express from 'express';
-import { config } from 'dotenv';
-import { envSchema } from './config/env';
-import { app } from './app';
+// ===============================
+// File: src/server.ts
+// ===============================
 
-// 1. Carrega .env
-config();
+// 1) Carrega .env antes de qualquer coisa
+import 'dotenv/config';
 
-// 2. Valida variáveis de ambiente
-const parsedEnv = envSchema.safeParse(process.env);
+import { loadEnv } from './config/env';
+import { createDbPool, testDbConnection } from './utils/db';
+import createApp from './app';                         // <- default import
+import { logger } from './utils/logger';
+import { updateNgrokEnv } from './utils/ngrokUpdater'; // <- named import
 
-if (!parsedEnv.success) {
-  console.error('❌ Erro de validação nas variáveis de ambiente:');
-  console.error(parsedEnv.error.format());
-  process.exit(1); // Encerra o app imediatamente se falhar
+async function bootstrap() {
+  // 2) Valida e carrega as variáveis de ambiente no processo
+  loadEnv();
+
+  // 3) Conexão com o banco de dados
+  createDbPool();
+  await testDbConnection();
+
+  // 4) Cria o Express app já configurado
+  const app = createApp();
+
+  // 5) Porta
+  const port = process.env.PORT || 3000;
+
+  // 6) Inicia o servidor
+  app.listen(port, async () => {
+    logger.info(`🚀 Servidor rodando na porta ${port}`);
+    logger.info('Logger funcionando corretamente!');
+
+    // 7) (Opcional) Atualiza dinamicamente a variável no .env
+    try {
+      await updateNgrokEnv(process.env.TWILIO_WHATSAPP_NUMBER_FROM!);
+      logger.info('✅ TWILIO_WHATSAPP_NUMBER_FROM atualizado com sucesso no .env');
+    } catch (err) {
+      logger.error('❌ Falha ao atualizar TWILIO_WHATSAPP_NUMBER_FROM:', err);
+    }
+  });
 }
 
-// 3. Ambiente validado e disponível
-const env = parsedEnv.data;
-
-// 4. Define a porta (pode usar env.PORT se quiser)
-const PORT = Number(process.env.PORT) || 3000;
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
+bootstrap();

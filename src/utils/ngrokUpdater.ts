@@ -1,48 +1,36 @@
-// src/utils/ngrokUpdater.ts
+// ===============================
+// File: src/utils/ngrokUpdater.ts
+// ===============================
 
-import axios from 'axios';
-import twilio from 'twilio';
-import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { logger } from './logger';
 
-dotenv.config();
+/**
+ * Atualiza dinamicamente a variável TWILIO_WHATSAPP_NUMBER_FROM no .env
+ * após gerar novo número via ngrok, se necessário.
+ * (Este é um esqueleto de automação, ainda não plugado ao ngrok.)
+ */
 
-export async function updateTwilioWebhook() {
-  try {
-    // 1. Buscar o endereço do Ngrok local
-    const ngrokApiUrl = 'http://127.0.0.1:4040/api/tunnels';
-    const response = await axios.get(ngrokApiUrl);
-    
-    const tunnels = response.data.tunnels;
-    const httpsTunnel = tunnels.find((tunnel: any) => tunnel.public_url.startsWith('https'));
-    
-    if (!httpsTunnel) {
-      console.error('❌ Nenhum túnel HTTPS encontrado. Certifique-se que o ngrok está rodando.');
-      return;
-    }
-    
-    const publicUrl = httpsTunnel.public_url;
-    console.log(`🌐 Ngrok URL detectado: ${publicUrl}`);
+export function updateNgrokEnv(newNumber: string) {
+  const envPath = path.resolve(process.cwd(), '.env');
 
-    // 2. Atualizar o webhook da Twilio
-    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
-    await client.incomingPhoneNumbers
-      .list({ phoneNumber: process.env.TWILIO_WHATSAPP_NUMBER.replace('whatsapp:', '') })
-      .then(phoneNumbers => {
-        if (phoneNumbers.length > 0) {
-          const phoneNumberSid = phoneNumbers[0].sid;
-          return client.incomingPhoneNumbers(phoneNumberSid)
-            .update({
-              smsUrl: `${publicUrl}/webhook`, // webhook para mensagens inbound
-            });
-        } else {
-          console.error('❌ Número não encontrado na conta Twilio.');
-        }
-      });
-
-    console.log('✅ Webhook da Twilio atualizado com sucesso!');
-
-  } catch (error) {
-    console.error('❌ Erro atualizando o Webhook:', error);
+  if (!fs.existsSync(envPath)) {
+    logger.error('Arquivo .env não encontrado para atualização.');
+    return;
   }
+
+  let envContent = fs.readFileSync(envPath, 'utf-8');
+
+  // Atualiza a variável TWILIO_WHATSAPP_NUMBER_FROM
+  const regex = /^TWILIO_WHATSAPP_NUMBER_FROM=.*$/m;
+
+  if (regex.test(envContent)) {
+    envContent = envContent.replace(regex, `TWILIO_WHATSAPP_NUMBER_FROM=${newNumber}`);
+  } else {
+    envContent += `\nTWILIO_WHATSAPP_NUMBER_FROM=${newNumber}`;
+  }
+
+  fs.writeFileSync(envPath, envContent, 'utf-8');
+  logger.info(`Variável TWILIO_WHATSAPP_NUMBER_FROM atualizada com sucesso no .env.`);
 }

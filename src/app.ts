@@ -1,20 +1,36 @@
-**Arquivo**: `src/app.ts`
-```ts
-import express from 'express';
+// ===============================
+// File: src/app.ts
+// ===============================
+
+import express, { Express } from 'express';
 import bodyParser from 'body-parser';
-import { webhookController } from './controllers/webhookController';
+import cors from 'cors';
+import helmet from 'helmet';
+
+import { rateLimiterMiddleware } from './middlewares/rateLimiterMiddleware';
+import { validationMiddleware } from './middlewares/validationMiddleware';
 import { errorMiddleware } from './middlewares/errorMiddleware';
-import { rateLimiterMiddleware } from './middlewares/rateLimiter';
+import webhookRouter from './routes/webhook.routes'; // Assumimos que você criará esse router em breve
 
-export const app = express();
+/**
+ * Cria e configura a instância do Express
+ */
+export default function createApp(): Express {
+  const app = express();
 
-// Middlewares
-app.use(bodyParser.json());
-app.use(rateLimiterMiddleware);
+  // Segurança e parsers
+  app.use(helmet());
+  app.use(cors());
+  app.use(bodyParser.json());
 
-// Rota de Webhook
-app.post('/webhook', webhookController);
+  // Rate limiter global
+  app.use(rateLimiterMiddleware);
 
-// Middleware de tratamento de erros
-app.use(errorMiddleware);
-```
+  // Montagem das rotas
+  app.use('/webhook', webhookRouter);
+
+  // Middleware de tratamento de erros (último da cadeia)
+  app.use(errorMiddleware);
+
+  return app;
+}
