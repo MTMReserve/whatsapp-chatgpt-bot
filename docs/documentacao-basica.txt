@@ -1,0 +1,278 @@
+whatsapp-chatgpt-bot/
+│
+├── src/
+│   ├── api/
+│   │   ├── openai.js          # Comunicação com a API do ChatGPT
+│   │   └── twilio.js          # Comunicação com a API do WhatsApp (Twilio)
+│   │
+│   ├── prompts/
+│   │   ├── 01-sistema.js
+│   │   ├── 02-perfilCliente.js
+│   │   ├── 03-levantamentoNecessidades.js
+│   │   ├── 04-ancorasPNL.js
+│   │   ├── 05-respostaObjeções.js
+│   │   ├── 06-fechamento.js
+│   │   └── 07-posVenda.js
+│   │
+│   ├── services/
+│   │   ├── conversationManager.js   # Gerencia o fluxo de conversa e camadas
+│   │   ├── clientDatabase.js        # Banco de dados (MySQL)
+│   │   └── humanizer.js              # Simula escrita humana (delay, variação)
+│   │
+│   ├── server.js                     # Arquivo principal
+│
+├── .env                               # Variáveis de ambiente (Twilio, OpenAI, Banco)
+├── package.json
+└── README.md
+
+
+
+
+####################################################
+
+
+
+1. Mapeamento de Requisitos
+
+Ambiente de Execução
+
+Versão do Node.js? v20.9.0
+
+100% TypeScript 
+
+TWILIO_ACCOUNT_SID= AC8d28645fa2304c4eb65a40b4c6d7a591
+TWILIO_AUTH_TOKEN= 88d0fad7672b43478a916b1c999c74fd
+TWILIO_WHATSAPP_NUMBER TO=whatsapp:+55 12 9 9240 0142
+TWILIO_WHATSAPP_NUMBER from=whatsapp:+1 415 523 8886
+
+Webhook público usando Ngrok (modo desenvolvimento/teste local).
+
+Em ambiente atual de desenvolvimento, o projeto utiliza Ngrok para expor o servidor local (localhost:3000) via URL pública HTTPS temporária, necessária para comunicação com a API do WhatsApp (Twilio).
+Observação: O endereço gerado pelo Ngrok é dinâmico e muda a cada sessão. Para mitigar esse impacto, implementamos um sistema automático que detecta o novo URL do Ngrok e atualiza o Webhook da Twilio em tempo real na inicialização do servidor.
+Em produção futura, o projeto migrará para um ambiente com domínio fixo (VPS ou serviço Cloud) para garantir estabilidade do Webhook.
+
+ChatGPT (OpenAI)
+
+API Key=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
+Escopo de uso (gpt-3.5-turbo)?
+
+Limites de Taxa (Rate Limits):
+Para o modelo gpt-3.5-turbo, o limite padrão para usuários Free/Pay-As-You-Go é de aproximadamente 3 solicitações por minuto (RPM) e 90.000 tokens por minuto.
+
+Política de Retries:
+Recomenda-se implementar política de retries exponenciais em caso de erros transitórios (429 Too Many Requests, 500 Internal Server Error, etc.). O SDK da OpenAI já realiza tentativas automáticas simples, mas é possível customizar.
+
+Banco de Dados
+
+Banco | MariaDB 10.4.32
+Conexão | Localhost (127.0.0.1:3306)
+Banco usado | bot_whatsapp
+Charset | UTF-8 Unicode (utf8mb4_unicode_ci)
+Gerenciamento | phpMyAdmin
+
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=bot_whatsapp
+
+
+String de Conexão | mysql://root:@127.0.0.1:3306/bot_whatsapp
+Pool de Conexões | mysql2
+Migrator / ORM | TypeORM
+
+Hospedagem e Deploy
+
+Item | Valor preenchido
+Desenvolvimento local | Ngrok + XAMPP no Windows
+Deploy futuro | VPS (Ubuntu Linux)
+Gerenciamento | PM2 + Git manual
+Banco de dados | MariaDB local ou migrado
+Proxy reverso | Nginx
+Serverless / Docker / Kubernetes | Não utilizado no MVP
+
+(Ambiente de Desenvolvimento:
+Inicialmente, o projeto será executado em ambiente local utilizando o Ngrok para disponibilizar URLs públicas de teste e o XAMPP para gerenciar o servidor de banco de dados MariaDB.
+Infraestrutura Planejada para Produção:
+Em ambiente de produção, a hospedagem será feita em uma VPS (Virtual Private Server) própria, que permitirá:
+Acesso root ao sistema operacional (Linux baseado — ex: Ubuntu Server 22.04).
+Gerenciamento completo de serviços (Node.js, MariaDB/MySQL, Certificados SSL).
+Deploy manual via Git + PM2 para controle de processos.
+Tecnologia:
+VPS (Hostinger, Contabo, DigitalOcean ou similar)
+Sistema operacional: Linux Ubuntu Server
+Gerenciador de processo: PM2
+Banco de dados: MariaDB (auto-hospedado na VPS ou serviço externo)
+Servidor HTTP reverso: Nginx (para HTTPS e roteamento de portas)
+Motivo da Escolha:
+(Escolheu-se VPS para ter controle completo dos serviços, baixo custo mensal, melhor performance, escalabilidade futura e independência de plataformas serverless ou containers mais complexos no estágio inicial do projeto.)
+Infr aonde vai rodar (VPS, Docker, Kubernetes, serverless)?
+
+CI/CD: GitHub Actions / GitLab CI /
+Item | Valor preenchido
+Estratégia atual | Deploy manual
+Planejamento futuro | CI/CD automático
+Ferramenta de CI/CD escolhida | GitHub Actions
+Motivo da escolha | Gratuito, integrado ao GitHub, fácil configuração
+
+
+Item | Valor preenchido
+Strict Mode | "strict": true
+noImplicitAny | "noImplicitAny": true
+strictNullChecks | "strictNullChecks": true
+Linter | ESLint
+Formatter | Prettier
+Padrão de Estilo | Airbnb Style Guide
+
+Item | Valor preenchido
+Teste unitário | Jest
+Teste de integração | Supertest (e TypeORM in-memory quando necessário)
+Teste E2E (End-to-End) | Playwright
+Cobertura mínima | 80%
+
+
+Item | Valor preenchido
+Especificação | OpenAPI 3.0
+Gerador | swagger-jsdoc
+Servidor de interface | swagger-ui-express
+Endpoint da documentação | /api-docs
+Versionamento de rota (/v1/...)?
+
+Segurança e Conformidade
+
+Item | Valor preenchido
+Validação de .env | Zod
+Proteção de cabeçalhos HTTP | Helmet
+CORS | Controlado (origens específicas em produção)
+Rate Limit | rate-limiter-flexible
+Criptografia | Hash seguro (bcrypt para senhas)
+LGPD | Consentimento + exclusão de dados + política documentada
+
+Observabilidade
+
+Item | Valor preenchido
+Logging estruturado | Winston
+Monitoramento de erros | Sentry
+Coleta de métricas detalhadas (futuro) | Prometheus (opcional)
+
+Fluxo de Conversa
+
+Item | Valor preenchido
+Estratégia de timeout | Controle manual inicial (ex: 5 min), com retry de reengajamento
+Persistência de sessão no desenvolvimento | Memória do servidor
+Persistência de sessão no produção | Redis
+Ferramentas futuras | BullMQ ou Socket.IO para controle assíncrono (opcional)
+
+Versionamento
+
+Item | Valor preenchido
+Estratégia de versionamento | GitHub Flow
+Branch principal | main
+Branches de features | feature/nome-da-feature
+Commits padronizados | Conventional Commits
+Gerador de changelog | semantic-release (futuro)
+
+Changelogs automatizados
+
+Item | Valor preenchido
+Padrão de commits | Conventional Commits
+Gerador de changelog | semantic-release
+Atualização de versão | Semântico automático (major/minor/patch)
+Objetivo | Transparência de mudanças + automação de releases
+
+2. Documentação e Padrões a Seguir:
+
+Para garantir a qualidade, segurança e manutenção do projeto, foram definidas as seguintes referências oficiais como padrão de desenvolvimento:
+
+Node.js: Guia de boas práticas da versão LTS (Long Term Support).
+TypeScript: Manual Oficial, com a opção "strict": true ativada no tsconfig.json.
+Express: Implementação correta de Middlewares e Tratamento Global de Erros, seguindo documentação oficial.
+Validação de ENV: Zod ou Joi
+
+3. Dependências e Configurações Iniciais
+Dependências (npm install)
+
+express body-parser axios openai twilio mysql2 dotenv
+winston helmet cors rate-limiter-flexible zod
+Dev-Dependencies (npm install -D)
+typescript ts-node-dev @types/node @types/express
+eslint prettier eslint-config-prettier eslint-plugin-prettier
+jest ts-jest @types/jest supertest @types/supertest
+swagger-jsdoc swagger-ui-express
+tsconfig.json mínimo recomendado
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "CommonJS",
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
+Scripts em package.json
+"scripts": {
+  "dev": "ts-node-dev --respawn src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "lint": "eslint 'src/**/*.ts'",
+  "format": "prettier --write 'src/**/*.ts'",
+  "test": "jest --coverage"
+}
+4. Definições Essenciais para Não Quebrar em Compilação
+.env.example: liste todas as variáveis (e.g. TWILIO_SID, TWILIO_TOKEN, OPENAI_KEY, DB_HOST, …)
+Validação de ENV: no bootstrap da app, execute um validador (Zod) e interrompa se faltar algo.
+Estrutura de Pastas sempre consistente com rootDir do TS.
+Imports Relativos uniformes (import x from './x').
+Strict Mode ON no TS e no ESLint ("use strict").
+Tratamento Global de Erros e fallback de requisições.
+Arquivos de Tipos em src/models/ ou src/types/.
+Arquivos de Config em src/config/ (DB, OpenAI, Twilio).
+Documentação de API gerada automaticamente com comentários JSDoc se possível.
+Tests stubados antes de implementar lógicas principais (TDD).
+
+5. Estrutura de Arquivos Pronta para Testes
+
+whatsapp-chatgpt-bot/
+├── src/
+│   ├── api/
+│   │   ├── openai.ts
+│   │   └── twilio.ts
+│   ├── config/
+│   │   └── env.ts           # valida e exporta variáveis de ambiente
+│   ├── controllers/
+│   │   └── webhookController.ts
+│   ├── middlewares/
+│   │   ├── errorMiddleware.ts
+│   │   ├── validationMiddleware.ts
+│   │   └── rateLimiter.ts
+│   ├── models/              # definições de tipo e entidades DB
+│   ├── prompts/
+│   │   ├── 01-sistema.ts
+│   │   ├── 02-perfilCliente.ts
+│   │   └── … até 07-posVenda.ts
+│   ├── services/
+│   │   ├── conversationManager.ts
+│   │   ├── clientRepository.ts
+│   │   └── humanizer.ts
+│   ├── tests/
+│   │   ├── unit/
+│   │   ├── integration/
+│   │   └── e2e/
+│   ├── utils/
+│   │   ├── logger.ts
+│   │   └── db.ts
+│   ├── app.ts
+│   └── server.ts
+├── .env.example
+├── .eslintrc.js
+├── .prettierrc
+├── jest.config.js
+├── tsconfig.json
+├── package.json
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
+Cada arquivo já vem com stub de teste (Jest) e tipagem completa para facilitar TDD e CI.
+
