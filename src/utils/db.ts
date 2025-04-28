@@ -1,52 +1,39 @@
-// ===============================
-// File: src/utils/db.ts
-// ===============================
-import mysql, { Pool } from 'mysql2/promise';
-import { getEnv } from '../config/env';
-import { logger } from './logger';
+// src/utils/db.ts
 
-let pool: Pool;
+import mysql, { Pool } from 'mysql2/promise';
+import { loadEnv } from '../config/env';
+
+// Carrega e valida as variáveis de ambiente
+const env = loadEnv();
+
+// Exporta o pool para que possa ser usado em testes e outros módulos
+export const pool: Pool = mysql.createPool({
+  host: env.DB_HOST,
+  port: Number(env.DB_PORT),
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  database: env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+});
 
 /**
- * Cria o pool de conexões MySQL usando valores já validados em getEnv()
+ * Função de bootstrap para criar/recuperar o pool de conexões MySQL
  */
-export function createDbPool(): void {
-  const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME } = getEnv();
-
-  pool = mysql.createPool({
-    host: DB_HOST,
-    port: DB_PORT,
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME,
-    charset: 'utf8mb4_unicode_ci',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-  });
-
-  logger.info('✅ Pool de conexão MySQL criado.');
+export function createDbPool(): Pool {
+  console.log('✅ Pool de conexão MySQL criado.');
+  return pool;
 }
 
 /**
- * Executa um SELECT 1 como teste de conexão
+ * Testa conexão executando um SELECT 1 e encerra a aplicação em caso de falha
  */
 export async function testDbConnection(): Promise<void> {
   try {
     const [rows] = await pool.query('SELECT 1');
-    logger.info(`✅ Conexão com o banco de dados bem-sucedida: ${JSON.stringify(rows)}`);
-  } catch (err) {
-    logger.error('❌ Falha ao testar conexão com o banco de dados:', err);
+    console.log('✅ Conexão com o banco de dados bem-sucedida:', rows);
+  } catch (error) {
+    console.error('❌ Falha ao conectar ao banco de dados:', error);
     process.exit(1);
   }
-}
-
-/**
- * Retorna o pool de conexão (lança erro se não inicializado)
- */
-export function getDbPool(): Pool {
-  if (!pool) {
-    throw new Error('Pool de conexão não inicializado. Chame createDbPool() antes.');
-  }
-  return pool;
 }

@@ -1,86 +1,102 @@
 📋 CHANGELOG - whatsapp-chatgpt-bot
-📅 Data: 26/04/2025
-🧱 Versão: v0.1.1-mvp1
-✨ Adições
-✅ Estrutura inicial de projeto criada:
 
-src/server.ts
+## [v0.2.1] - 2025-04-28
 
-src/app.ts
+### 🎯 Escopo desta versão
 
-src/config/env.ts
+- Conclusão da **Etapa 7 – Services**:
+  - Implementação de **ClientRepository**, **Humanizer**, **ConversationManager**.
+  - Testes unitários para CRUD de clientes, delays humanizados e carregamento de prompts.
 
-src/api/openai.ts
+### 🧪 Testes
 
-src/api/twilio.ts
+- **ClientRepository**: criação e busca de cliente dummy.
+- **Humanizer**: validação de `delay(ms)` e `randomDelay(min, max)`.
+- **ConversationManager**: confirmações de retorno de prompts.
 
-src/tests/unit/openai.client.test.ts
+---
 
-src/tests/unit/twilio.client.test.ts
+## Histórico de Releases e Etapas
 
-src/utils/ngrokUpdater.ts
+### [v0.1.4] - 2025-04-27
 
-jest.config.js
+**Etapa 6 – Controllers**
 
-package.json
+- Arquivo `src/controllers/webhookController.ts` criado.
+- Rota **POST /webhook** retorna status 200.
 
-tsconfig.json
+### [v0.1.3] - 2025-04-27
 
-✅ Setup completo de testes unitários com Jest + ts-jest.
+**Etapa 5 – Middlewares**
 
-✅ Implementação do primeiro mock de ambiente centralizado via jest.setup.ts.
+- `errorMiddleware`, `validationMiddleware`, `rateLimiterMiddleware` adicionados.
+- Testes de erro 500, payload inválido 400 e limite 429.
 
-✅ Separação correta de ambiente de produção e ambiente de teste.
+### [v0.1.2] - 2025-04-26
 
-✅ Criação dos primeiros clients externos:
+**Etapa 4 – Utilitários (DB & Logger)**
 
-Cliente OpenAI (openai.ts) funcionando e testado.
+- `src/utils/db.ts`: pool MySQL com `mysql2/promise`, export `pool` e `testDbConnection()`.
+- `src/utils/logger.ts`: Winston configurado para console.
+- Testes: `SELECT 1` e saída de `logger.info` validada.
 
-Cliente Twilio (twilio.ts) funcionando e testado.
+### [v0.1.1] - 2025-04-26
 
-🛠 Correções
-⚙️ Corrigido problema com importação da SDK OpenAI (usando import OpenAI from 'openai' corretamente).
+**Etapa 3 – API Clients**
 
-⚙️ Corrigido problema de carregamento antecipado de process.env, implementando loadEnv().
+- `src/api/openai.ts`: cliente OpenAI instanciado com `import OpenAI from 'openai'`.
+- `src/api/twilio.ts`: cliente Twilio configurado com credenciais.
+- Testes unitários de conexão e chamadas básicas.
 
-⚙️ Corrigido problemas nos testes unitários de conexão (openai.client.test.ts, twilio.client.test.ts).
+### [v0.1.0] - 2025-04-25
 
-⚙️ Corrigido uso de envs mockados no Jest para evitar falhas de importação em testes.
+**Etapa 2 – Configuração de Ambiente e Validação**
 
-🎨 Melhorias de Qualidade de Código
-🎯 Instalação e configuração do ESLint:
+- `src/config/env.ts` com Zod para validar `process.env`.
+- `.env.example` criado listando todas as variáveis (
+  TWILIO*SID, TWILIO_TOKEN, TWILIO_WHATSAPP_NUMBER*{TO,FROM},
+  OPENAI*KEY, DB*{HOST,PORT,USER,PASSWORD,NAME}, …
+  ).
+- Validação de env no bootstrap (`loadEnv()`).
 
-Regras Typescript com @typescript-eslint.
+### [v0.0.1-alpha] - 2025-04-24
 
-Bloqueio de any não tipado.
+**Etapa 1 – Setup Inicial**
 
-Forçar tipagem explícita de retorno em funções.
+- Estrutura inicial gerada:
+  - `package.json`, `.gitignore`, `tsconfig.json`
+  - Branch `feat/setup`, commit `chore: setup initial project structure`.
+- Testes básicos:
+  - `npm install` sem falhas.
+  - `npm run dev` inicia sem erros.
 
-Identificação automática de variáveis não usadas.
+---
 
-🎯 Instalação e configuração do Prettier:
+## 📦 Dependências Essenciais
 
-Padrão de formatação automática padronizado para todo o projeto.
+(sem estas o projeto NÃO COMPILA)
 
-VSCode configurado para formatar automaticamente ao salvar (Format on Save).
+**Produção**
 
-🎯 Ajuste de lint para permitir globais de Node.js (process, console) e globais de Jest (describe, it, expect).
+- `express`, `body-parser` (parser JSON)
+- `axios` (chamadas HTTP)
+- `openai` (SDK ChatGPT)
+- `twilio` (SDK WhatsApp)
+- `mysql2` (pool MySQL)
+- `dotenv` (carregamento de .env)
+- `helmet`, `cors` (segurança HTTP)
+- `winston` (logging)
+- `rate-limiter-flexible` (rate limiting)
+- `zod` (validação de ENV e payloads)
 
-🛡️ Qualidade de Código
-🧪 Testes unitários passaram 100% (npm test).
+**Desenvolvimento & Testes**
 
-🧹 Linting (npm run lint) com apenas 2 pequenos avisos pendentes (para futura melhoria).
+- `typescript`, `ts-node-dev` (transpilação e reload)
+- `jest`, `ts-jest`, `supertest` (testes unitários e integração)
+- `eslint`, `@typescript-eslint/parser`, `@typescript-eslint/eslint-plugin`, `eslint-config-prettier`, `eslint-plugin-prettier` (linting)
+- `prettier` (formatação)
+- `swagger-jsdoc`, `swagger-ui-express` (documentação OpenAPI)
 
-📦 Dependências Instaladas
+---
 
-Tipo Pacotes
-Prod express, twilio, openai, dotenv, zod, axios, helmet, cors, winston, mysql2, rate-limiter-flexible
-Dev typescript, ts-node-dev, jest, ts-jest, eslint, @typescript-eslint/\*, prettier, eslint-plugin-prettier, eslint-config-prettier, supertest, swagger-jsdoc, swagger-ui-express
-🚀 Observação importante
-Esta versão (v0.1.1-mvp1) fecha oficialmente:
-
-Infraestrutura básica do sistema.
-
-Ambiente de testes sólido e funcional.
-
-Preparação total para desenvolvimento dos próximos módulos de negócio (funil de vendas via WhatsApp).
+_Este changelog detalha o ciclo completo das primeiras 7 etapas do projeto, incluindo branches, commits, testes e dependências críticas para garantir rastreabilidade para futuros desenvolvedores._

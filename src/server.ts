@@ -1,43 +1,40 @@
-// ===============================
-// File: src/server.ts
-// ===============================
+// src/server.ts
 
-// 1) Carrega .env antes de qualquer coisa
-import 'dotenv/config';
-
-import { loadEnv } from './config/env';
+import 'dotenv/config';                  // Carrega .env imediatamente
+import createApp from './app';           // Factory do Express
+import { loadEnv } from './config/env';  // Validação de ENV
 import { createDbPool, testDbConnection } from './utils/db';
-import createApp from './app';                         // <- default import
 import { logger } from './utils/logger';
-import { updateNgrokEnv } from './utils/ngrokUpdater'; // <- named import
+import { updateNgrokEnv } from './utils/ngrokUpdater';
 
-async function bootstrap() {
-  // 2) Valida e carrega as variáveis de ambiente no processo
-  loadEnv();
+async function bootstrap(): Promise<void> {
+  // 1) Valida e obtém as variáveis de ambiente
+  const env = loadEnv();
 
-  // 3) Conexão com o banco de dados
+  // 2) Inicializa e testa o pool de conexões MySQL
   createDbPool();
   await testDbConnection();
 
-  // 4) Cria o Express app já configurado
+  // 3) Cria o app Express
   const app = createApp();
 
-  // 5) Porta
-  const port = process.env.PORT || 3000;
+  // 4) Atualiza o Webhook do Twilio com a URL gerada pelo Ngrok
+  try {
+    await updateNgrokEnv(env.TWILIO_WHATSAPP_NUMBER_FROM);
+    logger.info('✅ Webhook Twilio atualizado com a URL do Ngrok');
+  } catch (error) {
+    logger.error('❌ Falha ao atualizar webhook Twilio:', error);
+  }
 
-  // 6) Inicia o servidor
-  app.listen(port, async () => {
+  // 5) Inicia o servidor na porta configurada
+  const port = Number(env.PORT ?? 3000);
+  app.listen(port, () => {
     logger.info(`🚀 Servidor rodando na porta ${port}`);
-    logger.info('Logger funcionando corretamente!');
-
-    // 7) (Opcional) Atualiza dinamicamente a variável no .env
-    try {
-      await updateNgrokEnv(process.env.TWILIO_WHATSAPP_NUMBER_FROM!);
-      logger.info('✅ TWILIO_WHATSAPP_NUMBER_FROM atualizado com sucesso no .env');
-    } catch (err) {
-      logger.error('❌ Falha ao atualizar TWILIO_WHATSAPP_NUMBER_FROM:', err);
-    }
   });
 }
 
-bootstrap();
+// Executa o bootstrap e trata falhas
+bootstrap().catch((err) => {
+  logger.error('❌ Erro no bootstrap:', err);
+  process.exit(1);
+});
