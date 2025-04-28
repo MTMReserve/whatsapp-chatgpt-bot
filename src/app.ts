@@ -10,7 +10,7 @@ import helmet from 'helmet';
 import { rateLimiterMiddleware } from './middlewares/rateLimiterMiddleware';
 import { validationMiddleware } from './middlewares/validationMiddleware';
 import { errorMiddleware } from './middlewares/errorMiddleware';
-import webhookRouter from './routes/webhook.routes'; // Assumimos que você criará esse router em breve
+import webhookRouter from './routes/webhook.routes'; // router criado na Etapa 9
 
 /**
  * Cria e configura a instância do Express
@@ -28,6 +28,9 @@ export default function createApp(): Express {
 
   // Montagem das rotas
   app.use('/webhook', webhookRouter);
+
+  // Middleware de validação (exemplo de uso em rotas específicas)
+  // app.post('/test-validate', validationMiddleware(z.object({ nome: z.string() })), (req, res) => res.sendStatus(200));
 
   // Middleware de tratamento de erros (último da cadeia)
   app.use(errorMiddleware);
