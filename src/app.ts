@@ -1,7 +1,4 @@
-// ===============================
 // File: src/app.ts
-// ===============================
-
 import express, { Express } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -10,7 +7,7 @@ import helmet from 'helmet';
 import { rateLimiterMiddleware } from './middlewares/rateLimiterMiddleware';
 import { validationMiddleware } from './middlewares/validationMiddleware';
 import { errorMiddleware } from './middlewares/errorMiddleware';
-import webhookRouter from './routes/webhook.routes'; // router criado na Etapa 9
+import webhookRouter from './routes/webhook.routes';
 
 /**
  * Cria e configura a instância do Express

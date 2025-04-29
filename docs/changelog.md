@@ -98,5 +98,3 @@
 - `swagger-jsdoc`, `swagger-ui-express` (documentação OpenAPI)
 
 ---
-
-_Este changelog detalha o ciclo completo das primeiras 7 etapas do projeto, incluindo branches, commits, testes e dependências críticas para garantir rastreabilidade para futuros desenvolvedores._

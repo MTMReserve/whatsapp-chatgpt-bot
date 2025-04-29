@@ -1,7 +1,3 @@
-
-// ===============================
-// File: src/tests/unit/twilio.client.test.ts
-// ===============================
 import { twilioClient } from '../../api/twilio';
 
 describe('Twilio Client', () => {

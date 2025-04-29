@@ -1,36 +1,29 @@
-// ===============================
-// File: src/middlewares/rateLimiterMiddleware.ts
-// ===============================
-
-import { Request, Response, NextFunction } from 'express';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
-import { logger } from '../utils/logger';
+import { Request, Response, NextFunction } from 'express';
 
-// Cria um rate limiter em memória com valores fixos
-const rateLimiter = new RateLimiterMemory({
-  points: 5,    // número de requisições permitidas
-  duration: 60, // duração da janela em segundos
-});
+const POINTS = parseInt(process.env.RATE_LIMIT_POINTS ?? '5', 10);
+const DURATION = parseInt(process.env.RATE_LIMIT_DURATION ?? '60', 10);
+
+// Exporta o limiter para que os testes possam espionar (spyOn) a função consume()
+export const limiter = new RateLimiterMemory({ points: POINTS, duration: DURATION });
 
 /**
- * Middleware para limitar o número de requisições por IP
+ * Middleware de rate limiting agora retorna a Promise internamente,
+ * garantindo que o teste com `await` só prossiga quando resolve ou rejeita.
  */
 export async function rateLimiterMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  // Estratégia B: fallback para string padrão se req.ip for undefined
   const key = req.ip ?? 'unknown';
 
   try {
-    await rateLimiter.consume(key);
+    await limiter.consume(key);
     return next();
-  } catch (_error) {
-    logger.warn(`Rate limit excedido para IP: ${key}`);
-    return res.status(429).json({
-      success: false,
-      message: 'Muitas requisições. Tente novamente mais tarde.',
-    });
+  } catch {
+    return res
+      .status(429)
+      .json({ success: false, message: 'Muitas requisições. Tente novamente mais tarde.' });
   }
 }

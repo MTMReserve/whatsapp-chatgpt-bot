@@ -1,6 +1,3 @@
-// ===============================
-// File: src/tests/unit/openai.client.test.ts
-// ===============================
 import { openaiClient } from '../../api/openai';
 import OpenAI from 'openai';
 

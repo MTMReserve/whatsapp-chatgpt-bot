@@ -1,20 +1,17 @@
-// ===============================
-// File: src/middlewares/errorMiddleware.ts
-// ===============================
-
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../utils/logger';
 
 export function errorMiddleware(
-  err: unknown,
-  _req: Request,
+  err: Error,
+  req: Request,
   res: Response,
-  _next: NextFunction,
-) {
-  logger.error(`Erro capturado: ${String(err)}`);
+  next: NextFunction
+): void {
+  // só loga em dev/prod, suprime em teste
+  if (process.env.NODE_ENV !== 'test') {
+    console.error(err);
+  }
 
-  return res.status(500).json({
-    success: false,
-    message: 'Ocorreu um erro interno no servidor.',
-  });
+  res
+    .status(500)
+    .json({ success: false, message: 'Ocorreu um erro interno no servidor.' });
 }
