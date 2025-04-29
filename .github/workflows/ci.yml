@@ -1,3 +1,4 @@
+```yaml
 name: CI
 
 on:
@@ -10,31 +11,48 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: bot_whatsapp
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 5s
+          --health-timeout 30s
+          --health-retries 5
+
     steps:
-      - name: Checkout código
+      - name: Checkout do código
         uses: actions/checkout@v3
 
-      - name: Instalar Node.js
+      - name: Configurar Node.js e cache de dependências
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
       - name: Instalar dependências
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      - name: Compilar TypeScript
+        run: npm run build
 
-      - name: Testes
+      - name: Lint (sem warnings)
+        run: npm run lint -- --max-warnings=0
+
+      - name: Executar testes
         run: npm test
 
-      - name: Cobertura
-        run: |
-          echo "Testes finalizados com sucesso"
-
-      # Opcional: salvar cobertura como artefato
+      # Opcional: fazer upload da cobertura de testes
       # - name: Upload cobertura
       #   uses: actions/upload-artifact@v3
       #   with:
       #     name: coverage-report
       #     path: coverage
+```
+
