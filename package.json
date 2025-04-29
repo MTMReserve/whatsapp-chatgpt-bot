@@ -1,6 +1,6 @@
 {
   "name": "whatsapp-chatgpt-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bot humanizado de vendas via WhatsApp (Twilio) e ChatGPT (OpenAI)",
   "main": "dist/server.js",
   "scripts": {
