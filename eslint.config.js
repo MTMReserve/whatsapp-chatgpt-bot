@@ -1,34 +1,36 @@
-// eslint.config.js
+// eslint.config.js – versão corrigida para CommonJS
+const js = require('@eslint/js');
+const tseslint = require('typescript-eslint');
 
-const tseslint = require('@typescript-eslint/eslint-plugin');
-const tsparser = require('@typescript-eslint/parser');
-const prettier = require('eslint-config-prettier');
-
+/** @type {import("eslint").Linter.Config} */
 module.exports = [
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    files: ['**/*.ts'],
     languageOptions: {
-      parser: tsparser,
       parserOptions: {
-        project: './tsconfig.json',
+        ecmaVersion: 'latest',
         sourceType: 'module',
       },
       globals: {
         process: 'readonly',
         console: 'readonly',
+        jest: 'readonly',
         describe: 'readonly',
         it: 'readonly',
-        expect: 'readonly'
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        expect: 'readonly',
+        setTimeout: 'readonly',
       },
     },
-    plugins: {
-      '@typescript-eslint': tseslint,
-    },
     rules: {
-      ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/no-explicit-any': 'error',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
-  prettier,
 ];

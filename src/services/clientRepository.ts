@@ -1,57 +1,52 @@
-import { pool } from '../utils/db';
-import { RowDataPacket, OkPacket } from 'mysql2';
+// src/services/clientRepository.ts
 
-// Define a interface de Client
+import { pool } from '../utils/db';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+
 export interface Client {
-  id?: number;
+  id: number;
   name: string;
   phone: string;
 }
 
 export class ClientRepository {
-  /** 
-   * Cria um cliente no banco e retorna o objeto com o ID gerado.
-   */
+  /** Insere um cliente e retorna com o ID gerado */
   static async create(data: Omit<Client, 'id'>): Promise<Client> {
-    // NÃO use generics aqui: faça o cast manualmente
-    const [result] = (await pool.query(
+    const [result] = await pool.query<ResultSetHeader>(
       'INSERT INTO clients (name, phone) VALUES (?, ?)',
       [data.name, data.phone]
-    )) as [OkPacket, any];
-    return { id: result.insertId, ...data };
+    );
+    const id = result.insertId;
+
+    return { id, name: data.name, phone: data.phone };
   }
 
-  /**
-   * Retorna todos os clientes cadastrados.
-   */
+  /** Retorna todos os clientes */
   static async getAll(): Promise<Client[]> {
-    const [rows] = (await pool.query(
+    const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT id, name, phone FROM clients'
-    )) as [RowDataPacket[], any];
+    );
     return rows.map(r => ({ id: r.id, name: r.name, phone: r.phone }));
   }
 
-  /**
-   * Busca um cliente por ID, lance erro se não encontrar.
-   */
+  /** Busca um cliente pelo ID */
   static async findById(id: number): Promise<Client> {
-    const [rows] = (await pool.query(
+    const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT id, name, phone FROM clients WHERE id = ?',
       [id]
-    )) as [RowDataPacket[], any];
-    if (rows.length === 0) throw new Error('Client not found');
-    const r = rows[0];
-    return { id: r.id, name: r.name, phone: r.phone };
+    );
+    const row = rows[0];
+    return { id: row.id, name: row.name, phone: row.phone };
   }
 
-  // Métodos de instância para testes de integração
+  // Instâncias para injeção/mocking, se necessário
   create(data: Omit<Client, 'id'>): Promise<Client> {
     return ClientRepository.create(data);
   }
-  getAll(): Promise<Client[]> {
+  getAllInstances(): Promise<Client[]> {
     return ClientRepository.getAll();
   }
-  findById(id: number): Promise<Client> {
+  findByIdInstance(id: number): Promise<Client> {
     return ClientRepository.findById(id);
   }
 }

@@ -1,26 +1,46 @@
-import { ClientRepository, Client } from '../../services/clientRepository'
-import { pool } from '../../utils/db'
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+import { pool } from '../../utils/db';
+import { ClientRepository, Client } from '../../services/clientRepository';
 
-beforeAll(async () => {
-  // criar tabela temporária de clients
-  await pool.query(`CREATE TABLE IF NOT EXISTS clients (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    phone VARCHAR(20)
-  )`)
-})
+describe('ClientRepository (unit)', () => {
+  const dummy: Omit<Client, 'id'> = {
+    name: 'Teste',
+    phone: '5511999999999',
+  };
+  const fakeId = 42;
 
-afterAll(async () => {
-  await pool.query('DROP TABLE IF EXISTS clients')
-  await pool.end()
-})
+  beforeEach(() => {
+    jest
+      .spyOn(pool, 'query')
+      .mockImplementation(
+        async (sqlOrOptions: any, _values?: unknown): Promise<any> => {
+          const sql =
+            typeof sqlOrOptions === 'string'
+              ? sqlOrOptions
+              : (sqlOrOptions.sql as string);
 
-describe('ClientRepository', () => {
+          if (/INSERT\s+INTO\s+clients/i.test(sql)) {
+            return [{ insertId: fakeId }, []];
+          }
+
+          if (/SELECT\s+.*FROM\s+clients\s+WHERE\s+id\s*=\s*\?/i.test(sql)) {
+            return [[{ id: fakeId, name: dummy.name, phone: dummy.phone }], []];
+          }
+
+          return [[], []];
+        }
+      );
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should create and retrieve a client', async () => {
-    const dummy: Client = { name: 'Teste', phone: '5511999999999' }
-    const created = await ClientRepository.create(dummy)
-    expect(created.id).toBeDefined()
-    const fetched = await ClientRepository.findById(created.id!)
-    expect(fetched).toEqual(created)
-  })
-})
+    const created = await ClientRepository.create(dummy);
+    expect(created).toEqual({ id: fakeId, ...dummy });
+
+    const fetched = await ClientRepository.findById(fakeId);
+    expect(fetched).toEqual({ id: fakeId, ...dummy });
+  });
+});

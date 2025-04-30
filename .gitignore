@@ -1,3 +1,46 @@
-node_modules
-dist
+# ───────────────────────────────────────────────────────────────
+# Dependências e artefactos de build
+node_modules/
+dist/
+coverage/
+
+# Arquivos de log e relatórios
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dump de processos
+*.pid
+*.seed
+*.pid.lock
+
+# Cache de ferramentas
+.cache/
+.nyc_output/
+.next/
+.vscode/
+
+# Arquivos temporários do sistema operacional/IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.sw?
+*.swo
+*.swp
+*~
+
+# Variáveis de ambiente
 .env
+.env.*        # .env.local, .env.test, etc.  (mantém .env.example versionado)
+!.env.example # garante que o arquivo de exemplo continue no git
+
+# Relatórios de cobertura em vários formatos (nyc, istanbul, jest-lcov)
+lcov.info
+lcov-report/
+
+# Arquivos de build do TypeScript se você gerar fora de "dist"
+*.tsbuildinfo
+
+# Arquivos específicos da sua aplicação (ajuste se não usar)
+docker-compose.override.yml
