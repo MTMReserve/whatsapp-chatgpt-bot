@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
 
-export function validate(schema: AnyZodObject) {
+function validate(schema: AnyZodObject) {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       schema.parse({
@@ -9,11 +9,11 @@ export function validate(schema: AnyZodObject) {
         query: req.query,
         params: req.params,
       });
-      next();
+      return next();
     } catch {
-      return res.status(400).json({
-        message: 'Payload inválido',
-      });
+      res.status(400).json({ message: 'Payload inválido' });
     }
   };
 }
+
+export const validationMiddleware = validate;

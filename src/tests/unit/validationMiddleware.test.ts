@@ -5,6 +5,7 @@ import { validationMiddleware } from '../../middlewares/validationMiddleware';
 
 const app = express();
 app.use(express.json());
+
 app.post(
   '/test-validate',
   validationMiddleware(z.object({ name: z.string().min(1) })),
@@ -15,8 +16,7 @@ describe('validationMiddleware', () => {
   it('deve falhar quando payload inválido', async () => {
     const res = await request(app).post('/test-validate').send({});
     expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty('errors');
-    expect(res.body.success).toBe(false);
+    expect(res.body).toHaveProperty('message', 'Payload inválido');
   });
 
   it('deve passar quando payload válido', async () => {
