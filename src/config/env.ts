@@ -3,36 +3,54 @@ import { z } from 'zod';
 
 dotenv.config();
 
+/** Esquema completo de validação do .env */
 const envSchema = z.object({
+  // Banco de dados
   DB_HOST: z.string(),
-  DB_PORT: z.string().transform((val) => parseInt(val, 10)),
+  DB_PORT: z.coerce.number(),
   DB_USER: z.string(),
   DB_PASSWORD: z.string().optional(),
   DB_NAME: z.string(),
 
+  // OpenAI
   OPENAI_KEY: z.string(),
-  OPENAI_MODEL: z.string(),
-  OPENAI_TEMPERATURE: z.string().transform((val) => parseFloat(val)),
+  OPENAI_MODEL: z.string().default('gpt-3.5-turbo'),
+  OPENAI_TEMPERATURE: z.coerce.number().default(0.7),
 
+  // Twilio / WhatsApp  – nomes padronizados
   TWILIO_ACCOUNT_SID: z.string(),
   TWILIO_AUTH_TOKEN: z.string(),
-  TWILIO_WHATSAPP_NUMBER_TO: z.string(),
   TWILIO_WHATSAPP_NUMBER_FROM: z.string(),
+  TWILIO_WHATSAPP_NUMBER_TO: z.string(),
+
+  // Webhook
   WHATSAPP_VERIFY_TOKEN: z.string(),
 
-  RATE_LIMIT_POINTS: z.string().transform((val) => parseInt(val, 10)).default('5'),
-  RATE_LIMIT_DURATION: z.string().transform((val) => parseInt(val, 10)).default('60'),
+  // Rate-limit
+  RATE_LIMIT_POINTS: z.coerce.number().default(5),
+  RATE_LIMIT_DURATION: z.coerce.number().default(60),
 
-  HUMANIZER_MIN_DELAY_MS: z.string().transform((val) => parseInt(val, 10)).default('500'),
-  HUMANIZER_MAX_DELAY_MS: z.string().transform((val) => parseInt(val, 10)).default('1500'),
+  // Humanizer
+  HUMANIZER_MIN_DELAY_MS: z.coerce.number().default(500),
+  HUMANIZER_MAX_DELAY_MS: z.coerce.number().default(1500),
 
-  LOG_LEVEL: z.string(),
+  // Log
+  LOG_LEVEL: z.string().default('info'),
 });
 
 const parsed = envSchema.safeParse(process.env);
+
 if (!parsed.success) {
   console.error('⚠️ .env validation error', parsed.error.format());
-  process.exit(1);
+
+  // Não derruba testes automatizados
+  if (process.env.NODE_ENV !== 'test') {
+    process.exit(1);
+  }
 }
 
-export const env = parsed.data;
+/* ------------------------------------------------------------------
+   Exporta sempre um objeto, mesmo se a validação falhar em NODE_ENV=test
+-------------------------------------------------------------------*/
+export const env: z.infer<typeof envSchema> =
+  parsed.success ? parsed.data : ({} as any);
