@@ -1,11 +1,13 @@
-// File: src/app.ts
 import express, { Express } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerOptions } from './config/swagger';
+
 import { rateLimiterMiddleware } from './middlewares/rateLimiterMiddleware';
-import { validationMiddleware } from './middlewares/validationMiddleware';
 import { errorMiddleware } from './middlewares/errorMiddleware';
 import webhookRouter from './routes/webhook.routes';
 
@@ -15,21 +17,24 @@ import webhookRouter from './routes/webhook.routes';
 export default function createApp(): Express {
   const app = express();
 
-  // Segurança e parsers
+  // Segurança HTTP
   app.use(helmet());
   app.use(cors());
+
+  // Parser JSON
   app.use(bodyParser.json());
 
   // Rate limiter global
   app.use(rateLimiterMiddleware);
 
-  // Montagem das rotas
+  // Swagger UI
+  const swaggerSpec = swaggerJsdoc(swaggerOptions);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+  // Rota Webhook
   app.use('/webhook', webhookRouter);
 
-  // Middleware de validação (exemplo de uso em rotas específicas)
-  // app.post('/test-validate', validationMiddleware(z.object({ nome: z.string() })), (req, res) => res.sendStatus(200));
-
-  // Middleware de tratamento de erros (último da cadeia)
+  // Tratamento global de erros
   app.use(errorMiddleware);
 
   return app;

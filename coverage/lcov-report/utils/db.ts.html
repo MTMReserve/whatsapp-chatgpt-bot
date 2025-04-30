@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">46.15% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/13</span>
+                <span class='fraction'>6/12</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">46.15% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/13</span>
+                <span class='fraction'>6/12</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -100,14 +100,10 @@
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
-<a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a>
-<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L38'></a><a href='#L38'>38</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -124,13 +120,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -140,16 +129,21 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/utils/db.ts
 &nbsp;
+import 'dotenv/config';
 import mysql, { Pool } from 'mysql2/promise';
-import { loadEnv } from '../config/env';
+import { env } from '../config/env';
 &nbsp;
-// Carrega e valida as variáveis de ambiente
-const env = loadEnv();
-&nbsp;
-// Exporta o pool para que possa ser usado em testes e outros módulos
+// Pool de conexão MySQL criado na importação, disponível para uso imediato.
 export const pool: Pool = mysql.createPool({
   host: env.DB_HOST,
   port: Number(env.DB_PORT),
@@ -158,27 +152,27 @@ export const pool: Pool = mysql.createPool({
   database: env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
+  queueLimit: 0,
 });
 &nbsp;
 /**
- * Função de bootstrap para criar/recuperar o pool de conexões MySQL
- */
-export function <span class="fstat-no" title="function not covered" >createDbPool(</span>): Pool {
-<span class="cstat-no" title="statement not covered" >  console.log('✅ Pool de conexão MySQL criado.');</span>
-<span class="cstat-no" title="statement not covered" >  return pool;</span>
-}
-&nbsp;
-/**
- * Testa conexão executando um SELECT 1 e encerra a aplicação em caso de falha
+ * Testa a conexão executando um SELECT 1 e encerra a aplicação em caso de falha.
  */
 export async function <span class="fstat-no" title="function not covered" >testDbConnection(</span>): Promise&lt;void&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const [rows] = <span class="cstat-no" title="statement not covered" >await pool.query('SELECT 1');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('✅ Conexão com o banco de dados bem-sucedida:', rows);</span>
+<span class="cstat-no" title="statement not covered" >    console.info('✅ Conexão com o banco de dados bem-sucedida:', rows);</span>
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error('❌ Falha ao conectar ao banco de dados:', error);</span>
 <span class="cstat-no" title="statement not covered" >    process.exit(1);</span>
   }
+}
+&nbsp;
+/**
+ * “Inicializa” (ou simplesmente retorna) o pool de conexões.
+ */
+export function <span class="fstat-no" title="function not covered" >createDbPool(</span>): Pool {
+<span class="cstat-no" title="statement not covered" >  return pool;</span>
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -187,7 +181,7 @@ export async function <span class="fstat-no" title="function not covered" >testD
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-28T18:49:16.752Z
+                at 2025-04-29T17:00:04.005Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -1,30 +1,18 @@
-// ===============================
-// File: src/utils/ngrokUpdater.ts
-// ===============================
+// src/utils/ngrokUpdater.ts
 
 import fs from 'fs';
 import path from 'path';
 import { logger } from './logger';
 
 /**
- * Atualiza dinamicamente a variável TWILIO_WHATSAPP_NUMBER_FROM no .env
- * após gerar novo número via ngrok, se necessário.
- * (Este é um esqueleto de automação, ainda não plugado ao ngrok.)
+ * Atualiza a variável TWILIO_WHATSAPP_NUMBER_FROM no arquivo .env
+ * caso você queira injetar dinamicamente o número gerado pelo ngrok.
  */
-
-export function updateNgrokEnv(newNumber: string) {
+export function updateNgrokEnv(newNumber: string): void {
   const envPath = path.resolve(process.cwd(), '.env');
-
-  if (!fs.existsSync(envPath)) {
-    logger.error('Arquivo .env não encontrado para atualização.');
-    return;
-  }
-
   let envContent = fs.readFileSync(envPath, 'utf-8');
 
-  // Atualiza a variável TWILIO_WHATSAPP_NUMBER_FROM
   const regex = /^TWILIO_WHATSAPP_NUMBER_FROM=.*$/m;
-
   if (regex.test(envContent)) {
     envContent = envContent.replace(regex, `TWILIO_WHATSAPP_NUMBER_FROM=${newNumber}`);
   } else {

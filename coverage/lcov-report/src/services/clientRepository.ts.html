@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">60% </span>
+                <span class="strong">64.28% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/15</span>
+                <span class='fraction'>9/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
@@ -115,13 +115,9 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -133,16 +129,13 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -155,13 +148,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -177,60 +167,55 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { pool } from '../utils/db';
-import { RowDataPacket, OkPacket } from 'mysql2';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/services/clientRepository.ts
 &nbsp;
-// Define a interface de Client
+import { pool } from '../utils/db';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+&nbsp;
 export interface Client {
-  id?: number;
+  id: number;
   name: string;
   phone: string;
 }
 &nbsp;
 export class ClientRepository {
-  /** 
-   * Cria um cliente no banco e retorna o objeto com o ID gerado.
-   */
+  /** Insere um cliente e retorna com o ID gerado */
   static async create(data: Omit&lt;Client, 'id'&gt;): Promise&lt;Client&gt; {
-    // NÃO use generics aqui: faça o cast manualmente
-    const [result] = (await pool.query(
+    const [result] = await pool.query&lt;ResultSetHeader&gt;(
       'INSERT INTO clients (name, phone) VALUES (?, ?)',
       [data.name, data.phone]
-    )) as [OkPacket, any];
-    return { id: result.insertId, ...data };
+    );
+    const id = result.insertId;
+&nbsp;
+    return { id, name: data.name, phone: data.phone };
   }
 &nbsp;
-  /**
-   * Retorna todos os clientes cadastrados.
-   */
+  /** Retorna todos os clientes */
 <span class="fstat-no" title="function not covered" >  static </span>async getAll(): Promise&lt;Client[]&gt; {
-    const [rows] = (<span class="cstat-no" title="statement not covered" >await pool.query(</span>
+    const [rows] = <span class="cstat-no" title="statement not covered" >await pool.query&lt;RowDataPacket[]&gt;(</span>
       'SELECT id, name, phone FROM clients'
-    )) as [RowDataPacket[], any];
+    );
 <span class="cstat-no" title="statement not covered" >    return rows.map(<span class="fstat-no" title="function not covered" >r </span>=&gt; (<span class="cstat-no" title="statement not covered" >{ id: r.id, name: r.name, phone: r.phone })</span>);</span>
   }
 &nbsp;
-  /**
-   * Busca um cliente por ID, lance erro se não encontrar.
-   */
+  /** Busca um cliente pelo ID */
   static async findById(id: number): Promise&lt;Client&gt; {
-    const [rows] = (await pool.query(
+    const [rows] = await pool.query&lt;RowDataPacket[]&gt;(
       'SELECT id, name, phone FROM clients WHERE id = ?',
       [id]
-    )) as [RowDataPacket[], any];
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (rows.length === 0) <span class="cstat-no" title="statement not covered" >throw new Error('Client not found');</span>
-    const r = rows[0];
-    return { id: r.id, name: r.name, phone: r.phone };
+    );
+    const row = rows[0];
+    return { id: row.id, name: row.name, phone: row.phone };
   }
 &nbsp;
-  // Métodos de instância para testes de integração
+  // Instâncias para injeção/mocking, se necessário
   create(data: Omit&lt;Client, 'id'&gt;): Promise&lt;Client&gt; {
     return ClientRepository.create(data);
   }
-<span class="fstat-no" title="function not covered" >  getAll(</span>): Promise&lt;Client[]&gt; {
+<span class="fstat-no" title="function not covered" >  getAllInstances(</span>): Promise&lt;Client[]&gt; {
 <span class="cstat-no" title="statement not covered" >    return ClientRepository.getAll();</span>
   }
-<span class="fstat-no" title="function not covered" >  findById(</span>id: number): Promise&lt;Client&gt; {
+<span class="fstat-no" title="function not covered" >  findByIdInstance(</span>id: number): Promise&lt;Client&gt; {
 <span class="cstat-no" title="statement not covered" >    return ClientRepository.findById(id);</span>
   }
 }
@@ -241,7 +226,7 @@ export class ClientRepository {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-29T15:22:31.313Z
+                at 2025-04-29T20:45:09.526Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

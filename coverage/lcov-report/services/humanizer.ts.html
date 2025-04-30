@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">62.5% </span>
+                <span class="strong">57.14% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/8</span>
+                <span class='fraction'>4/7</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">57.14% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/7</span>
+                <span class='fraction'>3/6</span>
             </div>
         
             
@@ -84,8 +84,15 @@
 <a name='L19'></a><a href='#L19'>19</a>
 <a name='L20'></a><a href='#L20'>20</a>
 <a name='L21'></a><a href='#L21'>21</a>
-<a name='L22'></a><a href='#L22'>22</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -99,41 +106,58 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">// src/services/humanizer.ts
-&nbsp;
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/** Simula comportamento humano (delays e typing) */
 export class Humanizer {
-    /** Faz uma pausa de X milissegundos */
-    static delay(ms: number): Promise&lt;void&gt; {
-      return new Promise(resolve =&gt; setTimeout(resolve, ms))
-    }
-  
-    /** Gera um delay aleatório entre min e max (em ms) */
-    static randomDelay(min: number, max: number): number {
-      return Math.floor(Math.random() * (max - min + 1)) + min
-    }
-  
-    /** Simula digitação de um texto, disparando um callback a cada caractere */
-<span class="fstat-no" title="function not covered" >    static </span>async typewrite(text: string, perCharMs: number, callback: (char: string) =&gt; void) {
-<span class="cstat-no" title="statement not covered" >      for (const char of text) {</span>
-<span class="cstat-no" title="statement not covered" >        await this.delay(perCharMs)</span>
-<span class="cstat-no" title="statement not covered" >        callback(char)</span>
-      }
+  /** Pausa de X milissegundos */
+  static delay(ms: number): Promise&lt;void&gt; {
+    return new Promise((resolve) =&gt; setTimeout(resolve, ms));
+  }
+&nbsp;
+  /** Delay aleatório entre min e max (ms) */
+  static randomDelay(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+&nbsp;
+  /**
+   * Simula digitação caractere a caractere
+   * @param text texto a digitar
+   * @param perCharMs tempo por caractere
+   * @param callback chamado com cada caractere
+   */
+<span class="fstat-no" title="function not covered" >  static </span>async typewrite(
+    text: string,
+    perCharMs: number,
+    callback: (char: string) =&gt; void
+  ): Promise&lt;void&gt; {
+<span class="cstat-no" title="statement not covered" >    for (const char of text) {</span>
+<span class="cstat-no" title="statement not covered" >      await this.delay(perCharMs);</span>
+<span class="cstat-no" title="statement not covered" >      callback(char);</span>
     }
   }
-    ''  </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-04-29T14:52:30.767Z
+                at 2025-04-29T16:40:08.269Z
             </div>
         <script src="../prettify.js"></script>
         <script>
