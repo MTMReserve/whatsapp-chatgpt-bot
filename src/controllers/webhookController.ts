@@ -21,14 +21,30 @@ import { Request, Response } from 'express';
  */
 
 /**
- * Handler para receber o webhook do WhatsApp (Twilio).
- * Retorna HTTP 200 confirmando o recebimento.
+ * Handler para receber o webhook do WhatsApp (Twilio ou Meta).
+ * - GET: Valida o webhook para Meta.
+ * - POST: Retorna HTTP 200 confirmando o recebimento.
  *
  * @param req - Request do Express
  * @param res - Response do Express
- * @returns Response com status 200
+ * @returns Response com status 200 ou 403
  */
 export function handleWebhook(req: Request, res: Response): Response {
-  // TODO: implementar a lógica de processamento da mensagem
+  const VERIFY_TOKEN = 'verificabotaloco123';
+
+  // Validação do webhook (GET da Meta)
+  if (req.method === 'GET') {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      return res.status(200).send(challenge);
+    } else {
+      return res.sendStatus(403);
+    }
+  }
+
+  // Recebimento normal de mensagens (POST)
   return res.sendStatus(200);
 }
