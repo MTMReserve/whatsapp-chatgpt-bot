@@ -53,4 +53,4 @@ if (!parsed.success) {
    Exporta sempre um objeto, mesmo se a validação falhar em NODE_ENV=test
 -------------------------------------------------------------------*/
 export const env: z.infer<typeof envSchema> =
-  parsed.success ? parsed.data : ({} as any);
+  parsed.success ? parsed.data : {} as z.infer<typeof envSchema>;
