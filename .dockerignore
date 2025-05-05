@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules
+# Build outputs
+dist
+coverage
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Git
+.git
+.gitignore
+# Editor temp files
+*.swp
+*.swo
+# Environment files (se você versiona um .env.example)
+.env
+.env.*.local
+# IDEs
+.vscode/
+.idea/
