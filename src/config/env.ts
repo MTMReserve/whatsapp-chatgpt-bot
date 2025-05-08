@@ -17,14 +17,14 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().default('gpt-3.5-turbo'),
   OPENAI_TEMPERATURE: z.coerce.number().default(0.7),
 
-  // Twilio / WhatsApp  – nomes padronizados
-  TWILIO_ACCOUNT_SID: z.string(),
-  TWILIO_AUTH_TOKEN: z.string(),
-  TWILIO_WHATSAPP_NUMBER_FROM: z.string(),
-  TWILIO_WHATSAPP_NUMBER_TO: z.string(),
+  // WhatsApp Cloud API (Meta)
+  META_TOKEN: z.string(),
+  META_PHONE_NUMBER_ID: z.string(),
+  META_WHATSAPP_BUSINESS_ID: z.string().optional(),
 
   // Webhook
   WHATSAPP_VERIFY_TOKEN: z.string(),
+  PORT: z.coerce.number().default(3000),
 
   // Rate-limit
   RATE_LIMIT_POINTS: z.coerce.number().default(5),

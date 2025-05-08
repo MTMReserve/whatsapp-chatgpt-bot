@@ -1,0 +1,201 @@
+📦 WhatsApp ChatGPT Bot — Produção (Ambiente VPS com Docker)
+Este bot automatiza conversas no WhatsApp utilizando a API da Meta (tokens temporários ou permanentes) e integra respostas com a API do ChatGPT. Está pronto para ser executado em ambiente Docker, com banco de dados MySQL e backend Node.js (TypeScript + Express).
+
+📁 Estrutura do Projeto
+bash
+Copiar
+Editar
+whatsapp-chatgpt-bot/
+├── docker-compose.yml
+├── Dockerfile
+├── .env
+├── .env.example
+├── /src
+│ ├── app.ts
+│ ├── server.ts
+│ ├── config/
+│ ├── controllers/
+│ ├── services/
+│ ├── prompts/
+│ ├── utils/
+│ └── middlewares/
+├── /scripts
+├── /docs
+├── /tests
+└── package.json
+⚙️ Pré-requisitos (na VPS)
+Ubuntu 20.04 ou superior
+
+Docker >= 20.x
+
+docker-compose instalado (docker-compose separado, não docker compose)
+
+Porta 3000 aberta para HTTP
+
+Porta 3306 para MySQL (internamente)
+
+Porta 80 (caso use proxy reverso)
+
+Node.js e Git (para debugging local se necessário)
+
+🛠️ Instalação
+Clone o repositório
+
+bash
+Copiar
+Editar
+git clone https://github.com/seu-usuario/whatsapp-chatgpt-bot.git
+cd whatsapp-chatgpt-bot
+Configure o .env
+
+Copie o arquivo de exemplo:
+
+bash
+Copiar
+Editar
+cp .env.example .env
+Edite o .env com os dados reais de:
+
+Token temporário da Meta
+
+ID do número de telefone
+
+ID da conta Business
+
+Chave da OpenAI
+
+Configuração do banco de dados
+
+Parâmetros de delay, timeout, etc.
+
+Build e Deploy com Docker Compose
+
+bash
+Copiar
+Editar
+docker-compose up -d --build
+Logs
+
+bash
+Copiar
+Editar
+docker-compose logs -f app
+📨 Webhook da Meta
+Configure o webhook no Meta Developer Portal apontando para:
+
+arduino
+Copiar
+Editar
+https://seu-dominio-ou-ngrok/webhook
+Verifique se o endpoint responde 200 OK a um GET de verificação.
+
+🧪 Testes
+Para testar localmente (caso queira):
+
+bash
+Copiar
+Editar
+npm install
+npm run dev
+Use o Ngrok para expor a porta 3000:
+
+bash
+Copiar
+Editar
+ngrok http 3000
+🔐 Segurança
+Nunca comite .env com dados reais
+
+O container isola o processo do app, mas ainda assim proteja portas expostas
+
+Use tokens temporários para testes e definitivos apenas após verificação completa
+
+Crie backups regulares do banco de dados (/mnt/mysql no container)
+
+O bot está preparado para detectar comportamentos suspeitos (ex: mensagens abusivas) e encerrar conversas
+
+🔄 CI/CD (caso esteja integrado)
+A pipeline no GitHub Actions valida o lint e testes
+
+Após push para a branch main ou prod, o build Docker pode ser disparado automaticamente (configurável no .github/workflows/)
+
+🧱 Banco de Dados
+MySQL rodando no container mysql
+
+Persistência via volume Docker
+
+Scripts de migração futura serão adicionados na pasta /scripts/migrations
+
+🧠 Estrutura dos Prompts
+Os prompts ficam em:
+
+bash
+Copiar
+Editar
+src/prompts/
+├── 01-sistema.ts
+├── 02-prospeccao.ts
+├── 03-objeções.ts
+├── ...
+Cada arquivo exporta um const prompt que é carregado dinamicamente pelo conversationManager.
+
+🧰 Principais Comandos
+Ação Comando
+Subir containers docker-compose up -d
+Ver logs docker-compose logs -f app
+Parar containers docker-compose down
+Rebuild forçado docker-compose up -d --build
+Shell no app docker-compose exec app sh
+Shell no banco docker-compose exec db mysql -uroot -p
+Rodar local com dev npm run dev
+Validar código (ESLint) npm run lint
+Testar conexão com o DB testDbConnection() via código
+
+🗃️ Backup e Volume do MySQL
+Volume local (persistente):
+
+yaml
+Copiar
+Editar
+volumes:
+mysql_data:/var/lib/mysql
+Para backup:
+
+bash
+Copiar
+Editar
+docker exec CONTAINER_ID /usr/bin/mysqldump -u root --password=SUASENHA db_name > backup.sql
+🧯 Troubleshooting
+Bot não responde?
+
+Verifique token do WhatsApp e logs do webhook
+
+Rode curl -X GET no endpoint /webhook para teste
+
+Erro 401 ou 403 no WhatsApp?
+
+Token expirado
+
+Container cai?
+
+Verifique .env, especialmente variáveis do banco e API
+
+Banco não conecta?
+
+Aguarde reconexões automáticas (retry com delay exponencial já implementado)
+
+🚧 Roadmap Futuro
+Autenticação multiusuário (SaaS)
+
+Interface Web para onboarding de novos bots
+
+Integração com Shopify ou WooCommerce
+
+Monitoramento por Prometheus ou Grafana
+
+Prompt adaptável com NLP local
+
+✍️ Autores
+Projeto iniciado por Maurício Freitas em 2025
+
+Documentação mantida por GPT-4 em colaboração com o time de engenharia fictício

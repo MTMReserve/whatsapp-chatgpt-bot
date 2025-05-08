@@ -1,0 +1,140 @@
+# 👨‍💻 WhatsApp ChatGPT Bot – Modo Desenvolvimento
+
+Este documento é voltado para quem deseja executar e testar o projeto localmente em ambiente de desenvolvimento, com foco em aprendizado, testes e contribuição.
+
+---
+
+## 🔍 O que este projeto faz?
+
+Este sistema automatiza conversas inteligentes no WhatsApp, simulando um atendente ou vendedor. Ele é construído com:
+
+- Node.js + TypeScript (backend)
+- API da OpenAI (ChatGPT) para respostas
+- Integração com WhatsApp via API (Twilio ou Meta)
+- Banco de dados MySQL (armazenar clientes e interações)
+- Swagger UI para documentação automática
+- Testes com Jest e Supertest
+
+---
+
+## 🧠 Como funciona?
+
+Quando uma mensagem é enviada para o número do WhatsApp configurado, ela é recebida via webhook (`/webhook`). O sistema:
+
+1. Valida e registra a mensagem
+2. Identifica o estágio da conversa (abordagem, proposta, etc.)
+3. Gera uma resposta com base nos prompts e no perfil do cliente
+4. Envia a resposta de volta usando a API do WhatsApp
+
+Tudo isso com delays humanizados, limite de requisições, e rastreamento de cada conversa no banco.
+
+---
+
+## ⚙️ Requisitos
+
+- Node.js v18+
+- MySQL 5.7+
+- Conta de desenvolvedor na OpenAI
+- Conta Twilio ou Meta API (modo sandbox de testes)
+
+---
+
+## 🚀 Instalação Local
+
+### 1. Clone o projeto
+
+```bash
+git clone <URL-do-repo>
+cd whatsapp-chatgpt-bot
+```
+
+### 2. Instale dependências
+
+```bash
+npm install
+```
+
+### 3. Copie e edite o arquivo `.env`
+
+```bash
+cp .env.example .env
+# Edite com suas credenciais OpenAI, Twilio/Meta, e banco MySQL
+```
+
+### 4. Inicie o servidor em modo dev
+
+```bash
+npm run dev
+```
+
+### 5. Acesse a documentação da API
+
+```
+http://localhost:3000/api-docs
+```
+
+---
+
+## 🧪 Testes Automatizados
+
+Execute todos os testes com:
+
+```bash
+npm test
+```
+
+> Cobertura mínima esperada: 80%
+
+Estrutura de testes:
+
+- `src/tests/unit/` – Testes de funções isoladas (Jest)
+- `src/tests/integration/` – Testes das rotas com Supertest
+- `src/tests/e2e/` – Fluxo completo de interação
+
+---
+
+## 🧾 Scripts úteis
+
+```json
+"scripts": {
+  "dev": "ts-node-dev --respawn src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "lint": "eslint 'src/**/*.ts'",
+  "format": "prettier --write 'src/**/*.ts'",
+  "test": "jest --coverage"
+}
+```
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+src/
+├── api/                 # OpenAI, Twilio/META API
+├── config/              # env, swagger, etc
+├── controllers/         # webhook principal
+├── middlewares/         # validação, erros, rate-limit
+├── prompts/             # etapas do funil de vendas
+├── routes/              # rotas Express
+├── services/            # lógica de negócios
+├── tests/               # testes automatizados
+├── utils/               # db, logger
+├── app.ts               # configura express
+└── server.ts            # ponto de entrada
+```
+
+---
+
+## ❓ Dúvidas Frequentes
+
+**Como simular mensagens do WhatsApp?**
+Você pode usar o painel de testes da Twilio ou do Meta Developer para enviar mensagens ao webhook.
+
+**Preciso pagar para testar?**
+Não. É possível testar com contas sandbox (Twilio) ou tokens temporários (Meta Cloud API).
+
+---
+
+> Para produção e deploy em VPS, consulte o documento `README Produção`.
