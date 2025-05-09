@@ -1,3 +1,63 @@
+## [v1.4.0] – 2025-05-09
+
+### ✅ Objetivo
+
+Aumentar a inteligência do bot com um sistema de mapeamento de intenções e transição de estados no funil de vendas. Agora o bot entende em que estágio da jornada o cliente está (abordagem, proposta, etc.) e responde com base nisso.
+
+---
+
+### ✨ Funcionalidades Implementadas
+
+- **Intent Map (`intentMap.ts`)**:
+
+  - Palavras-chave mapeadas por estágio do funil (ex: “Oi” → abordagem, “Tá caro” → objeções).
+  - Cada palavra associada a um score (1 a 5).
+  - Total de 9 estados cobertos com 10+ palavras cada.
+
+- **Máquina de Estados (`stateMachine.ts`)**:
+
+  - Lógica de transição inteligente entre estados, incluindo regras de redirecionamento e fallback.
+  - Detecção de intenção via pontuação e normalização de texto.
+  - Redirecionamento de encerramento precoce para levantamento e de fechamento precoce para proposta.
+
+- **Conversation Manager**:
+  - Atualizado para usar `getNextState()` e escolher o prompt de resposta conforme o estágio atual.
+  - Prompt concatenado com produto ativo.
+  - Preparado para persistência futura de estado (v1.5.0).
+
+---
+
+### 🧪 Testes Realizados
+
+- `intentMap.test.ts` → 10 cenários de intenção (100% cobertura).
+- `stateMachine.test.ts` → 6 regras testadas, incluindo saltos proibidos e fallback.
+- `conversationManager.test.ts` → Teste de integração cobrindo fluxo completo do funil, validação de prompt usado e concatenação com produto.
+- Todos os testes passaram com sucesso.
+
+---
+
+### 🔄 Arquivos Criados/Modificados
+
+- `src/services/intentMap.ts` – criado com mapeamento por estado.
+- `src/services/stateMachine.ts` – atualizado com função `getNextState()`.
+- `src/services/conversationManager.ts` – adaptado para uso da máquina de estados.
+- `src/tests/unit/intentMap.test.ts` – criado.
+- `src/tests/unit/stateMachine.test.ts` – criado.
+- `src/tests/integration/conversationManager.test.ts` – criado.
+
+---
+
+### 🏁 Versão publicada
+
+`v1.4.0` (data: 2025-05-09)
+
+---
+
+### 🔜 Próximo passo: `v1.5.0`
+
+- Persistência do estado no banco de dados (por número de cliente).
+- Registro e recuperação do estágio do funil em MySQL.
+
 # Changelog – Bot WhatsApp com ChatGPT
 
 ## [v1.3.0] – 2025-05-09
