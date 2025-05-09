@@ -1,17 +1,19 @@
-import { ConversationManager } from '../../services/conversationManager';
-import * as prompts from '../../prompts';
+import { handleMessage } from '../../services/conversationManager';
+import { prompts } from '../../prompts';
 
-describe('ConversationManager', () => {
-  const cm = new ConversationManager();
-
-  it('should return system prompt', () => {
-    expect(cm.getSystemPrompt()).toEqual(prompts.sistemaPrompt);
+describe('conversationManager', () => {
+  it('deve gerar resposta com base no prompt da abordagem', async () => {
+    const resposta = await handleMessage('5511999999999', 'Oi');
+    expect(typeof resposta).toBe('string');
   });
 
-  it('should build perfil prompt', () => {
-    const name = 'Maurício';
-    const text = cm.getPerfilPrompt(name);
-    expect(text).toContain(prompts.perfilClientePrompt);
-    expect(text).toContain(name);
+  it('deve incluir conteúdo do prompt de perfil na resposta', async () => {
+    const resposta = await handleMessage('5511999999999', 'Oi');
+    expect(resposta).toContain(prompts.perfil);
+  });
+
+  it('deve conter instruções do sistema (abordagem)', async () => {
+    const resposta = await handleMessage('5511999999999', 'Oi');
+    expect(resposta).toContain(prompts.abordagem);
   });
 });

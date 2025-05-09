@@ -1,21 +1,37 @@
-// src/services/conversationManager.ts
+import { prompts, BotState } from '../prompts';
+import { getNextState } from './stateMachine';
+import { openai } from '../config/openai';
+import { produtoMap, ProdutoID } from '../produto/produtoMap';
 
-import * as prompts from '../prompts'
+/**
+ * Função principal que gerencia a conversa.
+ */
+export async function handleMessage(from: string, message: string): Promise<string> {
+  const historico: string[] = [];
 
-export class ConversationManager {
-  /** Retorna o prompt de sistema (camada 1) */
-  getSystemPrompt(): string {
-    return prompts.sistemaPrompt
-  }
+  const rawState = getNextState('abordagem', message, {});
+  const nextState = ['abordagem', 'levantamento', 'proposta', 'objecoes', 'negociacao', 'fechamento', 'posvenda', 'reativacao', 'encerramento'].includes(rawState)
+    ? (rawState as BotState)
+    : 'abordagem';
 
-  /**
-   * Monta o prompt de perfil de cliente (camada 2),
-   * concatenando informações do cliente
-   */
-  getPerfilPrompt(name: string): string {
-    return `${prompts.perfilClientePrompt}\nCliente: ${name}`
-  }
+  const produtoID: ProdutoID = 'produto1'; // pode vir do banco no futuro
+  const produto = produtoMap[produtoID];
 
-  // … você pode adicionar métodos como:
-  // getNecessidadesPrompt, getAncoraPrompt, etc.
+  const systemPrompt = `
+${prompts[nextState]}
+
+Produto ativo: ${produto.nome}
+
+Descrição: ${produto.descricao}
+`;
+
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: message },
+    ],
+  });
+
+  return completion.choices[0].message.content || 'Desculpe, não consegui entender. Pode repetir?';
 }

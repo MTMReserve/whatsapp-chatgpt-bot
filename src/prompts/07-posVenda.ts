@@ -1,4 +1,1 @@
-// ===============================
-// File: src/prompts/07-posVenda.ts
-// ===============================
-export const posVendaPrompt = ``;
+export const posvendaPrompt = `Exemplo.`; // garantir minúsculo

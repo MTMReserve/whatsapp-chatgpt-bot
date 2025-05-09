@@ -1,25 +1,17 @@
-// src/services/humanizer.ts
-
 export class Humanizer {
-  /** Faz uma pausa de X milissegundos */
-  static delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  /** Aguarda um tempo fixo */
+  static async delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  /** Gera um número aleatório entre min e max (em ms) */
+  /** Gera um número aleatório entre min e max */
   static randomDelay(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  /** Simula digitação de um texto, chamando callback para cada caractere */
-  static async typewrite(
-    text: string,
-    perCharMs: number,
-    callback: (char: string) => void
-  ): Promise<void> {
-    for (const char of text) {
-      await this.delay(perCharMs);
-      callback(char);
-    }
+  /** Sorteia uma frase de um array */
+  static randomizeText(options: string[]): string {
+    const index = Math.floor(Math.random() * options.length);
+    return options[index];
   }
 }

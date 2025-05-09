@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import { handleWebhook } from '../controllers/webhookController';
 
 const router = Router();
@@ -15,20 +15,35 @@ const router = Router();
  * /webhook:
  *   get:
  *     tags: [Webhook]
- *     summary: Verificação/saúde do endpoint
- *     description: Retorna **OK** para comprovar que o serviço está ativo.
+ *     summary: Verificação do Webhook (usado pela Meta)
+ *     description: Responde com o desafio do hub para confirmar o webhook
+ *     parameters:
+ *       - name: hub.mode
+ *         in: query
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - name: hub.verify_token
+ *         in: query
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - name: hub.challenge
+ *         in: query
+ *         schema:
+ *           type: string
+ *         required: true
  *     responses:
  *       200:
- *         description: Serviço online
+ *         description: Verificação bem-sucedida
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: OK
+ *               example: 123456
+ *       403:
+ *         description: Token inválido
  */
-router.get('/', (_req: Request, res: Response) => {
-  return res.status(200).send('OK');
-});
 
 /**
  * @swagger

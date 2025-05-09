@@ -1,34 +1,33 @@
-// src/controllers/webhookController.ts
 import { Request, Response } from 'express';
+import { handleMessage } from '../services/conversationManager';
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     WebhookPayload:
- *       type: object
- *       required: [Body, From]
- *       properties:
- *         Body:
- *           type: string
- *           example: Olá, gostaria de saber mais sobre o produto
- *         From:
- *           type: string
- *           example: whatsapp:+5511999999999
- *         To:
- *           type: string
- *           example: whatsapp:+14155238886
- */
+export const handleWebhook = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const body = req.body;
 
-/**
- * Handler para receber o webhook do WhatsApp (Twilio).
- * Retorna HTTP 200 confirmando o recebimento.
- *
- * @param req - Request do Express
- * @param res - Response do Express
- * @returns Response com status 200
- */
-export function handleWebhook(req: Request, res: Response): Response {
-  // TODO: implementar a lógica de processamento da mensagem
-  return res.sendStatus(200);
-}
+    if (body.object) {
+      const entry = body.entry?.[0];
+      const changes = entry?.changes?.[0];
+      const messages = changes?.value?.messages;
+
+      if (messages && messages.length > 0) {
+        const message = messages[0];
+        const from = message.from;
+        const text = message.text?.body;
+
+        if (text) {
+          const resposta = await handleMessage(from, text);
+          console.log('Bot respondeu:', resposta);
+          // Aqui você pode usar a API do WhatsApp para enviar a resposta se quiser.
+        }
+      }
+
+      return res.sendStatus(200);
+    }
+
+    return res.sendStatus(404);
+  } catch (error) {
+    console.error('Erro no webhook:', error);
+    return res.sendStatus(500);
+  }
+};
