@@ -1,3 +1,75 @@
+# Changelog – Bot WhatsApp com ChatGPT
+
+## [v1.3.0] – 2025-05-09
+
+### ✅ Objetivo
+
+Implementar uma **persona definida** para o bot e tornar suas interações mais **humanizadas**, simulando comportamento de digitação, adaptando linguagem e adicionando variação textual.
+
+---
+
+### ✨ Funcionalidades Implementadas
+
+- **Persona do Bot ativada**:
+
+  - Arquivo `botPersona.ts` criado com descrição de comportamento, tom, vocabulário e expressões favoritas.
+  - Prompt de sistema adaptado para usar a persona (Leo).
+
+- **Estrutura de Prompts reorganizada e padronizada**:
+
+  - Todos os prompts nomeados por estado (`abordagemPrompt`, `propostaPrompt`, etc.).
+  - Arquivo `prompts/index.ts` atualizado com `Record<BotState, string>` e `BotState` definido.
+
+- **Funções de humanização** adicionadas (`humanizer.ts`) com:
+
+  - `delay(ms: number)` — pausa antes da resposta.
+  - `randomDelay(min, max)` — sorteio de tempo de digitação.
+  - `randomizeText(options: string[])` — sorteio de frases variadas.
+
+- **Integração no conversationManager**:
+  - O bot agora aguarda de **2s a 6s** antes de responder, variando de acordo com o tamanho da resposta.
+  - O tempo de espera simula um comportamento humano (como se estivesse digitando).
+  - A resposta do ChatGPT já vem influenciada pela persona e pelo produto ativo.
+
+---
+
+### 🧪 Testes realizados
+
+- ✅ Projeto compila sem erros (`npm run build`)
+- ✅ Servidor inicia e responde (`npm run dev`)
+- ✅ Testes manuais confirmaram o delay intencional nas respostas.
+- ✅ Confirmado que o prompt gerado inclui produto + persona + etapa atual do funil.
+- 🔜 Testes unitários de `humanizer.randomizeText()` serão incluídos na próxima versão.
+
+---
+
+### 🔄 Arquivos Criados/Modificados
+
+- `src/services/humanizer.ts` – criado com funções de delay e randomização.
+- `src/services/conversationManager.ts` – modificado para aplicar delay de digitação e concatenar persona + produto ao systemPrompt.
+- `src/persona/botPersona.ts` – criado com personalidade Leo.
+- `src/prompts/*.ts` – criados e padronizados os arquivos de prompt por estágio.
+- `src/prompts/index.ts` – atualizado para importar/exportar corretamente os prompts.
+
+---
+
+### 🏁 Versão publicada
+
+`v1.3.0` (data: 2025-05-09)
+
+---
+
+### 🔜 Próximo passo: `v1.4.0`
+
+Implementar:
+
+- **Intent Map por palavras-chave**
+- **Máquina de Estados**
+- **Persistência do estado da conversa**
+- **Roteamento de prompts com base no estágio identificado**
+
+---
+
 ## [v1.1.0] – 2025-04-30
 
 **Release final das Etapas 11 a 13 – Documentação, CI/CD e versão final**
