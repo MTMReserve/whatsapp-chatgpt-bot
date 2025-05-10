@@ -1,12 +1,12 @@
 // ===============================
-// File: src/prompts/07-posvenda.ts
+// File: src/prompts/05-negociacao.ts
 // ===============================
 import { botPersona } from '../persona/botPersona';
 
-const posVendaPrompt = `
+const negociacaoPrompt = `
 ${botPersona.descricao}
 
 [...]
 `;
 
-export default posVendaPrompt;
+export default negociacaoPrompt;

@@ -1,4 +1,12 @@
 // ===============================
 // File: src/prompts/06-fechamento.ts
 // ===============================
-export const fechamentoPrompt = ``;
+import { botPersona } from '../persona/botPersona';
+
+const fechamentoPrompt = `
+${botPersona.descricao}
+
+[...]
+`;
+
+export default fechamentoPrompt;

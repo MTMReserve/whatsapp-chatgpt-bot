@@ -1,9 +1,11 @@
+// src/config/env.ts
+
 import * as dotenv from 'dotenv';
 import { z } from 'zod';
 
 dotenv.config();
 
-/** Esquema completo de validação do .env */
+/** Esquema de validação do .env atualizado */
 const envSchema = z.object({
   // Banco de dados
   DB_HOST: z.string(),
@@ -17,14 +19,13 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().default('gpt-3.5-turbo'),
   OPENAI_TEMPERATURE: z.coerce.number().default(0.7),
 
-  // Twilio / WhatsApp  – nomes padronizados
-  TWILIO_ACCOUNT_SID: z.string(),
-  TWILIO_AUTH_TOKEN: z.string(),
-  TWILIO_WHATSAPP_NUMBER_FROM: z.string(),
-  TWILIO_WHATSAPP_NUMBER_TO: z.string(),
-
   // Webhook
   WHATSAPP_VERIFY_TOKEN: z.string(),
+
+  // WhatsApp Cloud API (Meta)
+  META_TOKEN: z.string(),
+  META_PHONE_NUMBER_ID: z.string(),
+  META_WHATSAPP_BUSINESS_ID: z.string(),
 
   // Rate-limit
   RATE_LIMIT_POINTS: z.coerce.number().default(5),
@@ -36,6 +37,9 @@ const envSchema = z.object({
 
   // Log
   LOG_LEVEL: z.string().default('info'),
+
+  // Server
+  PORT: z.coerce.number().default(3000),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -49,8 +53,6 @@ if (!parsed.success) {
   }
 }
 
-/* ------------------------------------------------------------------
-   Exporta sempre um objeto, mesmo se a validação falhar em NODE_ENV=test
--------------------------------------------------------------------*/
-export const env: z.infer<typeof envSchema> =
-  parsed.success ? parsed.data : {} as z.infer<typeof envSchema>;
+export const env: z.infer<typeof envSchema> = parsed.success
+  ? parsed.data
+  : {} as z.infer<typeof envSchema>;
