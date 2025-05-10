@@ -1,15 +1,18 @@
 Listagem de caminhos de pasta
-O n£mero de s‚rie do volume ‚ 5A9E-B15F
-C:.
+O n£mero de s‚rie do volume ‚ 00000098 5A9E:B15F
+C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   .dockerignore
 |   .env
 |   .env.example
 |   .gitignore
 |   .prettierrc
+|   3
 |   docker-compose.yml
 |   Dockerfile
+|   env.local
 |   eslint.config.js
 |   estrutura-projeto.txt
+|   estrutura_projeto.txt
 |   jest.config.js
 |   jest.setup.ts
 |   package-lock.json
@@ -94,14 +97,26 @@ C:.
 |           |       rateLimiterMiddleware.ts.html
 |           |       validationMiddleware.ts.html
 |           |       
+|           +---persona
+|           |       botPersona.ts.html
+|           |       index.html
+|           |       
 |           +---prompts
+|           |       00-perfil.ts.html
+|           |       01-abordagem.ts.html
 |           |       01-sistema.ts.html
+|           |       02-levantamento.ts.html
 |           |       02-perfilCliente.ts.html
 |           |       03-levantamentoNecessidades.ts.html
+|           |       03-proposta.ts.html
 |           |       04-ancorasPNL.ts.html
+|           |       04-objecoes.ts.html
+|           |       05-negociacao.ts.html
 |           |       05-respostaObjecoes.ts.html
 |           |       06-fechamento.ts.html
 |           |       07-posVenda.ts.html
+|           |       08-reativacao.ts.html
+|           |       09-encerramento.ts.html
 |           |       index.html
 |           |       index.ts.html
 |           |       
@@ -207,7 +222,6 @@ C:.
 |       documentacao-basica.txt
 |       privacy-policy.html
 |       
-+---node_modules
 |   |   .package-lock.json
 |   |   
 |   +---.bin
@@ -351,7 +365,6 @@ C:.
 |   |       |           source-map.d.ts
 |   |       |           types.d.ts
 |   |       |           
-|   |       \---node_modules
 |   |           \---@jridgewell
 |   |               \---trace-mapping
 |   |                   |   LICENSE
@@ -723,7 +736,6 @@ C:.
 |   |   |   |           whitespace.js
 |   |   |   |           whitespace.js.map
 |   |   |   |           
-|   |   |   \---node_modules
 |   |   |       \---@jridgewell
 |   |   |           \---trace-mapping
 |   |   |               |   LICENSE
@@ -1345,7 +1357,6 @@ C:.
 |   |   |   |               renamer.js
 |   |   |   |               renamer.js.map
 |   |   |   |               
-|   |   |   \---node_modules
 |   |   |       \---globals
 |   |   |               globals.json
 |   |   |               index.js
@@ -1895,7 +1906,6 @@ C:.
 |   |   |   |   package.json
 |   |   |   |   README.md
 |   |   |   |   
-|   |   |   \---node_modules
 |   |   |       \---eslint-visitor-keys
 |   |   |           |   LICENSE
 |   |   |           |   package.json
@@ -1950,7 +1960,6 @@ C:.
 |   |       |       node-fsx.d.ts
 |   |       |       node-hfs.d.ts
 |   |       |       
-|   |       +---node_modules
 |   |       |   \---@humanwhocodes
 |   |       |       \---retry
 |   |       |           |   LICENSE
@@ -2008,7 +2017,6 @@ C:.
 |   |   |   |   package.json
 |   |   |   |   README.md
 |   |   |   |   
-|   |   |   \---node_modules
 |   |   |       +---.bin
 |   |   |       |       js-yaml
 |   |   |       |       js-yaml.cmd
@@ -2302,7 +2310,6 @@ C:.
 |   |   |   |       VerboseReporter.js
 |   |   |   |       wrapAnsiString.js
 |   |   |   |       
-|   |   |   \---node_modules
 |   |   |       \---@jridgewell
 |   |   |           \---trace-mapping
 |   |   |               |   LICENSE
@@ -2345,7 +2352,6 @@ C:.
 |   |   |   |       index.js
 |   |   |   |       types.js
 |   |   |   |       
-|   |   |   \---node_modules
 |   |   |       \---@jridgewell
 |   |   |           \---trace-mapping
 |   |   |               |   LICENSE
@@ -2401,7 +2407,6 @@ C:.
 |   |   |   |       shouldInstrument.js
 |   |   |   |       types.js
 |   |   |   |       
-|   |   |   \---node_modules
 |   |   |       \---@jridgewell
 |   |   |           \---trace-mapping
 |   |   |               |   LICENSE
@@ -2456,7 +2461,6 @@ C:.
 |   |   |   |           sourcemap-segment.d.ts
 |   |   |   |           types.d.ts
 |   |   |   |           
-|   |   |   \---node_modules
 |   |   |       \---@jridgewell
 |   |   |           \---trace-mapping
 |   |   |               |   LICENSE
@@ -5077,7 +5081,6 @@ C:.
 |   |   |   |           ts-nodes.d.ts.map
 |   |   |   |           ts-nodes.js
 |   |   |   |           
-|   |   |   \---node_modules
 |   |   |       +---.bin
 |   |   |       |       semver
 |   |   |       |       semver.cmd
@@ -5959,7 +5962,6 @@ C:.
 |   |   |       index.js
 |   |   |       load-nyc-config-sync.js
 |   |   |       
-|   |   \---node_modules
 |   |       \---istanbul-lib-instrument
 |   |           |   CHANGELOG.md
 |   |           |   LICENSE
@@ -6038,7 +6040,6 @@ C:.
 |   |   |           text.js
 |   |   |           urlencoded.js
 |   |   |           
-|   |   \---node_modules
 |   |       +---debug
 |   |       |   |   .coveralls.yml
 |   |       |   |   .eslintrc
@@ -7133,7 +7134,6 @@ C:.
 |   |   |       fsevents-handler.js
 |   |   |       nodefs-handler.js
 |   |   |       
-|   |   +---node_modules
 |   |   |   \---glob-parent
 |   |   |           CHANGELOG.md
 |   |   |           index.js
@@ -7200,7 +7200,6 @@ C:.
 |   |   |   package.json
 |   |   |   README.md
 |   |   |   
-|   |   \---node_modules
 |   |       +---color-convert
 |   |       |       CHANGELOG.md
 |   |       |       conversions.js
@@ -9222,7 +9221,6 @@ C:.
 |   |   |           layer.js
 |   |   |           route.js
 |   |   |           
-|   |   \---node_modules
 |   |       +---debug
 |   |       |   |   .coveralls.yml
 |   |       |   |   .eslintrc
@@ -9305,7 +9303,6 @@ C:.
 |   |   |   package.json
 |   |   |   README.md
 |   |   |   
-|   |   +---node_modules
 |   |   |   \---glob-parent
 |   |   |           CHANGELOG.md
 |   |   |           index.js
@@ -9489,7 +9486,6 @@ C:.
 |   |   |   package.json
 |   |   |   README.md
 |   |   |   
-|   |   \---node_modules
 |   |       +---brace-expansion
 |   |       |   |   index.js
 |   |       |   |   LICENSE
@@ -9522,7 +9518,6 @@ C:.
 |   |   |   README.md
 |   |   |   SECURITY.md
 |   |   |   
-|   |   \---node_modules
 |   |       +---debug
 |   |       |   |   .coveralls.yml
 |   |       |   |   .eslintrc
@@ -10312,7 +10307,6 @@ C:.
 |   |   |   package.json
 |   |   |   README.md
 |   |   |   
-|   |   +---node_modules
 |   |   |   +---.bin
 |   |   |   |       semver
 |   |   |   |       semver.cmd
@@ -10827,7 +10821,6 @@ C:.
 |   |   |       testWorker.js
 |   |   |       types.js
 |   |   |       
-|   |   \---node_modules
 |   |       \---source-map-support
 |   |               browser-source-map-support.js
 |   |               LICENSE.md
@@ -10845,7 +10838,6 @@ C:.
 |   |   |       index.d.ts
 |   |   |       index.js
 |   |   |       
-|   |   \---node_modules
 |   |       \---strip-bom
 |   |               index.d.ts
 |   |               index.js
@@ -10871,7 +10863,6 @@ C:.
 |   |   |       types.js
 |   |   |       utils.js
 |   |   |       
-|   |   \---node_modules
 |   |       +---.bin
 |   |       |       semver
 |   |       |       semver.cmd
@@ -10991,7 +10982,6 @@ C:.
 |   |   |       validateCLIOptions.js
 |   |   |       warnings.js
 |   |   |       
-|   |   \---node_modules
 |   |       \---camelcase
 |   |               index.d.ts
 |   |               index.js
@@ -11045,7 +11035,6 @@ C:.
 |   |   |           threadChild.js
 |   |   |           WorkerAbstract.js
 |   |   |           
-|   |   \---node_modules
 |   |       \---supports-color
 |   |               browser.js
 |   |               index.js
@@ -11216,7 +11205,6 @@ C:.
 |   |   |       TokenExpiredError.js
 |   |   |       validateAsymmetricKey.js
 |   |   |       
-|   |   \---node_modules
 |   |       +---.bin
 |   |       |       semver
 |   |       |       semver.cmd
@@ -11528,7 +11516,6 @@ C:.
 |   |   |   package.json
 |   |   |   readme.md
 |   |   |   
-|   |   \---node_modules
 |   |       +---.bin
 |   |       |       semver
 |   |       |       semver.cmd
@@ -11910,7 +11897,6 @@ C:.
 |   |   |           pool_connection.js
 |   |   |           prepared_statement_info.js
 |   |   |           
-|   |   +---node_modules
 |   |   |   \---iconv-lite
 |   |   |       |   Changelog.md
 |   |   |       |   LICENSE
@@ -12016,7 +12002,6 @@ C:.
 |   |   |   package.json
 |   |   |   README.md
 |   |   |   
-|   |   \---node_modules
 |   |       \---lru-cache
 |   |               index.d.ts
 |   |               index.js
@@ -12457,7 +12442,6 @@ C:.
 |   |   |           ResponseStream.mjs
 |   |   |           ResponseStream.mjs.map
 |   |   |           
-|   |   +---node_modules
 |   |   |   +---@types
 |   |   |   |   \---node
 |   |   |   |       |   assert.d.ts
@@ -13677,7 +13661,6 @@ C:.
 |   |   |   package.json
 |   |   |   readme.md
 |   |   |   
-|   |   \---node_modules
 |   |       +---find-up
 |   |       |       index.d.ts
 |   |       |       index.js
@@ -13825,7 +13808,6 @@ C:.
 |   |   |               escapeHTML.js
 |   |   |               markup.js
 |   |   |               
-|   |   \---node_modules
 |   |       \---ansi-styles
 |   |               index.d.ts
 |   |               index.js
@@ -14385,7 +14367,6 @@ C:.
 |   |       |   |   |       package.json
 |   |       |   |   |       
 |   |       |   |   \---_
-|   |       |   |       +---node_modules
 |   |       |   |       |       foo.js
 |   |       |   |       |       
 |   |       |   |       \---symlink_target
@@ -14395,7 +14376,6 @@ C:.
 |   |       |           main.js
 |   |       |           
 |   |       \---shadowed_core
-|   |           \---node_modules
 |   |               \---util
 |   |                       index.js
 |   |                       
@@ -14406,7 +14386,6 @@ C:.
 |   |   |   package.json
 |   |   |   readme.md
 |   |   |   
-|   |   \---node_modules
 |   |       \---resolve-from
 |   |               index.d.ts
 |   |               index.js
@@ -14529,7 +14508,6 @@ C:.
 |   |   |   README.md
 |   |   |   SECURITY.md
 |   |   |   
-|   |   \---node_modules
 |   |       +---.bin
 |   |       |       mime
 |   |       |       mime.cmd
@@ -14549,7 +14527,6 @@ C:.
 |   |       |   |   package.json
 |   |       |   |   README.md
 |   |       |   |   
-|   |       |   +---node_modules
 |   |       |   |   \---ms
 |   |       |   |           index.js
 |   |       |   |           license.md
@@ -14717,7 +14694,6 @@ C:.
 |   |   |   package.json
 |   |   |   README.md
 |   |   |   
-|   |   \---node_modules
 |   |       \---is-arrayish
 |   |               index.js
 |   |               LICENSE
@@ -14828,7 +14804,6 @@ C:.
 |   |   |   package.json
 |   |   |   readme.md
 |   |   |   
-|   |   \---node_modules
 |   |       \---escape-string-regexp
 |   |               index.d.ts
 |   |               index.js
@@ -15046,7 +15021,6 @@ C:.
 |   |   |           version-6.x-sidebars.json
 |   |   |           version-7.x-sidebars.json
 |   |   |           
-|   |   +---node_modules
 |   |   |   \---glob
 |   |   |           changelog.md
 |   |   |           common.js
@@ -15321,7 +15295,6 @@ C:.
 |   |   |           ts-error.d.ts
 |   |   |           ts-error.js
 |   |   |           
-|   |   +---node_modules
 |   |   |   +---.bin
 |   |   |   |       semver
 |   |   |   |       semver.cmd
@@ -15786,7 +15759,6 @@ C:.
 |   |   |       tsconfig.spec.js
 |   |   |       tsconfig.spec.js.map
 |   |   |       
-|   |   \---node_modules
 |   |       \---strip-json-comments
 |   |               index.js
 |   |               license
@@ -18015,7 +17987,6 @@ C:.
 |   |   |       source.js
 |   |   |       v8-to-istanbul.js
 |   |   |       
-|   |   \---node_modules
 |   |       \---@jridgewell
 |   |           \---trace-mapping
 |   |               |   LICENSE
@@ -18718,7 +18689,6 @@ C:.
 |   |   |       ZSchema-browser-test.js
 |   |   |       ZSchema-browser.js
 |   |   |       
-|   |   +---node_modules
 |   |   |   \---commander
 |   |   |       |   esm.mjs
 |   |   |       |   index.js
@@ -18838,6 +18808,9 @@ C:.
     |       rateLimiterMiddleware.ts
     |       validationMiddleware.ts
     |       
+    +---persona
+    |       botPersona.ts
+    |       
     +---produto
     |       produtoMap.ts
     |       
@@ -18858,6 +18831,8 @@ C:.
     |       webhook.routes.ts
     |       
     +---services
+    |       audioCounter.ts
+    |       audioService.ts
     |       clientRepository.ts
     |       conversationManager.ts
     |       humanizer.ts

@@ -1,4 +1,105 @@
-## [v1.1.0] – 2025-04-30
+[v1.6.0] – 2025-05-10
+Etapa 16 – Suporte a Mensagens de Voz (Áudio)
+
+Objetivo
+Adicionar capacidade ao bot de interpretar mensagens de voz recebidas no WhatsApp e responder com mensagens de voz geradas por IA (TTS), tornando a interação mais natural, humanizada e acessível.
+
+Funcionalidades Implementadas
+🎙️ Reconhecimento de Áudio (STT – Speech to Text)
+Novo módulo audioService.ts criado em src/services com função:
+
+transcribeAudio(audioBuffer: Buffer): Promise<string> usando Whisper API da OpenAI
+
+Ao receber um áudio no webhook, o bot:
+
+Baixa o arquivo via downloadMedia(mediaId)
+
+Transcreve o conteúdo
+
+Injeta o texto no pipeline de resposta (state machine, intents etc.)
+
+🔊 Geração de Respostas em Áudio (TTS – Text to Speech)
+Mesmo módulo audioService.ts agora também oferece:
+
+synthesizeSpeech(text: string): Promise<Buffer> com ElevenLabs API
+
+Se o usuário enviar áudio, o bot responde em áudio também
+
+Regra simples implementada: "entrada áudio → resposta áudio"
+
+O áudio gerado é enviado via sendAudio(phone, buffer) após upload para o WhatsApp Cloud
+
+🔄 Integrações modificadas
+webhookController.ts:
+
+Suporte total a message.type === 'audio'
+
+Fluxo com try/catch e fallback textual em caso de erro
+
+Detecta tipo da mensagem, transcreve e injeta no handleMessage(...)
+
+Envia resposta como texto ou áudio conforme decisão do conversationManager
+
+conversationManager.ts:
+
+Nova função handleMessage(...) agora retorna { text?, audioBuffer? }
+
+Se options.isAudio === true, gera resposta falada via synthesizeSpeech(...)
+
+whatsapp.ts:
+
+Criadas funções:
+
+downloadMedia(mediaId)
+
+sendAudio(to, buffer)
+
+sendText(to, text) já existia, foi mantida
+
+🧪 Testes Automatizados
+audioService.test.ts (unit):
+
+Mock de chamadas HTTP para Whisper e ElevenLabs
+
+Testes com sucesso e falha (erro simulado)
+
+voiceMessage.integration.test.ts (integração):
+
+Simula payload do WhatsApp com áudio
+
+Stub de downloadMedia, transcribeAudio, synthesizeSpeech, sendAudio
+
+Verifica que o bot responde corretamente com áudio
+
+webhook.e2e.test.ts atualizado com:
+
+Simulação de entrada message.type: "audio" e validação da resposta
+
+Cobertura mantida em nível adequado e sem regressões
+
+Variáveis de Ambiente Novas
+env
+Copiar
+Editar
+
+# OpenAI Whisper
+
+OPENAI_KEY=
+
+# ElevenLabs
+
+ELEVENLABS_API_KEY=
+ELEVENLABS_VOICE_ID=
+Impactos e Compatibilidade
+✅ Mensagens de texto continuam funcionando normalmente
+
+✅ Falhas no áudio são tratadas com resposta alternativa em texto
+
+✅ Código modular permite trocar o provedor de STT/TTS no futuro
+
+✅ Nenhuma dependência anterior foi quebrada
+
+✅ Pronto para testes reais com usuários e produção## [v1.1.0] – 2025-04-30
 
 **Release final das Etapas 11 a 13 – Documentação, CI/CD e versão final**
 

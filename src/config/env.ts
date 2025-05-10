@@ -1,5 +1,3 @@
-// src/config/env.ts
-
 import * as dotenv from 'dotenv';
 import { z } from 'zod';
 
@@ -26,6 +24,13 @@ const envSchema = z.object({
   META_TOKEN: z.string(),
   META_PHONE_NUMBER_ID: z.string(),
   META_WHATSAPP_BUSINESS_ID: z.string(),
+
+  // ElevenLabs (TTS)
+  ELEVENLABS_API_KEY: z.string(),
+  ELEVENLABS_VOICE_ID: z.string().default('EXAVITQu4vr4xnSDxMaL'),
+
+  // Áudio
+  AUDIO_LANGUAGE: z.string().default('pt'),
 
   // Rate-limit
   RATE_LIMIT_POINTS: z.coerce.number().default(5),

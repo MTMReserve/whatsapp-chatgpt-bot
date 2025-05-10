@@ -1,26 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import request from 'supertest';
-import createApp from '../../app';
-import { limiter } from '../../middlewares/rateLimiterMiddleware';
+import createApp from 'app'; // ✅ Import absoluto
+import { limiter } from 'middlewares/rateLimiterMiddleware';
 
-jest.mock('../../api/openai', () => ({
+// ✅ Mock do envio de texto para evitar chamadas reais à API do WhatsApp
+jest.mock('api/whatsapp', () => ({
+  sendText: jest.fn().mockResolvedValue(undefined),
+  sendAudio: jest.fn().mockResolvedValue(undefined),
+  downloadMedia: jest.fn().mockResolvedValue(Buffer.from('mock audio')),
+}));
+
+// ✅ Mock do OpenAI (caso precise usar GPT no futuro)
+jest.mock('api/openai', () => ({
   openaiClient: {
     chat: {
-      create: jest
-        .fn()
-        .mockResolvedValue({ data: { choices: [{ message: { content: 'OK' } }] } }),
+      create: jest.fn().mockResolvedValue({
+        data: { choices: [{ message: { content: 'OK' } }] },
+      }),
     },
   },
 }));
 
-jest.mock('../../api/twilio', () => ({
+// ✅ Mock do Twilio (caso usado)
+jest.mock('api/twilio', () => ({
   twilioClient: {
     messages: { create: jest.fn().mockResolvedValue({ sid: 'SM123' }) },
   },
 }));
 
 describe('E2E /webhook', () => {
-  const app = createApp(); // ✅ aqui era "let", agora é "const"
+  const app = createApp();
 
   beforeAll(() => {
     process.env.HUMANIZER_MIN_DELAY_MS = '0';
@@ -29,12 +38,12 @@ describe('E2E /webhook', () => {
   });
 
   it('GET /webhook → 200 OK', async () => {
-    const res = await request(await app).get('/webhook');
+    const res = await request(app).get('/webhook');
     expect(res.status).toBe(200);
   });
 
   it('POST /webhook → 200 OK', async () => {
-    const res = await request(await app).post('/webhook').send({
+    const res = await request(app).post('/webhook').send({
       entry: [
         {
           changes: [
