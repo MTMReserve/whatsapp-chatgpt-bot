@@ -1,5 +1,5 @@
 // ===========================
-// File: jest.config.js (CORRIGIDO)
+// File: jest.config.js
 // ===========================
 module.exports = {
   preset: 'ts-jest',

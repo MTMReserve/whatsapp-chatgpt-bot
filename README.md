@@ -1,123 +1,204 @@
-# WhatsApp ChatGPT Bot
+# BOT MTM
 
-## 📝 Visão Geral
+Sistema de automação inteligente para vendas via WhatsApp, com suporte a mensagens de texto e voz, integração com ChatGPT (OpenAI), ElevenLabs e WhatsApp Cloud API. Projetado para funcionar como um vendedor automatizado adaptável a qualquer negócio.
 
-Este projeto fornece uma API em **Node.js** e **TypeScript** para automatizar conversas de vendas via WhatsApp, utilizando a API da OpenAI (ChatGPT) e o Twilio WhatsApp API. Principais funcionalidades:
+---
 
-- Receber e validar mensagens do WhatsApp (/webhook)
-- Limitar requisições por IP (rate limiting)
-- Simular delays humanos (humanizer)
-- Gerenciar estado de conversa e prompts (conversation manager)
-- CRUD de clientes via MySQL (client repository)
-- Documentação interativa via Swagger UI
-- Cobertura de testes: unitários, integração e E2E
+## 📌 Visão Geral
 
-## 📁 Estrutura de Pastas
+**BOT MTM** é um sistema completo de chatbot comercial, preparado para:
 
-```
-whatsapp-chatgpt-bot/
-├── src/
-│   ├── api/                # Clientes HTTP (OpenAI, Twilio)
-│   │   ├── openai.ts       # Instancia OpenAI SDK
-│   │   └── twilio.ts       # Instancia Twilio SDK
-│   ├── config/
-│   │   ├── env.ts          # Validação de env com Zod
-│   │   └── swagger.ts      # Configuração Swagger JSdoc
-│   ├── controllers/
-│   │   └── webhookController.ts  # Lida com requisições do webhook
-│   ├── middlewares/
-│   │   ├── errorMiddleware.ts      # Tratamento global de erros (500)
-│   │   ├── validationMiddleware.ts # Validação de payloads (400)
-│   │   └── rateLimiterMiddleware.ts # Rate limiting (429)
-│   ├── prompts/            # Templates de prompts para cada etapa do funil
-│   │   ├── 01-sistema.ts
-│   │   └── … até 07-posVenda.ts
-│   ├── routes/
-│   │   └── webhook.routes.ts       # Definição de rotas Express
-│   ├── services/
-│   │   ├── clientRepository.ts     # CRUD clientes MySQL
-│   │   ├── humanizer.ts            # Simula delays humanos
-│   │   └── conversationManager.ts  # Gerencia fluxo de prompts
-│   ├── tests/
-│   │   ├── unit/           # Testes unitários (Jest)
-│   │   ├── integration/    # Testes de integração (Supertest)
-│   │   └── e2e/            # Testes end-to-end (Supertest)
-│   ├── types/             # Declarações customizadas (.d.ts)
-│   ├── utils/
-│   │   ├── db.ts           # Pool MySQL + testDbConnection()
-│   │   └── logger.ts       # Logger Winston
-│   ├── app.ts             # Configuração Express + Swagger UI
-│   └── server.ts          # Entrypoint que carrega .env e inicia servidor
-├── .env.example           # Exemplo de variáveis de ambiente
-├── .eslintrc.js
-├── .prettierrc
-├── jest.config.js         # Configura Jest + ts-jest
-├── tsconfig.json          # Configuração TS (strict, rootDir=src)
-├── package.json           # Dependências e scripts
-├── Dockerfile             # (Etapa 14) Containerização
-├── docker-compose.yml     # (Etapa 14) MySQL + App
-└── README.md              # Este arquivo
+- Conduzir clientes por um funil de vendas automatizado
+- Entender intenções com base em palavras-chave e contexto
+- Adaptar sua linguagem conforme uma persona pré-definida
+- Enviar e receber mensagens de voz (STT + TTS)
+- Funcionar tanto localmente quanto em produção com Docker
+
+---
+
+## ⚙️ Arquitetura e Componentes
+
+```ascii
+[ WhatsApp Cloud API ]
+        │
+        ▼
+[ webhookController.ts ] ← Recebe mensagens
+        │
+        ▼
+[ conversationManager.ts ] ← Orquestra fluxo com base em:
+        ├─ Estado do cliente (clientRepository)
+        ├─ Intenção (intentMap)
+        ├─ Etapa do funil (stateMachine)
+        ├─ Prompts (por estágio)
+        └─ Humanização (delay, variação de texto)
+        │
+        ▼
+[ audioService.ts ] ← TTS se necessário
+        │
+        ▼
+[ whatsapp.ts ] ← Envia resposta (texto ou voz)
 ```
 
-## ⚙️ Instalação e Execução
+---
 
-1. Clone o repositório e acesse a pasta:
-   ```bash
-   git clone <URL-do-repo>
-   cd whatsapp-chatgpt-bot
-   ```
+## 🔄 Fluxo de Conversa
 
-````
-2. Instale dependências:
-   ```bash
+1. Cliente envia mensagem (texto ou áudio)
+2. Bot identifica tipo da mensagem
+3. Transcreve áudio se necessário (Whisper API)
+4. Classifica intenção (intentMap)
+5. Determina próximo estado (stateMachine)
+6. Seleciona prompt do estágio
+7. Aplica humanização (delay, variação, tom da persona)
+8. Responde com texto ou voz (ElevenLabs)
+
+---
+
+## 📁 Estrutura de Diretórios (Resumo)
+
+- `src/controllers/` → Webhook principal
+- `src/services/` → Lógica de negócio (STT, TTS, intents, estados, DB, humanização)
+- `src/prompts/` → Prompts de conversa por etapa do funil
+- `src/tests/` → Testes unitários, integração e e2e
+- `docker-compose.yml` / `Dockerfile` → Execução em containers
+
+---
+
+## 🧪 Testes Automatizados
+
+Cobertura de testes completa para garantir estabilidade:
+
+### 🔹 Unitários (pasta `tests/unit/`)
+
+- `audioService.test.ts`
+- `intentMap.test.ts`
+- `stateMachine.test.ts`
+- `conversationManager.test.ts`
+- `clientRepository.test.ts`
+- Middlewares (`validation`, `rateLimiter`, `errorHandler`)
+
+### 🔹 Integração (pasta `tests/integration/`)
+
+- Simulação completa do fluxo com cliente fictício
+- Testes com entrada em texto e áudio
+
+### 🔹 End-to-End (pasta `tests/e2e/`)
+
+- `webhook.e2e.test.ts`: simula requisições reais do WhatsApp
+
+---
+
+## 🚀 Execução Local
+
+Pré-requisitos:
+
+- Node.js 18+
+- MySQL (pode usar XAMPP)
+- Ngrok (para testes com WhatsApp)
+
+### Instalar dependências:
+
+```bash
 npm install
-````
+```
 
-3. Copie `.env.example` para `.env` e configure:
-   ```text
-   TWILIO_ACCOUNT_SID=
-   TWILIO_AUTH_TOKEN=
-   TWILIO_WHATSAPP_NUMBER_FROM=
-   TWILIO_WHATSAPP_NUMBER_TO=
-   OPENAI_KEY=
-   DB_HOST=
-   DB_PORT=
-   DB_USER=
-   DB_PASSWORD=
-   DB_NAME=
-   RATE_LIMIT_POINTS=
-   RATE_LIMIT_DURATION=
-   HUMANIZER_MIN_DELAY_MS=
-   HUMANIZER_MAX_DELAY_MS=
-   LOG_LEVEL=
-   ```
+### Configurar variáveis de ambiente:
 
-````
-4. Inicie em modo desenvolvimento (hot-reload):
-   ```bash
+Crie o arquivo `.env.local` com base no `.env.example`
+
+### Rodar localmente com ngrok:
+
+```bash
 npm run dev
-````
+```
 
-5. Acesse a documentação interativa no navegador:
-   ```
-   http://localhost:3000/api-docs
-   ```
+---
 
-````
+## 🐳 Deploy com Docker (Produção)
 
-## 🚀 Scripts úteis (package.json)
-```json
-"scripts": {
-  "dev": "ts-node-dev --respawn src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "lint": "eslint 'src/**/*.ts'",
-  "format": "prettier --write 'src/**/*.ts'",
-  "test": "jest --coverage"
-}
-````
+1. Configure `.env.production`
+2. Suba os containers:
 
-## 📦 Dependências Principais
+```bash
+docker-compose up -d
+```
 
-- **Produção**: express, body-parser, cors, helmet, openai, twilio, mysql2, dotenv, winston, rate-limiter-flexible, zod, swagger-jsdoc, swagger-ui-express
-- **Dev**: typescript, ts-node-dev, jest, ts-jest, supertest, eslint, prettier, @types/\*, @types/swagger-jsdoc, @types/swagger-ui-express
+3. Acesse via porta `3000` e conecte o webhook na Meta
+
+---
+
+## 🔑 Integrações
+
+- **OpenAI Whisper API** → Transcrição de voz
+- **ElevenLabs API** → Síntese de fala
+- **WhatsApp Cloud API** → Envio e recebimento de mensagens
+
+---
+
+## 👤 Persona do Bot
+
+- Nome: Leo
+- Tom: descontraído, persuasivo e educado
+- Estilo: usa variações naturais de fala, emojis leves e adapta vocabulário conforme cliente
+
+---
+
+## 🎯 Funil de Vendas Implementado
+
+| Etapa        | Descrição                                  |
+| ------------ | ------------------------------------------ |
+| Abordagem    | Saudação, identificação do cliente         |
+| Levantamento | Entendimento das necessidades              |
+| Proposta     | Apresentação da oferta com PNL e ancoragem |
+| Objeções     | Contra-argumentação com empatia            |
+| Negociação   | Ajuste de condições                        |
+| Fechamento   | Encerramento da venda com urgência leve    |
+| Pós-venda    | Confirmação de satisfação e indicações     |
+| Reativação   | Recuperação de clientes inativos           |
+| Encerramento | Fim do atendimento com gratidão            |
+
+---
+
+## 📦 Comandos Úteis
+
+### Testes
+
+```bash
+npm test
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Gerar Cobertura
+
+```bash
+npm test -- --coverage
+```
+
+---
+
+## 🛠️ Manutenção e Extensibilidade
+
+- Os prompts são organizados por estado e podem ser facilmente modificados para outros produtos
+- A estrutura modular permite trocar os serviços (ex: usar Google TTS ao invés de ElevenLabs)
+- É possível adaptar o funil para diferentes perfis de negócios (ex: agendamento, SAC)
+
+---
+
+## 📚 Histórico de Versões
+
+Veja o arquivo [`CHANGELOG.md`](./CHANGELOG.md) para detalhes técnicos de cada versão, incluindo testes, arquivos alterados e comandos Git.
+
+---
+
+## 📞 Suporte e Contribuições
+
+Este projeto foi desenvolvido por Maurício para automação comercial com IA. Caso queira adaptar para outros segmentos, entre em contato ou contribua com melhorias via pull request.
+
+---
+
+> Projeto escalável, documentado e pronto para automação de vendas inteligente via WhatsApp.

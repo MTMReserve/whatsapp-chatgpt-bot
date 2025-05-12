@@ -1,0 +1,51 @@
+* [33m4d53a68[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;33mtag: v1.6.0[m[33m, [m[1;31morigin/master[m[33m)[m feat(v1.6.0): adiciona suporte a mensagens de voz com transcrição e síntese
+* [33me26e026[m[33m ([m[1;33mtag: v1.5.0[m[33m)[m feat: nova estrutura de prompts, intentMap e stateMachine atualizada
+* [33mcb1ee7a[m chore: atualiza swagger e exemplo de env, adiciona dockerignore
+* [33md92f572[m fix: remove uso de 'any' em env.ts para passar lint
+* [33m771c725[m docs: adiciona seção de exclusão de dados conforme exigência da Meta
+* [33m446853d[m Create privacy-policy.html
+* [33m014a999[m[33m ([m[1;31morigin/fix/webhook-verification[m[33m, [m[1;32mfix/webhook-verification[m[33m)[m fix: implementa verificação GET do webhook para validação Meta
+* [33m53f9373[m fix: move swagger-jsdoc and swagger-ui-express to dependencies
+* [33mb56207e[m chore: add Dockerfile for docker-compose
+* [33m3801fbc[m chore: add docker-compose.yml to project
+[31m|[m * [33maba257c[m[33m ([m[1;33mtag: v1.4.0[m[33m, [m[1;32mstable/v1.1.0-meta[m[33m)[m feat: implementa intentMap, stateMachine e roteamento por estágio [v1.4.0]
+[31m|[m * [33mf309041[m[33m ([m[1;33mtag: v1.3.0[m[33m)[m feat(v1.3.0): estrutura de persona, prompts por estágio, delay e humanização aplicada
+[31m|[m * [33md6d423f[m docs: update changelog for v1.3.0
+[31m|[m * [33mef10c93[m fix: atualização env.ts e .env para uso com Meta API
+[31m|[m[31m/[m  
+* [33m7da4be3[m[33m ([m[1;33mtag: v1.1.0[m[33m)[m chore(release): bump version to v1.1.0
+*   [33m9c0f872[m[33m ([m[1;32mci[m[33m)[m Merge pull request #3 from MTMReserve/ci
+[33m|[m[34m\[m  
+[33m|[m * [33m7cddc87[m[33m ([m[1;31morigin/ci[m[33m)[m test(humanizer): usa importação nomeada da classe Humanizer
+[33m|[m * [33me99fdc4[m test(humanizer): corrige import e usa métodos estáticos da classe
+[33m|[m * [33m46b4474[m test(humanizer): importa funções nomeadas delay/randomDelay
+[33m|[m * [33m067cb0b[m test(humanizer): corrige importação para namespace e ajusta teste
+[33m|[m * [33m00e745a[m chore(gitignore): ignora coverage/ e dist/ no repositório
+[33m|[m * [33md920ad6[m test(humanizer): adiciona import e ajusta tolerância de tempo
+[33m|[m * [33me909df1[m test(humanizer): torna o teste determinístico com fake timers
+[33m|[m * [33mbb28214[m test(validationMiddleware): corrige setup local de express.json
+[33m|[m * [33m84e6ff0[m chore(ci): ajusta workflow e mantém testes verdes
+[33m|[m * [33m774e80e[m fix: corrigido tipo de retorno e exportação nomeada do middleware
+[33m|[m * [33md4f27f6[m fix: corrigido erros de lint para CI
+[33m|[m * [33mf700842[m ci: atualizar workflow CI (build, cache e MySQL)
+[33m|[m * [33m5a69227[m ci: refatorar workflow CI com cache, build e serviço MySQL
+* [34m|[m [33m99a234d[m Merge pull request #2 from MTMReserve/ci
+[35m|[m[34m\[m[34m|[m 
+[35m|[m * [33m7435582[m fix: remover unused next e ajustar tipagem em errorMiddleware
+[35m|[m * [33m63de374[m fix: tipagem de retorno em webhookController
+[35m|[m * [33md9db137[m ci: add GitHub Actions for lint and tests
+[35m|[m[35m/[m  
+*   [33m1ef77e1[m Merge pull request #1 from MTMReserve/docs
+[1;31m|[m[1;32m\[m  
+[1;31m|[m * [33me4bfb93[m[33m ([m[1;31morigin/docs[m[33m, [m[1;32mdocs[m[33m)[m docs: add Swagger JSDoc annotations for /webhook
+[1;31m|[m[1;31m/[m  
+* [33m04f274f[m[33m ([m[1;33mtag: v1.0.1[m[33m)[m chore(release): v1.0.1
+* [33m75c3ef6[m chore: versão estável final com testes e cobertura OK
+* [33m900f787[m[33m ([m[1;33mtag: v0.4.0[m[33m, [m[1;31morigin/feat/app-server[m[33m, [m[1;32mtest[m[33m, [m[1;32mrestaurar-v040[m[33m, [m[1;32mfeat/app-server[m[33m, [m[1;32mbackup-estavel-v1[m[33m)[m feat(app-server): add express app and server entrypoint
+* [33me16e233[m[33m ([m[1;33mtag: v0.3.0[m[33m, [m[1;31morigin/feat/services[m[33m, [m[1;32mfeat/services[m[33m)[m feat: finaliza etapa 7 - serviços e atualiza changelog detalhado
+[1;32m|[m * [33m9beb123[m[33m ([m[1;31morigin/feat/controllers[m[33m, [m[1;32mfeat/controllers[m[33m)[m feat: add webhook controller, middlewares finalizados e testes integrados
+[1;32m|[m[1;32m/[m  
+* [33m4006fec[m[33m ([m[1;33mtag: v0.2.0[m[33m)[m feat: middlewares de error, validation e rate limiter implementados
+* [33me60e21e[m[33m ([m[1;33mtag: v0.1.1-mvp1[m[33m)[m docs: criação do changelog v0.1.1-mvp1
+* [33m003b229[m[33m ([m[1;33mtag: v0.1.0-mvp1[m[33m)[m feat: infraestrutura de teste e clients OpenAI/Twilio funcionando
+* [33m8ebe6cb[m[33m ([m[1;33mtag: v0.0.1-alpha[m[33m)[m chore(setup): estrutura inicial do projeto

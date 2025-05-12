@@ -1,10 +1,8 @@
-// ===============================
-// File: src/api/openai.ts
-// ===============================
+// src/api/openai.ts
+
 import OpenAI from 'openai';
+import { env } from '../config/env';
 
-// Não importa mais env!
-
-export const openaiClient = new OpenAI({
-  apiKey: process.env.OPENAI_KEY || '',
+export const openai = new OpenAI({
+  apiKey: env.OPENAI_KEY,
 });

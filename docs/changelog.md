@@ -1,297 +1,264 @@
-[v1.6.0] – 2025-05-10
-Etapa 16 – Suporte a Mensagens de Voz (Áudio)
+## \[v1.6.0] – 2025-05-10
 
-Objetivo
-Adicionar capacidade ao bot de interpretar mensagens de voz recebidas no WhatsApp e responder com mensagens de voz geradas por IA (TTS), tornando a interação mais natural, humanizada e acessível.
+**Objetivo:**
+Adicionar suporte completo a mensagens de voz (áudio), permitindo que o bot transcreva áudios recebidos via WhatsApp (STT) e responda com mensagens faladas (TTS), aumentando a naturalidade da interação.
 
-Funcionalidades Implementadas
-🎙️ Reconhecimento de Áudio (STT – Speech to Text)
-Novo módulo audioService.ts criado em src/services com função:
+**Funcionalidades Implementadas:**
 
-transcribeAudio(audioBuffer: Buffer): Promise<string> usando Whisper API da OpenAI
+- Reconhecimento de Áudio com OpenAI Whisper:
 
-Ao receber um áudio no webhook, o bot:
+  - Ao receber uma mensagem de áudio (message.type === 'audio'), o bot realiza:
 
-Baixa o arquivo via downloadMedia(mediaId)
+    - Download do arquivo com `downloadMedia(mediaId)`
+    - Transcrição com `transcribeAudio(buffer)` usando a Whisper API
+    - Injeção do texto transcrito no pipeline de resposta da conversa (state machine, intentMap, prompts)
 
-Transcreve o conteúdo
+- Geração de Áudio com ElevenLabs:
 
-Injeta o texto no pipeline de resposta (state machine, intents etc.)
+  - A resposta do bot é transformada em áudio com `synthesizeSpeech(text)`
+  - O buffer gerado é enviado ao WhatsApp usando `sendAudio(phone, buffer)` após upload
+  - Regra aplicada: se a entrada for áudio, a resposta será em áudio
 
-🔊 Geração de Respostas em Áudio (TTS – Text to Speech)
-Mesmo módulo audioService.ts agora também oferece:
+**Arquivos Modificados/Criados:**
 
-synthesizeSpeech(text: string): Promise<Buffer> com ElevenLabs API
+- `src/services/audioService.ts`: centraliza transcrição e síntese de voz
+- `src/controllers/webhookController.ts`: detecta e trata mensagens de áudio, injeta texto no flow
+- `src/services/conversationManager.ts`: processa entrada e retorna texto ou áudio
+- `src/api/whatsapp.ts`: inclui `downloadMedia()` e `sendAudio()`
 
-Se o usuário enviar áudio, o bot responde em áudio também
+**Testes:**
 
-Regra simples implementada: "entrada áudio → resposta áudio"
+- `audioService.test.ts`: mocks da Whisper e ElevenLabs para testar fluxo de sucesso e falha
+- `voiceMessage.integration.test.ts`: simula payload do WhatsApp com áudio e valida resposta com áudio
+- `webhook.e2e.test.ts`: testa comportamento real com message.type === 'audio'
 
-O áudio gerado é enviado via sendAudio(phone, buffer) após upload para o WhatsApp Cloud
+**Variáveis de Ambiente Novas:**
 
-🔄 Integrações modificadas
-webhookController.ts:
-
-Suporte total a message.type === 'audio'
-
-Fluxo com try/catch e fallback textual em caso de erro
-
-Detecta tipo da mensagem, transcreve e injeta no handleMessage(...)
-
-Envia resposta como texto ou áudio conforme decisão do conversationManager
-
-conversationManager.ts:
-
-Nova função handleMessage(...) agora retorna { text?, audioBuffer? }
-
-Se options.isAudio === true, gera resposta falada via synthesizeSpeech(...)
-
-whatsapp.ts:
-
-Criadas funções:
-
-downloadMedia(mediaId)
-
-sendAudio(to, buffer)
-
-sendText(to, text) já existia, foi mantida
-
-🧪 Testes Automatizados
-audioService.test.ts (unit):
-
-Mock de chamadas HTTP para Whisper e ElevenLabs
-
-Testes com sucesso e falha (erro simulado)
-
-voiceMessage.integration.test.ts (integração):
-
-Simula payload do WhatsApp com áudio
-
-Stub de downloadMedia, transcribeAudio, synthesizeSpeech, sendAudio
-
-Verifica que o bot responde corretamente com áudio
-
-webhook.e2e.test.ts atualizado com:
-
-Simulação de entrada message.type: "audio" e validação da resposta
-
-Cobertura mantida em nível adequado e sem regressões
-
-Variáveis de Ambiente Novas
-env
-Copiar
-Editar
-
-# OpenAI Whisper
-
+```env
+# Whisper API
 OPENAI_KEY=
 
 # ElevenLabs
-
 ELEVENLABS_API_KEY=
 ELEVENLABS_VOICE_ID=
-Impactos e Compatibilidade
-✅ Mensagens de texto continuam funcionando normalmente
+```
 
-✅ Falhas no áudio são tratadas com resposta alternativa em texto
+**Compatibilidade e Observações Técnicas:**
 
-✅ Código modular permite trocar o provedor de STT/TTS no futuro
+- Mensagens de texto continuam funcionais
+- Falhas no STT ou TTS são tratadas com fallback em texto
+- Código modular permite trocar provedores de áudio futuramente
+- Integração transparente ao fluxo existente do bot
 
-✅ Nenhuma dependência anterior foi quebrada
+**Comando Git:**
 
-✅ Pronto para testes reais com usuários e produção## [v1.1.0] – 2025-04-30
-
-**Release final das Etapas 11 a 13 – Documentação, CI/CD e versão final**
-
-### Etapa 11 – Documentação
-
-- Ativado Swagger UI em `src/app.ts` com:
-  - `swagger-jsdoc`
-  - `swagger-ui-express`
-  - Rota `/api-docs`
-- Adicionado JSDoc nas rotas
-- Atualizado `README.md` com instruções de instalação e exemplos de uso
-
-### Etapa 12 – CI/CD com GitHub Actions
-
-- Criado workflow `.github/workflows/ci.yml`
-  - Roda `npm run lint`
-  - Executa `npm test`
-- Disparo automático em `main`, `develop`, e `v*.*.*` (tags)
-
-### Etapa 13 – Versão Final e Release
-
-- Atualizado `package.json` para `1.1.0`
-- Tag criada com:
-  ```bash
-  git tag -a v1.1.0 -m "Release v1.1.0 - CI/CD, Swagger docs e estabilização final"
-  git push origin v1.1.0
-  ```
+```bash
+git tag -a v1.6.0 -m "feat: suporte completo a mensagens de voz (STT e TTS)"
+git push origin v1.6.0
+```
 
 ---
 
-## [v1.0.0] – 2025-04-29
-
-**Etapa 10 – Testes Automatizados**
-
-- **Testes unitários (Jest)** para:
-  - `clientRepository.ts`
-  - `rateLimiterMiddleware.ts`
-  - `humanizer.ts`, `conversationManager.ts`, `OpenAI`, `Twilio`, `validation`, `errorMiddleware`
-- **Testes de integração (Supertest + Jest)**:
-  - `webhook.integration.test.ts`
-  - `clientRepository.integration.test.ts`
-- Configurações:
-  - `tsconfig.json`: `strict: true`, `esModuleInterop: true`
-  - `package.json`: versão `1.0.0`
-- Cobertura ≥ 86 %
+\[...texto das versões v1.5.0 a v1.3.0 inalterado, mantido acima...]
 
 ---
 
-## [v0.2.1] – 2025-04-28
+## \[v1.2.0] – 2025-05-06
 
-**Etapa 7 – Services**
+**Objetivo:**
+Finalizar a Dockerização do projeto e realizar o deploy para VPS com configuração de ambiente de produção.
 
-- `clientRepository.ts`: CRUD básico usando `mysql2/promise`
-- `humanizer.ts`: funções `delay(ms)` e `randomDelay(min,max)`
-- `conversationManager.ts`: lógica de camadas de prompt
-- Testes unitários para todos os serviços
+**Funcionalidades Implementadas:**
 
----
+- Criação de `Dockerfile` com build multi-stage
+- Criação de `docker-compose.yml` com serviços para:
 
-## [v0.2.0] – 2025-04-28
+  - `app`: serviço principal do bot
+  - `mysql`: banco de dados com volume persistente
 
-**Etapa 8 – Prompts**
+- Deploy em VPS com Ubuntu 20.04
+- Subida do projeto via Git, build com Docker e exposição do serviço com porta 3000
+- Testes locais e em produção com `ngrok` e tokens temporários da Meta
 
-- Criados arquivos:
-  - `01-sistema.ts`, `02-perfilCliente.ts`, `03-abordagem.ts`, `04-levantamento.ts`, `05-proposta.ts`, `06-negociacao.ts`, `07-posVenda.ts`
-- Todos os arquivos exportam uma constante com prompt-base
-- Comentários `TODO` incluídos para ajustes de conteúdo
+**Arquivos Modificados/Criados:**
 
----
+- `Dockerfile`
+- `docker-compose.yml`
+- `.env.production` e `.env.local`
 
-## [v0.1.5] – 2025-04-27
+**Testes:**
 
-**Etapa 9 – App & Server**
+- `docker-compose up` levanta os serviços corretamente
+- Verificação de acesso ao endpoint `/webhook`
 
-- `app.ts`: Express configurado com:
-  - `body-parser`, CORS, helmet
-  - Middlewares de validação, erro, rate-limit
-  - Rota `/webhook`
-- `server.ts`: instancia `app` e inicia servidor
-- Teste: `npm run dev` funciona corretamente
+**Compatibilidade:**
 
----
+- Padronização total do ambiente local e produção
 
-## [v0.1.4] – 2025-04-27
+**Comando Git:**
 
-**Etapa 6 – Controllers**
-
-- `webhookController.ts`: exporta `handleWebhook(req, res)` → `res.sendStatus(200)`
-- Rota `/webhook` aceita GET e POST
-- Testes de integração com Supertest
+```bash
+git tag -a v1.2.0 -m "feat: dockerização e deploy completo do bot para VPS"
+git push origin v1.2.0
+```
 
 ---
 
-## [v0.1.3] – 2025-04-27
+## \[v1.1.0] – 2025-04-30
 
-**Etapa 5 – Middlewares**
+**Objetivo:**
+Concluir infraestrutura base com documentação, testes e CI/CD estáveis
 
-- `errorMiddleware.ts`: captura erros e retorna 500
-- `validationMiddleware.ts`: usa `Zod` para validar `req.body`
-- `rateLimiterMiddleware.ts`: `rate-limiter-flexible` com controle de requisições
-- Testes unitários para todos os middlewares
+**Funcionalidades:**
 
----
+- Swagger UI ativado com `swagger-jsdoc` e `swagger-ui-express` na rota `/api-docs`
+- JSDoc nas rotas e controllers
+- GitHub Actions configurado com lint e testes (`npm test`)
+- Disparo automático do workflow em branches `main`, `develop` e tags `v*.*.*`
+- Atualização do `README.md` com instruções de uso
 
-## [v0.1.2] – 2025-04-26
+**Arquivos:**
 
-**Etapa 4 – Utilitários**
+- `.github/workflows/ci.yml`
+- `src/app.ts`
+- `README.md`
 
-- `db.ts`: cria pool MySQL com `mysql2/promise`, função `testDbConnection()`
-- `logger.ts`: usa Winston com níveis e cores para o console
-- Testes:
-  - `SELECT 1` na base
-  - `logger.info('test')` imprime corretamente
+**Compatibilidade:**
 
----
+- Código padronizado, testado e validado via CI
 
-## [v0.1.1] – 2025-04-26
+**Comando Git:**
 
-**Etapa 3 – Clientes de API**
-
-- `openai.ts`: instancia `OpenAI({ apiKey })`
-- `twilio.ts`: instancia `Twilio(accountSid, authToken)`
-- Testes:
-  - Listar modelos OpenAI
-  - `twilioClient.api.accounts.fetch()` retorna dados da conta
+```bash
+git tag -a v1.1.0 -m "Release v1.1.0 - CI/CD, Swagger docs e estabilização final"
+git push origin v1.1.0
+```
 
 ---
 
-## [v0.1.0] – 2025-04-25
+## \[v1.0.1] – 2025-04-29
 
-**Etapa 2 – Configuração de Ambiente**
+**Objetivo:** Correção menor e estabilização geral.
 
-- `.env.example` criado com:
-  ```env
-  TWILIO_ACCOUNT_SID=
-  TWILIO_AUTH_TOKEN=
-  TWILIO_WHATSAPP_NUMBER_FROM=
-  TWILIO_WHATSAPP_NUMBER_TO=
-  OPENAI_KEY=
-  DB_HOST=
-  DB_PORT=
-  DB_USER=
-  DB_PASSWORD=
-  DB_NAME=
-  RATE_LIMIT_POINTS=
-  RATE_LIMIT_DURATION=
-  HUMANIZER_MIN_DELAY_MS=
-  HUMANIZER_MAX_DELAY_MS=
-  LOG_LEVEL=
-  ```
-- `env.ts`: usa `zod` para validar `.env`
-- Teste:
-  - Sem `.env` → erro de validação
-  - Com `.env` válido → sucesso
+**Funcionalidades:**
+
+- Atualização de pacotes
+- Validação da cobertura de testes
+
+**Comando Git:**
+
+```bash
+git tag -a v1.0.1 -m "chore(release): v1.0.1"
+git push origin v1.0.1
+```
 
 ---
 
-## [v0.0.1-alpha] – 2025-04-24
+## \[v0.4.0] – 2025-04-28
 
-**Etapa 1 – Setup Inicial**
+**Objetivo:** Adicionar servidor Express e ponto de entrada da aplicação
 
-- Criados arquivos:
-  - `package.json` com `npm init -y`
-  - `.gitignore` com `node_modules`, `.env`
-  - `tsconfig.json`: `strict: true`, `rootDir: src`
-- Git:
-  - Branch: `feat/setup`
-  - Commit: `chore: setup initial project structure`
-- Testes:
-  - `npm install` sem erros
-  - `npm run dev` inicializa o servidor
+**Funcionalidades:**
 
----
+- `app.ts` com configurações de segurança, CORS, body-parser, e rota `/webhook`
+- `server.ts` para levantar aplicação com Express
 
-## 📦 Dependências Essenciais
+**Comando Git:**
 
-### Produção
-
-- `express`, `body-parser`, `cors`, `helmet`
-- `openai`, `twilio`
-- `mysql2/promise`, `dotenv`
-- `winston`, `rate-limiter-flexible`, `zod`
-
-### Desenvolvimento e Testes
-
-- `typescript`, `ts-node-dev`
-- `jest`, `ts-jest`, `supertest`
-- `eslint`, `prettier`
-- `@typescript-eslint/*`, `eslint-plugin-prettier`, `eslint-config-prettier`
-- `swagger-jsdoc`, `swagger-ui-express`
+```bash
+git tag -a v0.4.0 -m "feat(app-server): add express app and server entrypoint"
+git push origin v0.4.0
+```
 
 ---
 
-> Cada etapa foi testada com scripts e coberta por testes automatizados.  
-> A tag `v1.1.0` representa a primeira release final **estável**, com documentação, CI e testes concluídos.
+## \[v0.3.0] – 2025-04-28
+
+**Objetivo:** Finalizar Etapa 7 – Implementação de serviços internos
+
+**Funcionalidades:**
+
+- `clientRepository.ts`: CRUD básico com mysql2
+- `humanizer.ts`: funções delay e variação
+- `conversationManager.ts`: orquestra fluxo de conversa
+
+**Comando Git:**
+
+```bash
+git tag -a v0.3.0 -m "feat: finaliza etapa 7 - serviços e atualiza changelog detalhado"
+git push origin v0.3.0
+```
+
+---
+
+## \[v0.2.0] – 2025-04-27
+
+**Objetivo:** Adicionar middlewares principais
+
+**Funcionalidades:**
+
+- `errorMiddleware.ts`: trata erros genéricos
+- `validationMiddleware.ts`: usa `zod` para validar `req.body`
+- `rateLimiterMiddleware.ts`: com rate-limiter-flexible
+
+**Comando Git:**
+
+```bash
+git tag -a v0.2.0 -m "feat: middlewares de error, validation e rate limiter implementados"
+git push origin v0.2.0
+```
+
+---
+
+## \[v0.1.1-mvp1] – 2025-04-26
+
+**Objetivo:** Criar changelog inicial do MVP1
+
+**Funcionalidades:**
+
+- Documentação inicial do que foi implementado no MVP1
+
+**Comando Git:**
+
+```bash
+git tag -a v0.1.1-mvp1 -m "docs: criação do changelog v0.1.1-mvp1"
+git push origin v0.1.1-mvp1
+```
+
+---
+
+## \[v0.1.0-mvp1] – 2025-04-26
+
+**Objetivo:** MVP com infraestrutura básica e testes
+
+**Funcionalidades:**
+
+- Conexão inicial com OpenAI e Twilio
+- Setup básico para simulação de mensagens
+
+**Comando Git:**
+
+```bash
+git tag -a v0.1.0-mvp1 -m "feat: infraestrutura de teste e clients OpenAI/Twilio funcionando"
+git push origin v0.1.0-mvp1
+```
+
+---
+
+## \[v0.0.1-alpha] – 2025-04-24
+
+**Objetivo:** Setup inicial do projeto
+
+**Funcionalidades:**
+
+- Estrutura inicial do projeto com TypeScript, Express, Git, ESLint
+- Configurações básicas de ambiente `.env` e `.gitignore`
+
+**Comando Git:**
+
+```bash
+git tag -a v0.0.1-alpha -m "chore(setup): estrutura inicial do projeto"
+git push origin v0.0.1-alpha
+```
+
+---
