@@ -13,7 +13,7 @@ describe('ClientRepository Integration', () => {
   });
 
   afterAll(async () => {
-    await pool.query('DROP TABLE IF EXISTS clients');
+    await pool.query('DELETE FROM clients');
     await pool.end();
   });
 

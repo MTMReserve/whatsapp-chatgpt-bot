@@ -28,7 +28,7 @@ export async function extractNameSmart(text: string): Promise<string | null> {
   });
 
   const nome = resposta.choices[0]?.message?.content?.trim();
- return nome && nome.length > 2 ? nome : null;
+  return nome && nome.length > 2 ? nome : null;
 }
 
 export function extractName(text: string): string | null {
@@ -42,7 +42,18 @@ export function extractName(text: string): string | null {
 
   for (const padrao of padroes) {
     const match = text.match(padrao);
-    if (match) return match[1].trim();
+    if (match) {
+      // fullName pode ser "Pedro da Silva" ou "Ana Clara"
+      const fullName = match[1].trim();
+      const parts = fullName.split(/\s+/);
+
+      // se for exatamente dois nomes e ambos começarem com maiúscula, retorne ambos
+      if (parts.length === 2 && /^[A-ZÀ-Ú]/.test(parts[1])) {
+        return `${parts[0]} ${parts[1]}`;
+      }
+      // caso contrário, retorne só o primeiro nome
+      return parts[0];
+    }
   }
 
   return null;
@@ -61,7 +72,7 @@ export function extractBudget(text: string): number | null {
 export function extractNegotiatedPrice(text: string): number | null {
   const match = text.match(/(?:por|em|a)\s*R?\$?\s?(\d{1,3}(\.\d{3})*|\d+)(,\d{2})?/i);
   if (!match) return null;
-  const raw = match[1].replace('.', '').replace(',', '.');
+  const raw = match[1].replace(/\./g, '').replace(',', '.');
   const valor = parseFloat(raw);
   return isNaN(valor) ? null : valor;
 }

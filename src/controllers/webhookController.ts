@@ -1,5 +1,4 @@
-// src/controllers/webhookController.ts
-import { Request, Response } from 'express';
+import { Request, Response } from 'express'; 
 import { downloadMedia, sendAudio, sendText } from '../api/whatsapp';
 import { audioService } from '../services/audioService';
 import { handleMessage } from '../services/conversationManager';
@@ -7,30 +6,52 @@ import { handleMessage } from '../services/conversationManager';
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'verificabotaloco123';
 
 /**
- * Handler para o webhook do WhatsApp
- * - GET: validação do Webhook (Meta)
- * - POST: tratamento de mensagens (texto ou áudio)
+ * Validação do webhook (GET da Meta)
+ */
+export function verifyWebhook(req: Request, res: Response): Response {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  // Logs para depuração
+  console.log('🟡 Verificação recebida');
+  console.log('🔍 Token recebido da URL:', token);
+  console.log('🔐 Token do .env:', VERIFY_TOKEN);
+
+  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    console.log('✅ Verificação aceita. Respondendo com challenge:', challenge);
+    return res.status(200).send(challenge);
+  } else {
+    console.warn('❌ Verificação falhou');
+    return res.sendStatus(403);
+  }
+}
+
+/**
+ * Processamento de mensagens recebidas (POST)
  */
 export async function handleWebhook(req: Request, res: Response): Promise<Response> {
-  // Validação do webhook (GET da Meta)
-  if (req.method === 'GET') {
-    const mode = req.query['hub.mode'];
-    const token = req.query['hub.verify_token'];
-    const challenge = req.query['hub.challenge'];
+  // ✅ LOG ADICIONADO PARA DEBUG
+  console.log('⚡ Novo webhook POST:', JSON.stringify(req.body, null, 2));
 
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      return res.status(200).send(challenge);
-    } else {
-      return res.sendStatus(403);
-    }
-  }
-
-  // Processamento das mensagens (POST da Meta)
   try {
     const entry = req.body?.entry?.[0];
     const changes = entry?.changes?.[0];
-    const message = changes?.value?.messages?.[0];
+
+    // ✅ FILTRAR EVENTOS DE STATUS (conforme instrução)
+    const messages = changes?.value?.messages;
+    if (!messages) {
+      // Ignorar eventos de status
+      console.log('⚡ Evento de status recebido, ignorando.');
+      return res.sendStatus(200);
+    }
+
+    const message = messages?.[0];
     const phone = message?.from;
+
+    // ✅ LOG ADICIONAL PARA SABER O QUE CHEGOU
+    console.log('📥 Mensagem recebida:', JSON.stringify(message, null, 2));
+    console.log('📱 Telefone do remetente:', phone);
 
     if (!message || !phone) {
       return res.sendStatus(200);

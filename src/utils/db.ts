@@ -4,13 +4,16 @@ import 'dotenv/config';
 import mysql, { Pool } from 'mysql2/promise';
 import { env } from '../config/env';
 
+// Verifica se está em ambiente de teste para usar banco de teste
+const isTestEnv = process.env.NODE_ENV === 'test';
+
 // Pool de conexão MySQL criado na importação, disponível para uso imediato.
 export const pool: Pool = mysql.createPool({
   host: env.DB_HOST,
   port: Number(env.DB_PORT),
   user: env.DB_USER,
   password: env.DB_PASSWORD,
-  database: env.DB_NAME,
+  database: isTestEnv ? 'bot_whatsapp_test' : env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,

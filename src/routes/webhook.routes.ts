@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { handleWebhook } from '../controllers/webhookController';
+import { handleWebhook, verifyWebhook } from '../controllers/webhookController';
 
 const router = Router();
 
@@ -15,36 +15,36 @@ const router = Router();
  * /webhook:
  *   get:
  *     tags: [Webhook]
- *     summary: Verificação/saúde do endpoint
- *     description: Retorna **OK** para comprovar que o serviço está ativo.
+ *     summary: Validação da Meta (GET)
+ *     description: Retorna o hub.challenge enviado pela Meta.
  *     responses:
  *       200:
- *         description: Serviço online
+ *         description: Verificação bem-sucedida
  *         content:
  *           text/plain:
  *             schema:
  *               type: string
- *               example: OK
+ *               example: 123456
  */
-router.get('/', (_req: Request, res: Response) => {
-  return res.status(200).send('OK');
-});
+router.get('/', verifyWebhook);
 
 /**
  * @swagger
  * /webhook:
  *   post:
  *     tags: [Webhook]
- *     summary: Recebe mensagens do WhatsApp (Twilio)
+ *     summary: Recebe mensagens do WhatsApp (Cloud API)
  *     requestBody:
  *       required: true
  *       content:
- *         application/x-www-form-urlencoded:
+ *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/WebhookPayload'
+ *             type: object
  *     responses:
  *       200:
  *         description: Mensagem processada com sucesso
+ *       403:
+ *         description: Token inválido
  *       429:
  *         description: Rate limit excedido
  */
