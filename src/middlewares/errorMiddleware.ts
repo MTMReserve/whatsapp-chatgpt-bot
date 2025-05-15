@@ -1,6 +1,7 @@
 // src/middlewares/errorMiddleware.ts
 
 import { Request, Response, NextFunction } from 'express';
+import { logger } from '../utils/logger'; // ✅ Importação do logger
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
@@ -18,9 +19,19 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction
 ): Response {
-  if (process.env.NODE_ENV !== 'test') {
+  logger.error('[errorMiddleware] Erro global capturado', {
+    path: req.path,
+    method: req.method,
+    body: req.body,
+    query: req.query,
+    params: req.params,
+    error: err
+  });
+
+  if (process.env.NODE_ENV === 'test') {
     console.error(err);
   }
+
   return res.status(500).json({
     success: false,
     message: 'Ocorreu um erro interno no servidor.',

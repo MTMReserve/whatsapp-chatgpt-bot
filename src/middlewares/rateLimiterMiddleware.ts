@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
+import { logger } from '../utils/logger'; // ✅ Logger adicionado
 
 const POINTS = parseInt(process.env.RATE_LIMIT_POINTS ?? '5', 10);
 const DURATION = parseInt(process.env.RATE_LIMIT_DURATION ?? '60', 10);
@@ -15,10 +16,17 @@ export async function rateLimiterMiddleware(
 
   try {
     await limiter.consume(key);
+    logger.debug(`[rateLimiter] Permitido: ${req.method} ${req.path} IP=${key}`);
     next();
-  } catch {
-    res
-      .status(429)
-      .json({ success: false, message: 'Muitas requisições. Tente novamente mais tarde.' });
+  } catch (err) {
+    logger.warn(`[rateLimiter] Bloqueado por excesso de requisições IP=${key}`, {
+      method: req.method,
+      path: req.path
+    });
+
+    res.status(429).json({
+      success: false,
+      message: 'Muitas requisições. Tente novamente mais tarde.'
+    });
   }
 }

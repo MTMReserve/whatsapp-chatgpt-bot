@@ -1,10 +1,9 @@
-// src/services/audioService.ts
-
 import axios from 'axios';
 import { env } from '../config/env';
 import FormData from 'form-data';
 import fs from 'fs';
 import path from 'path';
+import { logger } from '../utils/logger';
 
 /**
  * Serviço de áudio: transcrição com Whisper e síntese com ElevenLabs
@@ -12,10 +11,13 @@ import path from 'path';
 export const audioService = {
   /** Transcreve um áudio usando Whisper API da OpenAI */
   async transcribeAudio(audioBuffer: Buffer): Promise<string> {
+    const tempPath = path.join(__dirname, '../../temp-audio.mp3');
     try {
+      logger.debug(`[audioService] Iniciando transcrição de áudio`);
       const form = new FormData();
-      const tempPath = path.join(__dirname, '../../temp-audio.mp3');
+
       fs.writeFileSync(tempPath, audioBuffer);
+      logger.debug(`[audioService] Arquivo temporário criado: ${tempPath}`);
 
       form.append('file', fs.createReadStream(tempPath));
       form.append('model', 'whisper-1');
@@ -30,10 +32,15 @@ export const audioService = {
         maxBodyLength: Infinity
       });
 
-      fs.unlinkSync(tempPath); // Remove arquivo temporário
+      fs.unlinkSync(tempPath);
+      logger.info(`[audioService] Transcrição concluída com sucesso`);
       return response.data.text;
     } catch (error: any) {
-      console.error('Erro ao transcrever áudio:', error?.response?.data || error);
+      logger.error(`[audioService] Erro na transcrição`, { error: error?.response?.data || error });
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath);
+        logger.debug(`[audioService] Arquivo temporário removido após erro`);
+      }
       throw new Error('Erro na transcrição do áudio');
     }
   },
@@ -41,7 +48,9 @@ export const audioService = {
   /** Sintetiza uma resposta falada com ElevenLabs */
   async synthesizeSpeech(text: string): Promise<Buffer> {
     try {
-      const voiceId = env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL'; // padrão
+      logger.debug(`[audioService] Iniciando síntese de voz: "${text.slice(0, 30)}..."`);
+      const voiceId = env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL';
+
       const response = await axios.post(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
         {
@@ -61,9 +70,10 @@ export const audioService = {
         }
       );
 
+      logger.info(`[audioService] Áudio gerado com sucesso`);
       return Buffer.from(response.data);
     } catch (error: any) {
-      console.error('Erro ao gerar áudio ElevenLabs:', error?.response?.data || error);
+      logger.error(`[audioService] Erro na síntese de voz`, { error: error?.response?.data || error });
       throw new Error('Erro na síntese de voz');
     }
   }

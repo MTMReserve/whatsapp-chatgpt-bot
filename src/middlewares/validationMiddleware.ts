@@ -1,5 +1,8 @@
+// src/middlewares/validationMiddleware.ts
+
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
+import { logger } from '../utils/logger'; // ✅ importação do logger
 
 /**
  * Middleware de validação usando Zod.
@@ -14,10 +17,18 @@ export function validate(schema: AnyZodObject) {
         query: req.query,
         params: req.params,
       });
+      logger.debug('[validationMiddleware] Payload válido');
       next();
-    } catch {
+    } catch (error: any) {
+      logger.warn('[validationMiddleware] Payload inválido', {
+        error: error?.errors || error,
+        body: req.body,
+        query: req.query,
+        params: req.params
+      });
       res.status(400).json({
         message: 'Payload inválido',
+        errors: error?.errors || error
       });
     }
   };

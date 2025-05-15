@@ -1,7 +1,7 @@
 import { pool } from '../utils/db';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { logger } from '../utils/logger';
 
-// ✅ Atualizado com campos adicionais do funil
 export interface Client {
   id: number;
   name: string;
@@ -14,13 +14,14 @@ export interface Client {
   payment_method?: string;
   feedback?: string;
   reactivation_reason?: string;
+  retries?: number;
   created_at?: Date;
   updated_at?: Date;
 }
 
 export class ClientRepository {
-  /** Insere um cliente e retorna com o ID gerado */
   static async create(data: Omit<Client, 'id'>): Promise<Client> {
+    logger.info(`[ClientRepository] Criando cliente: ${data.phone}`);
     const [result] = await pool.query<ResultSetHeader>(
       'INSERT INTO clients (name, phone) VALUES (?, ?)',
       [data.name, data.phone]
@@ -29,16 +30,14 @@ export class ClientRepository {
     return { id, name: data.name, phone: data.phone };
   }
 
-  /** Retorna todos os clientes */
   static async getAll(): Promise<Client[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT * FROM clients'
-    );
+    logger.debug('[ClientRepository] Buscando todos os clientes');
+    const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM clients');
     return rows as Client[];
   }
 
-  /** Busca um cliente pelo ID */
   static async findById(id: number): Promise<Client> {
+    logger.debug(`[ClientRepository] Buscando cliente por ID: ${id}`);
     const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT * FROM clients WHERE id = ?',
       [id]
@@ -46,8 +45,8 @@ export class ClientRepository {
     return rows[0] as Client;
   }
 
-  /** Busca um cliente pelo telefone */
   static async findByPhone(phone: string): Promise<Client | null> {
+    logger.debug(`[ClientRepository] Buscando cliente por telefone: ${phone}`);
     const [rows] = await pool.query<RowDataPacket[]>(
       'SELECT * FROM clients WHERE phone = ?',
       [phone]
@@ -55,23 +54,29 @@ export class ClientRepository {
     return rows.length > 0 ? (rows[0] as Client) : null;
   }
 
-  /** Cria cliente se não existir */
   static async findOrCreate(phone: string): Promise<Client> {
     let client = await this.findByPhone(phone);
     if (!client) {
+      logger.warn(`[ClientRepository] Cliente não encontrado, criando novo para: ${phone}`);
       await this.create({ name: 'Cliente', phone });
       client = await this.findByPhone(phone);
     }
     return client!;
   }
 
-  /** Atualiza o estado atual da conversa */
   static async updateState(phone: string, state: string): Promise<void> {
-    await pool.query('UPDATE clients SET current_state = ? WHERE phone = ?', [state, phone]);
+    logger.info(`[ClientRepository] Atualizando estado do cliente: ${phone} → ${state}`);
+    await pool.query(
+      'UPDATE clients SET current_state = ? WHERE phone = ?',
+      [state, phone]
+    );
   }
 
-  /** Atualiza dinamicamente um campo específico do cliente */
-  static async updateField(phone: string, field: keyof Client, value: any): Promise<void> {
+  static async updateField(
+    phone: string,
+    field: keyof Client,
+    value: any
+  ): Promise<void> {
     const allowedFields: (keyof Client)[] = [
       'current_state',
       'needs',
@@ -83,13 +88,24 @@ export class ClientRepository {
       'reactivation_reason'
     ];
     if (!allowedFields.includes(field)) {
-      throw new Error(`Campo não permitido: ${field}`);
+      const msg = `[ClientRepository] Campo não permitido para update: ${field}`;
+      logger.error(msg);
+      throw new Error(msg);
     }
+    logger.info(`[ClientRepository] Atualizando campo ${field} para ${phone}: ${value}`);
     const query = `UPDATE clients SET \`${field}\` = ? WHERE phone = ?`;
     await pool.query(query, [value, phone]);
   }
 
-  // Instâncias para injeção/mocking, se necessário
+  static async updateRetries(phone: string, retries: number): Promise<void> {
+    logger.debug(`[ClientRepository] Atualizando retries para ${phone}: ${retries}`);
+    await pool.query(
+      'UPDATE clients SET retries = ? WHERE phone = ?',
+      [retries, phone]
+    );
+  }
+
+  // Instâncias auxiliares
   create(data: Omit<Client, 'id'>): Promise<Client> {
     return ClientRepository.create(data);
   }
@@ -102,7 +118,14 @@ export class ClientRepository {
   updateStateInstance(phone: string, state: string): Promise<void> {
     return ClientRepository.updateState(phone, state);
   }
-  updateFieldInstance(phone: string, field: keyof Client, value: any): Promise<void> {
+  updateFieldInstance(
+    phone: string,
+    field: keyof Client,
+    value: any
+  ): Promise<void> {
     return ClientRepository.updateField(phone, field, value);
+  }
+  updateRetriesInstance(phone: string, retries: number): Promise<void> {
+    return ClientRepository.updateRetries(phone, retries);
   }
 }

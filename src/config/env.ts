@@ -1,5 +1,8 @@
+// src/config/env.ts
+
 import * as dotenv from 'dotenv';
 import { z } from 'zod';
+import { logger } from '../utils/logger';
 
 dotenv.config();
 
@@ -50,12 +53,14 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('⚠️ .env validation error', parsed.error.format());
+  logger.error('⚠️ .env validation error', parsed.error.format());
 
   // Não derruba testes automatizados
   if (process.env.NODE_ENV !== 'test') {
     process.exit(1);
   }
+} else {
+  logger.info('[env] ✅ Variáveis de ambiente carregadas com sucesso');
 }
 
 export const env: z.infer<typeof envSchema> = parsed.success

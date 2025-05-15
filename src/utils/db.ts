@@ -3,11 +3,12 @@
 import 'dotenv/config';
 import mysql, { Pool } from 'mysql2/promise';
 import { env } from '../config/env';
+import { logger } from './logger'; // ✅ importação do logger
 
 // Verifica se está em ambiente de teste para usar banco de teste
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-// Pool de conexão MySQL criado na importação, disponível para uso imediato.
+// Cria o pool de conexão MySQL
 export const pool: Pool = mysql.createPool({
   host: env.DB_HOST,
   port: Number(env.DB_PORT),
@@ -19,15 +20,17 @@ export const pool: Pool = mysql.createPool({
   queueLimit: 0,
 });
 
+logger.info(`[db] Pool de conexão criado para banco: ${isTestEnv ? 'bot_whatsapp_test' : env.DB_NAME}`);
+
 /**
  * Testa a conexão executando um SELECT 1 e encerra a aplicação em caso de falha.
  */
 export async function testDbConnection(): Promise<void> {
   try {
     const [rows] = await pool.query('SELECT 1');
-    console.info('✅ Conexão com o banco de dados bem-sucedida:', rows);
+    logger.info('[db] ✅ Conexão com o banco de dados bem-sucedida:', rows);
   } catch (error) {
-    console.error('❌ Falha ao conectar ao banco de dados:', error);
+    logger.error('[db] ❌ Falha ao conectar ao banco de dados:', { error });
     process.exit(1);
   }
 }
@@ -36,5 +39,6 @@ export async function testDbConnection(): Promise<void> {
  * “Inicializa” (ou simplesmente retorna) o pool de conexões.
  */
 export function createDbPool(): Pool {
+  logger.debug('[db] createDbPool() chamado');
   return pool;
 }

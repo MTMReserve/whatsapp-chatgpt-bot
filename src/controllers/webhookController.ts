@@ -1,7 +1,8 @@
-import { Request, Response } from 'express'; 
+import { Request, Response } from 'express';
 import { downloadMedia, sendAudio, sendText } from '../api/whatsapp';
 import { audioService } from '../services/audioService';
 import { handleMessage } from '../services/conversationManager';
+import { logger } from '../utils/logger';
 
 const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || 'verificabotaloco123';
 
@@ -13,16 +14,15 @@ export function verifyWebhook(req: Request, res: Response): Response {
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
-  // Logs para depuração
-  console.log('🟡 Verificação recebida');
-  console.log('🔍 Token recebido da URL:', token);
-  console.log('🔐 Token do .env:', VERIFY_TOKEN);
+  logger.info('🟡 Verificação recebida');
+  logger.debug(`🔍 Token recebido da URL: ${token}`);
+  logger.debug(`🔐 Token do .env: ${VERIFY_TOKEN}`);
 
   if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-    console.log('✅ Verificação aceita. Respondendo com challenge:', challenge);
+    logger.info(`✅ Verificação aceita. Respondendo com challenge: ${challenge}`);
     return res.status(200).send(challenge);
   } else {
-    console.warn('❌ Verificação falhou');
+    logger.warn('❌ Verificação falhou');
     return res.sendStatus(403);
   }
 }
@@ -31,27 +31,24 @@ export function verifyWebhook(req: Request, res: Response): Response {
  * Processamento de mensagens recebidas (POST)
  */
 export async function handleWebhook(req: Request, res: Response): Promise<Response> {
-  // ✅ LOG ADICIONADO PARA DEBUG
-  console.log('⚡ Novo webhook POST:', JSON.stringify(req.body, null, 2));
+  logger.info('⚡ Novo webhook POST recebido');
+  logger.debug('📦 Payload bruto:', { body: req.body });
 
   try {
     const entry = req.body?.entry?.[0];
     const changes = entry?.changes?.[0];
-
-    // ✅ FILTRAR EVENTOS DE STATUS (conforme instrução)
     const messages = changes?.value?.messages;
+
     if (!messages) {
-      // Ignorar eventos de status
-      console.log('⚡ Evento de status recebido, ignorando.');
+      logger.info('⚡ Evento de status recebido, ignorando.');
       return res.sendStatus(200);
     }
 
     const message = messages?.[0];
     const phone = message?.from;
 
-    // ✅ LOG ADICIONAL PARA SABER O QUE CHEGOU
-    console.log('📥 Mensagem recebida:', JSON.stringify(message, null, 2));
-    console.log('📱 Telefone do remetente:', phone);
+    logger.debug('📥 Mensagem recebida:', { message });
+    logger.info(`📱 Telefone do remetente: ${phone}`);
 
     if (!message || !phone) {
       return res.sendStatus(200);
@@ -63,6 +60,8 @@ export async function handleWebhook(req: Request, res: Response): Promise<Respon
         const audioBuffer = await downloadMedia(mediaId);
         const transcribedText = await audioService.transcribeAudio(audioBuffer);
 
+        logger.debug(`[webhook] Áudio transcrito: ${transcribedText}`);
+
         const response = await handleMessage(phone, transcribedText, { isAudio: true });
 
         if (response.audioBuffer) {
@@ -71,11 +70,12 @@ export async function handleWebhook(req: Request, res: Response): Promise<Respon
           await sendText(phone, response.text);
         }
       } catch (err) {
-        console.error('[webhook] Erro no áudio:', err);
+        logger.error('[webhook] Erro no processamento de áudio', { error: err });
         await sendText(phone, 'Desculpe, não consegui entender o áudio. Pode repetir?');
       }
     } else if (message.type === 'text') {
       const text = message.text.body;
+      logger.debug(`[webhook] Texto recebido: ${text}`);
       const response = await handleMessage(phone, text, { isAudio: false });
 
       if (response.audioBuffer) {
@@ -87,7 +87,7 @@ export async function handleWebhook(req: Request, res: Response): Promise<Respon
 
     return res.sendStatus(200);
   } catch (err) {
-    console.error('[webhook] Erro geral:', err);
+    logger.error('[webhook] Erro inesperado no webhook', { error: err });
     return res.sendStatus(500);
   }
 }

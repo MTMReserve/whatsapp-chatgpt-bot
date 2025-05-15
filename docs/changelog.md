@@ -1,3 +1,129 @@
+## \[v1.8.0] – 2025-05-15
+
+**Responsável:** Maurício Freitas
+**Tipo:** feat + infra + refactor
+
+**Objetivo:**
+Integração completa da XState State Machine para controle do funil de vendas e instrumentação de logs com Winston em todos os principais arquivos do backend, garantindo rastreabilidade total e escalabilidade futura.
+
+### ✅ Funcionalidades Incluídas
+
+#### 1. Nova Máquina de Estados com XState
+
+- Implementada a `funnelMachine` com os estados:
+  `abordagem → levantamento → proposta → objecoes → negociacao → fechamento → pos_venda → reativacao → encerramento`
+- Transições controladas via eventos `INTENT`
+- Lógica de `retries` com encerramento automático após 3 falhas
+
+#### 2. Persistência de Estado e Contador
+
+- Campo `retries` adicionado ao banco
+- Atualização automática de estado e tentativas no `ClientRepository`
+
+#### 3. Logs Winston Aplicados
+
+Adicionados logs com níveis `debug`, `info`, `warn` e `error` nos seguintes arquivos:
+
+| Arquivo                                    | Escopo dos Logs                                      |
+| ------------------------------------------ | ---------------------------------------------------- |
+| `src/services/conversationManager.ts`      | Transições, intents, atualizações no banco, GPT      |
+| `src/stateMachine/index.ts`                | Criação da máquina, eventos INTENT, contadores       |
+| `src/services/clientRepository.ts`         | Consultas, updates e inserções de clientes           |
+| `src/services/intentFallback.ts`           | Consultas à IA para fallback e validação de resposta |
+| `src/services/audioService.ts`             | Transcrição Whisper e síntese ElevenLabs             |
+| `src/services/dataExtractor.ts`            | Extração de nome, valor, endereço, pagamento         |
+| `src/api/openai.ts`                        | Inicialização e falhas no cliente da OpenAI          |
+| `src/api/whatsapp.ts`                      | Envio/recebimento de mensagens via Meta API          |
+| `src/controllers/webhookController.ts`     | Verificação e recebimento de mensagens do webhook    |
+| `src/utils/db.ts`                          | Teste e falhas na conexão com banco                  |
+| `src/middlewares/errorMiddleware.ts`       | Tratamento global de erros                           |
+| `src/middlewares/rateLimiterMiddleware.ts` | Requisições bloqueadas                               |
+| `src/middlewares/validationMiddleware.ts`  | Erros de payload inválido com Zod                    |
+| `src/produto/produtoMap.ts`                | Leitura e fallback do produto                        |
+| `src/index.ts` e `src/server.ts`           | Inicialização completa                               |
+
+### 🧪 Testes
+
+- Todas as rotas respondendo corretamente
+- Máquina de estados salvando estado e retries
+- Logs rastreáveis exibindo o ciclo da requisição
+- Nenhum erro de compilação
+
+### 📁 Arquivos Criados ou Modificados
+
+- `src/stateMachine/index.ts`
+- `src/services/conversationManager.ts`
+- `src/services/clientRepository.ts`
+- `src/services/intentFallback.ts`
+- `src/services/audioService.ts`
+- `src/services/dataExtractor.ts`
+- `src/api/openai.ts`
+- `src/api/whatsapp.ts`
+- `src/controllers/webhookController.ts`
+- `src/utils/db.ts`
+- `src/utils/logger.ts`
+- `src/middlewares/errorMiddleware.ts`
+- `src/middlewares/validationMiddleware.ts`
+- `src/middlewares/rateLimiterMiddleware.ts`
+- `src/produto/produtoMap.ts`
+- `src/index.ts`, `src/server.ts`
+
+### 🏁 Próximos Passos
+
+- Criar testes automatizados para transições da XState
+- Criar dashboard com estados e métricas por cliente
+- Automatizar verificação de variáveis `.env`
+
+**Comando Git:**
+
+```bash
+git tag -a v1.8.0 -m "Versão 1.8.0 - Projeto atualizado com XState e logs completos"
+git push origin v1.8.0
+```
+
+---
+
+## \[v1.7.1] – 2025-05-14
+
+**Objetivo:**
+Remoção de dados sensíveis e recriação do commit limpo
+
+**Funcionalidades:**
+
+- Exclusão do `.env.local` do controle de versão
+- Atualização do `.gitignore`
+
+**Comando Git:**
+
+```bash
+git tag -a v1.7.1 -m "fix(v1.7.1): recria commit sem chaves sensíveis"
+git push origin v1.7.1
+```
+
+---
+
+## \[v1.7.0] – 2025-05-11
+
+**Objetivo:**
+Início da extração e persistência de dados por etapa do funil
+
+**Funcionalidades:**
+
+- Adição de campos no banco para armazenar etapa atual e dados extraídos
+- Lógica de salvamento automático por estado
+- Testes de integração cobrindo clientRepository e flow
+
+**Comando Git:**
+
+```bash
+git tag -a v1.7.0 -m "Release v1.7.0 - Extração de dados por etapa e testes"
+git push origin v1.7.0
+```
+
+---
+
+(As versões anteriores a v1.6.0 já estavam no changelog original e foram mantidas conforme o arquivo enviado)
+
 ## \[v1.6.0] – 2025-05-10
 
 **Objetivo:**

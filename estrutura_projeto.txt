@@ -1,5 +1,5 @@
 Listagem de caminhos de pasta
-O n£mero de s‚rie do volume ‚ 00000098 5A9E:B15F
+O n£mero de s‚rie do volume ‚ 00000001 5A9E:B15F
 C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   .dockerignore
 |   .env
@@ -9,9 +9,8 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   3
 |   docker-compose.yml
 |   Dockerfile
-|   env.local
 |   eslint.config.js
-|   estrutura-projeto.txt
+|   estrutura.txt
 |   estrutura_projeto.txt
 |   jest.config.js
 |   jest.setup.ts
@@ -19,6 +18,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   package.json
 |   README.md
 |   tsconfig.json
+|   ymbolic-ref --short HEAD
 |   
 +---.github
 |   \---workflows
@@ -41,8 +41,19 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   sorter.js
 |       |   stateMachine.ts.html
 |       |   
+|       +---api
+|       |       index.html
+|       |       openai.ts.html
+|       |       twilio.ts.html
+|       |       
+|       +---config
+|       |       env.ts.html
+|       |       index.html
+|       |       
 |       +---middlewares
 |       |       errorMiddleware.ts.html
+|       |       index.html
+|       |       rateLimiterMiddleware.ts.html
 |       |       validationMiddleware.ts.html
 |       |       
 |       +---persona
@@ -68,74 +79,91 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |       index.ts.html
 |       |       
 |       +---services
+|       |       audioService.ts.html
+|       |       clientRepository.ts.html
 |       |       conversationManager.ts.html
+|       |       dataExtractor.ts.html
+|       |       humanizer.ts.html
 |       |       index.html
 |       |       intentMap.ts.html
 |       |       stateMachine.ts.html
 |       |       
-|       \---src
-|           |   app.ts.html
-|           |   index.html
-|           |   
-|           +---api
-|           |       index.html
-|           |       openai.ts.html
-|           |       twilio.ts.html
-|           |       
-|           +---config
-|           |       env.ts.html
-|           |       index.html
-|           |       swagger.ts.html
-|           |       
-|           +---controllers
-|           |       index.html
-|           |       webhookController.ts.html
-|           |       
-|           +---middlewares
-|           |       errorMiddleware.ts.html
-|           |       index.html
-|           |       rateLimiterMiddleware.ts.html
-|           |       validationMiddleware.ts.html
-|           |       
-|           +---persona
-|           |       botPersona.ts.html
-|           |       index.html
-|           |       
-|           +---prompts
-|           |       00-perfil.ts.html
-|           |       01-abordagem.ts.html
-|           |       01-sistema.ts.html
-|           |       02-levantamento.ts.html
-|           |       02-perfilCliente.ts.html
-|           |       03-levantamentoNecessidades.ts.html
-|           |       03-proposta.ts.html
-|           |       04-ancorasPNL.ts.html
-|           |       04-objecoes.ts.html
-|           |       05-negociacao.ts.html
-|           |       05-respostaObjecoes.ts.html
-|           |       06-fechamento.ts.html
-|           |       07-posVenda.ts.html
-|           |       08-reativacao.ts.html
-|           |       09-encerramento.ts.html
-|           |       index.html
-|           |       index.ts.html
-|           |       
-|           +---routes
-|           |       index.html
-|           |       webhook.routes.ts.html
-|           |       
-|           +---services
-|           |       clientRepository.ts.html
-|           |       conversationManager.ts.html
-|           |       humanizer.ts.html
-|           |       index.html
-|           |       intentMap.ts.html
-|           |       stateMachine.ts.html
-|           |       
-|           \---utils
-|                   db.ts.html
-|                   index.html
-|                   
+|       +---src
+|       |   |   app.ts.html
+|       |   |   index.html
+|       |   |   
+|       |   +---api
+|       |   |       index.html
+|       |   |       openai.ts.html
+|       |   |       twilio.ts.html
+|       |   |       whatsapp.ts.html
+|       |   |       
+|       |   +---config
+|       |   |       env.ts.html
+|       |   |       index.html
+|       |   |       schema.ts.html
+|       |   |       swagger.ts.html
+|       |   |       
+|       |   +---controllers
+|       |   |       index.html
+|       |   |       webhookController.ts.html
+|       |   |       
+|       |   +---middlewares
+|       |   |       errorMiddleware.ts.html
+|       |   |       index.html
+|       |   |       rateLimiterMiddleware.ts.html
+|       |   |       validationMiddleware.ts.html
+|       |   |       
+|       |   +---persona
+|       |   |       botPersona.ts.html
+|       |   |       index.html
+|       |   |       
+|       |   +---produto
+|       |   |       index.html
+|       |   |       produtoMap.ts.html
+|       |   |       
+|       |   +---prompts
+|       |   |       00-perfil.ts.html
+|       |   |       01-abordagem.ts.html
+|       |   |       01-sistema.ts.html
+|       |   |       02-levantamento.ts.html
+|       |   |       02-perfilCliente.ts.html
+|       |   |       03-levantamentoNecessidades.ts.html
+|       |   |       03-proposta.ts.html
+|       |   |       04-ancorasPNL.ts.html
+|       |   |       04-objecoes.ts.html
+|       |   |       05-negociacao.ts.html
+|       |   |       05-respostaObjecoes.ts.html
+|       |   |       06-fechamento.ts.html
+|       |   |       07-posVenda.ts.html
+|       |   |       08-reativacao.ts.html
+|       |   |       09-encerramento.ts.html
+|       |   |       index.html
+|       |   |       index.ts.html
+|       |   |       
+|       |   +---routes
+|       |   |       index.html
+|       |   |       webhook.routes.ts.html
+|       |   |       
+|       |   +---services
+|       |   |       audioService.ts.html
+|       |   |       clientRepository.ts.html
+|       |   |       conversationManager.ts.html
+|       |   |       dataExtractor.ts.html
+|       |   |       humanizer.ts.html
+|       |   |       index.html
+|       |   |       intentMap.ts.html
+|       |   |       stateMachine.ts.html
+|       |   |       
+|       |   \---utils
+|       |           db.ts.html
+|       |           index.html
+|       |           normalizer.ts.html
+|       |           
+|       \---utils
+|               db.ts.html
+|               index.html
+|               
 +---dist
 |   |   app.js
 |   |   server.js
@@ -143,6 +171,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   +---api
 |   |       openai.js
 |   |       twilio.js
+|   |       whatsapp.js
 |   |       
 |   +---config
 |   |       env.js
@@ -185,8 +214,11 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       webhook.routes.js
 |   |       
 |   +---services
+|   |       audioCounter.js
+|   |       audioService.js
 |   |       clientRepository.js
 |   |       conversationManager.js
+|   |       dataExtractor.js
 |   |       humanizer.js
 |   |       intentMap.js
 |   |       stateMachine.js
@@ -197,15 +229,22 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   |       
 |   |   +---integration
 |   |   |       clientRepository.integration.test.js
+|   |   |       conversationManager.integration.test.js
+|   |   |       conversationManager.test.js
+|   |   |       voiceMessage.integration.test.js
 |   |   |       webhook.integration.test.js
 |   |   |       
 |   |   \---unit
+|   |           audioService.test.js
 |   |           clientRepository.test.js
 |   |           conversationManager.test.js
+|   |           dataExtractor.test.js
 |   |           errorMiddleware.test.js
 |   |           humanizer.test.js
+|   |           intentMap.test.js
 |   |           openai.client.test.js
 |   |           rateLimiterMiddleware.test.js
+|   |           stateMachine.test.js
 |   |           twilio.client.test.js
 |   |           validationMiddleware.test.js
 |   |           
@@ -18487,6 +18526,140 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   \---typings
 |   |           index.d.ts
 |   |           
+|   +---xstate
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---actions
+|   |   |   |   package.json
+|   |   |   |   
+|   |   |   \---dist
+|   |   |           xstate-actions.cjs.d.mts
+|   |   |           xstate-actions.cjs.d.ts
+|   |   |           xstate-actions.cjs.js
+|   |   |           xstate-actions.cjs.mjs
+|   |   |           xstate-actions.development.cjs.js
+|   |   |           xstate-actions.development.cjs.mjs
+|   |   |           xstate-actions.development.esm.js
+|   |   |           xstate-actions.esm.js
+|   |   |           xstate-actions.umd.min.js
+|   |   |           xstate-actions.umd.min.js.map
+|   |   |           
+|   |   +---actors
+|   |   |   |   package.json
+|   |   |   |   
+|   |   |   \---dist
+|   |   |           xstate-actors.cjs.d.mts
+|   |   |           xstate-actors.cjs.d.ts
+|   |   |           xstate-actors.cjs.js
+|   |   |           xstate-actors.cjs.mjs
+|   |   |           xstate-actors.development.cjs.js
+|   |   |           xstate-actors.development.cjs.mjs
+|   |   |           xstate-actors.development.esm.js
+|   |   |           xstate-actors.esm.js
+|   |   |           xstate-actors.umd.min.js
+|   |   |           xstate-actors.umd.min.js.map
+|   |   |           
+|   |   +---dev
+|   |   |   |   package.json
+|   |   |   |   
+|   |   |   \---dist
+|   |   |           xstate-dev.cjs.d.mts
+|   |   |           xstate-dev.cjs.d.ts
+|   |   |           xstate-dev.cjs.js
+|   |   |           xstate-dev.cjs.mjs
+|   |   |           xstate-dev.development.cjs.js
+|   |   |           xstate-dev.development.cjs.mjs
+|   |   |           xstate-dev.development.esm.js
+|   |   |           xstate-dev.esm.js
+|   |   |           xstate-dev.umd.min.js
+|   |   |           xstate-dev.umd.min.js.map
+|   |   |           
+|   |   +---dist
+|   |   |   |   log-12aa30c9.esm.js
+|   |   |   |   log-179b5431.cjs.js
+|   |   |   |   log-210b28c2.development.cjs.js
+|   |   |   |   log-b47a3833.development.esm.js
+|   |   |   |   raise-32fab6fb.development.cjs.js
+|   |   |   |   raise-527db318.development.esm.js
+|   |   |   |   raise-59f80ebb.esm.js
+|   |   |   |   raise-cbaedcda.cjs.js
+|   |   |   |   xstate.cjs.d.mts
+|   |   |   |   xstate.cjs.d.ts
+|   |   |   |   xstate.cjs.js
+|   |   |   |   xstate.cjs.mjs
+|   |   |   |   xstate.development.cjs.js
+|   |   |   |   xstate.development.cjs.mjs
+|   |   |   |   xstate.development.esm.js
+|   |   |   |   xstate.esm.js
+|   |   |   |   xstate.umd.min.js
+|   |   |   |   xstate.umd.min.js.map
+|   |   |   |   
+|   |   |   \---declarations
+|   |   |       \---src
+|   |   |           |   actions.d.ts
+|   |   |           |   assert.d.ts
+|   |   |           |   createActor.d.ts
+|   |   |           |   createMachine.d.ts
+|   |   |           |   getNextSnapshot.d.ts
+|   |   |           |   guards.d.ts
+|   |   |           |   index.d.ts
+|   |   |           |   inspection.d.ts
+|   |   |           |   setup.d.ts
+|   |   |           |   SimulatedClock.d.ts
+|   |   |           |   spawn.d.ts
+|   |   |           |   State.d.ts
+|   |   |           |   StateMachine.d.ts
+|   |   |           |   StateNode.d.ts
+|   |   |           |   stateUtils.d.ts
+|   |   |           |   symbolObservable.d.ts
+|   |   |           |   system.d.ts
+|   |   |           |   toPromise.d.ts
+|   |   |           |   transition.d.ts
+|   |   |           |   types.d.ts
+|   |   |           |   utils.d.ts
+|   |   |           |   waitFor.d.ts
+|   |   |           |   
+|   |   |           +---actions
+|   |   |           |       assign.d.ts
+|   |   |           |       cancel.d.ts
+|   |   |           |       emit.d.ts
+|   |   |           |       enqueueActions.d.ts
+|   |   |           |       log.d.ts
+|   |   |           |       raise.d.ts
+|   |   |           |       send.d.ts
+|   |   |           |       spawnChild.d.ts
+|   |   |           |       stopChild.d.ts
+|   |   |           |       
+|   |   |           +---actors
+|   |   |           |       callback.d.ts
+|   |   |           |       index.d.ts
+|   |   |           |       observable.d.ts
+|   |   |           |       promise.d.ts
+|   |   |           |       transition.d.ts
+|   |   |           |       
+|   |   |           \---dev
+|   |   |                   index.d.ts
+|   |   |                   
+|   |   +---guards
+|   |   |   |   package.json
+|   |   |   |   
+|   |   |   \---dist
+|   |   |           xstate-guards.cjs.d.mts
+|   |   |           xstate-guards.cjs.d.ts
+|   |   |           xstate-guards.cjs.js
+|   |   |           xstate-guards.cjs.mjs
+|   |   |           xstate-guards.development.cjs.js
+|   |   |           xstate-guards.development.cjs.mjs
+|   |   |           xstate-guards.development.esm.js
+|   |   |           xstate-guards.esm.js
+|   |   |           xstate-guards.umd.min.js
+|   |   |           xstate-guards.umd.min.js.map
+|   |   |           
+|   |   \---invoke
+|   |           package.json
+|   |           
 |   +---xtend
 |   |       .jshintrc
 |   |       immutable.js
@@ -18795,6 +18968,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     +---api
     |       openai.ts
     |       twilio.ts
+    |       whatsapp.ts
     |       
     +---config
     |       env.ts
@@ -18822,7 +18996,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       04-objecoes.ts
     |       05-negociacao.ts
     |       06-fechamento.ts
-    |       07-posvenda.ts
+    |       07-posVenda.ts
     |       08-reativacao.ts
     |       09-encerramento.ts
     |       index.ts
@@ -18835,22 +19009,31 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       audioService.ts
     |       clientRepository.ts
     |       conversationManager.ts
+    |       dataExtractor.ts
     |       humanizer.ts
+    |       intentFallback.ts
     |       intentMap.ts
-    |       stateMachine.ts
+    |       
+    +---stateMachine
+    |       index.ts
     |       
     +---tests
     |   +---e2e
+    |   |       funnelFlow.e2e.ts
     |   |       webhook.e2e.test.ts
     |   |       
     |   +---integration
     |   |       clientRepository.integration.test.ts
+    |   |       conversationManager.integration.test.ts
     |   |       conversationManager.test.ts
+    |   |       voiceMessage.integration.test.ts
     |   |       webhook.integration.test.ts
     |   |       
     |   \---unit
+    |           audioService.test.ts
     |           clientRepository.test.ts
     |           conversationManager.test.ts
+    |           dataExtractor.test.ts
     |           errorMiddleware.test.ts
     |           humanizer.test.ts
     |           intentMap.test.ts

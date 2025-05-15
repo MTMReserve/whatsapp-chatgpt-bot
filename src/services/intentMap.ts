@@ -1,5 +1,7 @@
 // src/services/intentMap.ts
 
+import { logger } from '../utils/logger';
+
 export type BotState =
   | 'abordagem'
   | 'levantamento'
@@ -41,7 +43,7 @@ export const intentMap: Record<BotState, Intent[]> = {
   ],
   levantamento: [
     { word: 'quero saber', score: 5 },
-    { word: 'quero saber mais', score: 5 },  
+    { word: 'quero saber mais', score: 5 },
     { word: 'estou procurando', score: 5 },
     { word: 'preciso de', score: 5 },
     { word: 'gostaria de', score: 4 },
@@ -149,3 +151,32 @@ export const intentMap: Record<BotState, Intent[]> = {
     { word: 'qualquer coisa eu falo', score: 4 }
   ]
 };
+
+export function detectIntent(message: string): BotState | null {
+  const lower = message.toLowerCase();
+  let topScore = 0;
+  let detected: BotState | null = null;
+
+  logger.debug('[detectIntent] Iniciando análise de intenção', { message });
+
+  for (const [state, intents] of Object.entries(intentMap)) {
+    for (const { word, score } of intents) {
+      if (lower.includes(word)) {
+        logger.debug('[detectIntent] Palavra encontrada', { word, score, state });
+        if (score > topScore) {
+          topScore = score;
+          detected = state as BotState;
+          logger.debug('[detectIntent] Intenção com maior score até agora', { detected, topScore });
+        }
+      }
+    }
+  }
+
+  if (detected) {
+    logger.info('[detectIntent] Intenção detectada com sucesso', { intent: detected });
+  } else {
+    logger.warn('[detectIntent] Nenhuma intenção identificada');
+  }
+
+  return detected;
+}

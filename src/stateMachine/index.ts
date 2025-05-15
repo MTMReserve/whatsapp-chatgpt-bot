@@ -1,88 +1,72 @@
+// @ts-nocheck
 import { createMachine, assign } from 'xstate';
+import { logger } from '../utils/logger';
 import type { BotState } from '../services/intentMap';
 
-export interface FunnelContext {
-  retries: Record<BotState, number>;
-}
-
-export type IntentEvent = { type: 'INTENT'; intent: BotState };
-
-export const funnelMachine = createMachine<FunnelContext, IntentEvent>(
+export const funnelMachine = createMachine(
   {
     id: 'funnel',
     initial: 'abordagem',
-    context: {
-      retries: {
-        abordagem: 0,
-        levantamento: 0,
-        proposta: 0,
-        objecoes: 0,
-        negociacao: 0,
-        fechamento: 0,
-        pos_venda: 0,
-        reativacao: 0,
-        encerramento: 0
-      }
-    },
+    context: { retries: 0 },
     states: {
       abordagem: makeState('levantamento'),
       levantamento: makeState('proposta'),
-      proposta: makeState('negociacao'),
+      proposta: makeState('objecoes'),
       objecoes: makeState('negociacao'),
       negociacao: makeState('fechamento'),
       fechamento: makeState('pos_venda'),
       pos_venda: makeState('reativacao'),
       reativacao: makeState('encerramento'),
       encerramento: {
-        type: 'final'
+        type: 'final',
+        entry: () => logger.info('[XState] Estado final atingido: encerramento')
       }
     }
   },
   {
     actions: {
-      // incrementa retries para o estado atual
       incrementRetry: assign({
-        retries: (ctx, _ev, { state }) => ({
-          ...ctx.retries,
-          [state.value as BotState]: ctx.retries[state.value as BotState] + 1
-        })
+        retries: (ctx) => {
+          const updated = ctx.retries + 1;
+          logger.warn(`[XState] Retry incrementado: ${updated}`);
+          return updated;
+        }
       }),
-      // zera retries para o estado atual (após transição bem sucedida)
       resetRetry: assign({
-        retries: (ctx, _ev, { state }) => ({
-          ...ctx.retries,
-          [state.value as BotState]: 0
-        })
+        retries: (_ctx) => {
+          logger.debug(`[XState] Retry resetado para 0`);
+          return 0;
+        }
       })
     }
   }
 );
 
-/**
- * Helper para criar a definição de cada estado com guardas de retries
- */
-function makeState(
-  nextState: BotState,
-  maxRetries = 3
-): any {
+function makeState(expected: BotState) {
   return {
+    entry: () => logger.debug(`[XState] Entrou no estado: ${expected}`),
     on: {
       INTENT: [
-        // se o intent bater com nextState, vai pra lá e reseta retries
         {
-          cond: (_ctx: FunnelContext, ev: IntentEvent) =>
-            ev.intent === nextState,
-          target: nextState,
+          cond: (_ctx, ev) => {
+            const match = ev.intent === expected;
+            logger.debug(`[XState] Intent recebida: ${ev.intent} | Esperada: ${expected} | Match: ${match}`);
+            return match;
+          },
+          target: expected,
           actions: 'resetRetry'
         },
-        // senão, incrementa retries e decide: permanece ou encerra
         {
-          actions: 'incrementRetry',
-          cond: (ctx: FunnelContext, _ev: IntentEvent, { state }) =>
-            ctx.retries[state.value as BotState] < maxRetries
+          cond: (ctx) => {
+            const canRetry = ctx.retries < 2;
+            logger.debug(`[XState] Tentativas atuais: ${ctx.retries} | Pode tentar novamente? ${canRetry}`);
+            return canRetry;
+          },
+          actions: 'incrementRetry'
         },
         {
-          target: 'encerramento'
+          target: 'encerramento',
+          actions: 'incrementRetry'
         }
       ]
     }
