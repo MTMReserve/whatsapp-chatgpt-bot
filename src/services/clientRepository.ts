@@ -15,6 +15,7 @@ export interface Client {
   feedback?: string;
   reactivation_reason?: string;
   retries?: number;
+  has_greeted?: boolean;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -78,6 +79,7 @@ export class ClientRepository {
     value: any
   ): Promise<void> {
     const allowedFields: (keyof Client)[] = [
+      'name', // ✅ Campo liberado com segurança
       'current_state',
       'needs',
       'budget',
@@ -85,7 +87,8 @@ export class ClientRepository {
       'address',
       'payment_method',
       'feedback',
-      'reactivation_reason'
+      'reactivation_reason',
+      'has_greeted'
     ];
     if (!allowedFields.includes(field)) {
       const msg = `[ClientRepository] Campo não permitido para update: ${field}`;

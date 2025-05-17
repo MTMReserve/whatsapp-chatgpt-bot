@@ -1,7 +1,15 @@
-// jest.config.js
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+
+  // Coverage settings
+  collectCoverage: true,
+  coverageProvider: 'v8',
+  collectCoverageFrom: ['src/**/*.ts'],
+  coverageThreshold: {
+    global: { lines: 100, branches: 100, functions: 100 },
+    './src/**/*.ts': { lines: 100, branches: 100, functions: 100 }
+  },
 
   // Procura testes em src/tests/**/*.test.ts e em tests/e2e/**/*.e2e.ts
   testMatch: [

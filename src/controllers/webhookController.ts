@@ -31,8 +31,9 @@ export function verifyWebhook(req: Request, res: Response): Response {
  * Processamento de mensagens recebidas (POST)
  */
 export async function handleWebhook(req: Request, res: Response): Promise<Response> {
-  logger.info('⚡ Novo webhook POST recebido');
-  logger.debug('📦 Payload bruto:', { body: req.body });
+  const timestamp = Date.now();
+  logger.info(`⚡ Novo webhook POST recebido — timestamp=${timestamp}`);
+  logger.debug('[webhook] Payload recebido:', req.body);
 
   try {
     const entry = req.body?.entry?.[0];
@@ -48,11 +49,20 @@ export async function handleWebhook(req: Request, res: Response): Promise<Respon
     const phone = message?.from;
 
     logger.debug('📥 Mensagem recebida:', { message });
-    logger.info(`📱 Telefone do remetente: ${phone}`);
+    logger.info(`[webhook] ▶️ Webhook recebido para ${phone}, timestamp=${timestamp}`);
 
     if (!message || !phone) {
       return res.sendStatus(200);
     }
+
+    // ✅ Bloqueio de execução duplicada
+    const messageId = message.id;
+    const cacheKey = `msg-${messageId}`;
+    if ((global as any)[cacheKey]) {
+      logger.warn(`[webhook] 🚫 Mensagem duplicada detectada: ${messageId}`);
+      return res.sendStatus(200);
+    }
+    (global as any)[cacheKey] = true;
 
     if (message.type === 'audio') {
       try {

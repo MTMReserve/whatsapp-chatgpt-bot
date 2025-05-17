@@ -3,14 +3,12 @@ import * as dataExtractor from './dataExtractor';
 import { audioService } from './audioService';
 import { openai } from '../api/openai';
 import { env } from '../config/env';
-import { funnelMachine } from '../stateMachine';
-import { createActor } from 'xstate';
+import { getNextStateByAI } from './aiStateDecider';
 import { detectIntentWithFallback } from './intentFallback';
-import { intentMap, detectIntent } from './intentMap';
-import type { BotState } from './intentMap';
-
 import { botPersona } from '../persona/botPersona';
 import { getProdutoInfo, type ProdutoID } from '../produto/produtoMap';
+import { simulateTypingEffect, sendText } from '../api/whatsapp';
+import { logger } from '../utils/logger';
 
 import abordagemPrompt from '../prompts/01-abordagem';
 import levantamentoPrompt from '../prompts/02-levantamento';
@@ -22,9 +20,9 @@ import posVendaPrompt from '../prompts/07-posVenda';
 import reativacaoPrompt from '../prompts/08-reativacao';
 import encerramentoPrompt from '../prompts/09-encerramento';
 
-import { logger } from '../utils/logger';
+import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
-const promptByState: Record<BotState, string> = {
+const promptByState: Record<string, string> = {
   abordagem: abordagemPrompt,
   levantamento: levantamentoPrompt,
   proposta: propostaPrompt,
@@ -50,142 +48,135 @@ export async function handleMessage(
   messageText: string,
   options: HandleMessageOptions
 ): Promise<BotResponse> {
-  logger.debug(`[handleMessage] Start phone=${phone} text="${messageText}" audio=${options.isAudio}`);
+  const executionId = `exec-${Date.now()}`;
+  logger.info(`[handleMessage] ▶️ Nova execução iniciada (${executionId}) para ${phone}`);
+  logger.debug(`[handleMessage] [${executionId}] 📲 Iniciando atendimento: phone=${phone}, texto="${messageText}", isAudio=${options.isAudio}`);
 
   const client = await ClientRepository.findOrCreate(phone);
-  logger.debug(`[handleMessage] Client fetched/created phone=${phone} state=${client.current_state} retries=${client.retries}`);
+  const currentState = client.current_state || 'abordagem';
+  logger.info(`[handleMessage] [${executionId}] Estado atual do cliente: ${currentState}`);
 
-  const validStates: BotState[] = Object.keys(promptByState) as BotState[];
-  const currentState: BotState = validStates.includes(client.current_state as BotState)
-    ? (client.current_state as BotState)
-    : 'abordagem';
-  logger.debug(`[handleMessage] Current state=${currentState}`);
-
-  const actor = createActor(funnelMachine, {
-    input: {
-      value: currentState,
-      context: { retries: client.retries || 0 }
-    }
-  });
-  actor.start();
-  logger.debug(`[handleMessage] XState actor started`);
-
-  let intent = detectIntent(messageText);
-  if (!intent) {
-    logger.debug(`[handleMessage] Intent not found via map, using fallback IA`);
-    intent = await detectIntentWithFallback(messageText);
-  }
-  logger.debug(`[handleMessage] Detected intent=${intent}`);
-
-  actor.send({ type: 'INTENT', intent });
-  const snapshot = actor.getSnapshot();
-  const nextState = snapshot.value as BotState;
-  const updatedRetries = snapshot.context.retries as number;
-  logger.debug(`[handleMessage] Transition result nextState=${nextState} updatedRetries=${updatedRetries}`);
+  const { nextState } = await getNextStateByAI({ currentState, userMessage: messageText });
+  logger.info(`[handleMessage] [${executionId}] Estado sugerido pela IA: ${nextState}`);
 
   if (nextState !== currentState) {
     await ClientRepository.updateState(phone, nextState);
-    logger.info(`[handleMessage] State updated phone=${phone} newState=${nextState}`);
+    logger.info(`[handleMessage] [${executionId}] Estado atualizado: ${currentState} → ${nextState}`);
   }
-  await ClientRepository.updateRetries(phone, updatedRetries);
-  logger.info(`[handleMessage] Retries updated phone=${phone} retries=${updatedRetries}`);
-
-  switch (nextState) {
-    case 'abordagem':
-      if (!client.name || client.name === 'Cliente') {
-        try {
-          let nome = dataExtractor.extractName(messageText);
-          if (!nome) nome = await dataExtractor.extractNameSmart(messageText);
-          if (nome) {
-            await ClientRepository.updateField(phone, 'name', nome);
-            logger.info(`[handleMessage] Name updated phone=${phone} name=${nome}`);
-          }
-        } catch (err) {
-          logger.warn(`[handleMessage] Name extraction failed phone=${phone}`, { error: err });
-        }
-      }
-      break;
-    case 'levantamento':
-      await ClientRepository.updateField(phone, 'needs', messageText);
-      logger.info(`[handleMessage] Needs updated phone=${phone} needs="${messageText}"`);
-      break;
-    case 'proposta': {
-      const budget = dataExtractor.extractBudget(messageText);
-      await ClientRepository.updateField(phone, 'budget', budget);
-      logger.info(`[handleMessage] Budget updated phone=${phone} budget=${budget}`);
-      break;
-    }
-    case 'negociacao': {
-      const negotiated = dataExtractor.extractNegotiatedPrice(messageText);
-      if (negotiated !== null) {
-        await ClientRepository.updateField(phone, 'negotiated_price', negotiated);
-        logger.info(`[handleMessage] Negotiated price updated phone=${phone} negotiated=${negotiated}`);
-      }
-      break;
-    }
-    case 'fechamento': {
-      const address = dataExtractor.extractAddress(messageText);
-      if (address) {
-        await ClientRepository.updateField(phone, 'address', address);
-        logger.info(`[handleMessage] Address updated phone=${phone} address="${address}"`);
-      }
-      const paymentMethod = dataExtractor.extractPaymentMethod(messageText);
-      if (paymentMethod) {
-        await ClientRepository.updateField(phone, 'payment_method', paymentMethod);
-        logger.info(`[handleMessage] Payment method updated phone=${phone} paymentMethod="${paymentMethod}"`);
-      }
-      break;
-    }
-    case 'pos_venda':
-      await ClientRepository.updateField(phone, 'feedback', messageText);
-      logger.info(`[handleMessage] Feedback updated phone=${phone} feedback="${messageText}"`);
-      break;
-    case 'reativacao':
-      await ClientRepository.updateField(phone, 'reactivation_reason', messageText);
-      logger.info(`[handleMessage] Reactivation reason updated phone=${phone} reason="${messageText}"`);
-      break;
-    default:
-      break;
-  }
-
-  const productId = (process.env.PRODUTO_ID as ProdutoID) || 'produto1';
-  const productInfo = getProdutoInfo(productId); // <- loga e valida
-  const parts = [
-    botPersona.descricao.trim(),
-    `Produto: ${productInfo.nome} - ${productInfo.descricao}`,
-    `Benefícios:\n- ${productInfo.beneficios.join('\n- ')}`,
-    `Preço: ${productInfo.preco}`,
-    productInfo.promocao ? `Promoção: ${productInfo.promocao}` : '',
-    productInfo.garantias ? `Garantia: ${productInfo.garantias}` : '',
-    promptByState[nextState]
-  ].filter(Boolean);
-  const systemPrompt = parts.join('\n\n');
-  logger.debug(`[handleMessage] System prompt prepared`, { systemPrompt });
-
-  const chatMessages = [
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: messageText }
-  ] as any;
-  logger.debug(`[handleMessage] Sending to OpenAI`, { systemPrompt, messageText });
 
   try {
-    const completion = await openai.chat.completions.create({
+    switch (nextState) {
+      case 'abordagem': {
+        let nome = dataExtractor.extractName(messageText);
+        if (!nome) nome = await dataExtractor.extractNameSmart(messageText);
+        logger.debug(`[handleMessage] [${executionId}] Nome extraído: ${nome}`);
+        if (nome) await ClientRepository.updateField(phone, 'name', nome);
+        if (!client.has_greeted) {
+          await ClientRepository.updateField(phone, 'has_greeted', true);
+        }
+        break;
+      }
+      case 'levantamento': {
+        const needs = await dataExtractor.extractNeeds(messageText);
+        logger.debug(`[handleMessage] [${executionId}] Necessidade extraída: ${needs}`);
+        if (needs) await ClientRepository.updateField(phone, 'needs', needs);
+        break;
+      }
+      case 'proposta': {
+        const budget = await dataExtractor.extractBudget(messageText);
+        logger.debug(`[handleMessage] [${executionId}] Orçamento extraído: ${budget}`);
+        if (budget !== null) await ClientRepository.updateField(phone, 'budget', budget);
+        break;
+      }
+      case 'negociacao': {
+        const negotiated = dataExtractor.extractNegotiatedPrice(messageText);
+        logger.debug(`[handleMessage] [${executionId}] Preço negociado extraído: ${negotiated}`);
+        if (negotiated !== null) await ClientRepository.updateField(phone, 'negotiated_price', negotiated);
+        break;
+      }
+      case 'fechamento': {
+        const address = dataExtractor.extractAddress(messageText);
+        if (address) await ClientRepository.updateField(phone, 'address', address);
+
+        const paymentMethod = dataExtractor.extractPaymentMethod(messageText);
+        if (paymentMethod) await ClientRepository.updateField(phone, 'payment_method', paymentMethod);
+        break;
+      }
+      case 'pos_venda':
+        await ClientRepository.updateField(phone, 'feedback', messageText);
+        break;
+      case 'reativacao':
+        await ClientRepository.updateField(phone, 'reactivation_reason', messageText);
+        break;
+    }
+
+    const productId = (process.env.PRODUTO_ID as ProdutoID) || 'produto1';
+    const productInfo = getProdutoInfo(productId);
+
+    const parts = [
+      `Produto: ${productInfo.nome} - ${productInfo.descricao}`,
+      `Benefícios:\n- ${productInfo.beneficios.join('\n- ')}`,
+      `Preço: ${productInfo.preco}`,
+      productInfo.promocao ? `Promoção: ${productInfo.promocao}` : '',
+      productInfo.garantias ? `Garantia: ${productInfo.garantias}` : '',
+      promptByState[nextState] ?? ''
+    ].filter(Boolean);
+
+    const systemPrompt = parts.join('\n\n');
+    logger.debug(`[handleMessage] [${executionId}] Prompt gerado para IA:\n${systemPrompt}`);
+
+    const chatMessages: ChatCompletionMessageParam[] = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: messageText }
+    ];
+
+    try {
+      await simulateTypingEffect(phone);
+    } catch (err) {
+      logger.warn(`[handleMessage] [${executionId}] Erro ao simular digitação`, { error: err });
+    }
+
+    logger.debug(`[handleMessage] [${executionId}] Enviando requisição para OpenAI...`, {
       model: env.OPENAI_MODEL,
-      temperature: Number(env.OPENAI_TEMPERATURE),
-      messages: chatMessages
+      temperature: env.OPENAI_TEMPERATURE
     });
-    const botText = completion.choices?.[0]?.message?.content?.trim()
-      || 'Desculpe, não consegui gerar uma resposta.';
-    logger.debug(`[handleMessage] OpenAI response`, { botText });
+
+    let botText: string | undefined;
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: env.OPENAI_MODEL,
+        temperature: Number(env.OPENAI_TEMPERATURE),
+        messages: chatMessages
+      });
+
+      botText = completion.choices?.[0]?.message?.content?.trim();
+    } catch (err) {
+      logger.error(`[handleMessage] [${executionId}] ❌ Erro ao chamar a OpenAI`, { error: err });
+      throw err;
+    }
+
+    if (!botText || botText.length < 2) {
+      logger.error(`[handleMessage] [${executionId}] ❌ Texto inválido ou vazio. Abortando resposta.`, {
+        raw: botText
+      });
+      throw new Error('Texto da IA está vazio. Verifique o prompt ou entrada.');
+    }
+
+    logger.info(`[handleMessage] [${executionId}] ✅ Texto final gerado pela IA:`, { botText });
 
     if (options.isAudio) {
+      logger.debug(`[handleMessage] [${executionId}] 🎧 Gerando áudio com ElevenLabs...`);
       const audioBuffer = await audioService.synthesizeSpeech(botText);
-      logger.debug(`[handleMessage] Audio buffer generated`);
       return { text: botText, audioBuffer };
     }
+
+    logger.info(`[handleMessage] [${executionId}] Enviando mensagem final para o cliente...`);
+    await sendText(phone, botText);
+    logger.info(`[handleMessage] [${executionId}] Texto enviado com sucesso`);
     return { text: botText };
   } catch (err) {
-    logger.error(`[handleMessage] OpenAI request failed`, { error: err });
+    logger.error(`[handleMessage] [${executionId}] ❌ Erro geral ao processar mensagem do cliente`, { error: err });
     throw err;
   }
 }

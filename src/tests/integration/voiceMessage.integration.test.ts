@@ -1,8 +1,9 @@
-import request from 'supertest';
+import request from 'supertest'; 
 import createApp from 'app';
 import * as whatsappApi from 'api/whatsapp';
 import { audioService } from 'services/audioService';
 import { handleMessage } from 'services/conversationManager';
+import { pool } from 'src/utils/db'; // adicionado para garantir existência da tabela
 
 jest.mock('api/whatsapp');
 jest.mock('services/audioService');
@@ -16,8 +17,25 @@ describe('Webhook → Mensagem de Voz', () => {
   const fakeTranscription = 'Olá, quero saber mais';
   const fakeAudioResponse = Buffer.from('resposta sintetizada');
 
+  beforeAll(async () => {
+    // Garante que a tabela clients exista com as colunas necessárias
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS clients (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100),
+        phone VARCHAR(20),
+        current_state VARCHAR(50) DEFAULT 'abordagem',
+        retries INT DEFAULT 0
+      );
+    `);
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    await pool.end();
   });
 
   it('deve processar mensagem de voz e responder com áudio', async () => {

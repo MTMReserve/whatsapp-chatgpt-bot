@@ -1,6 +1,44 @@
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
 import FormData from 'form-data';
 import { logger } from '../utils/logger';
+
+/**
+ * Envia o status de digitação para o WhatsApp (API oficial)
+ */
+export async function simulateTypingEffect(to: string): Promise<void> {
+  const token = process.env.META_TOKEN;
+  const phoneId = process.env.META_PHONE_NUMBER_ID;
+
+  if (!token || !phoneId) {
+    logger.warn('[whatsapp] ❌ TOKEN ou PHONE_NUMBER_ID não definidos');
+    return;
+  }
+
+  try {
+    await axios.post(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
+      messaging_product: 'whatsapp',
+      to,
+      type: 'action',
+      action: {
+        typing: true
+      }
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    logger.info(`[whatsapp] ✅ Status de digitação enviado para ${to}`);
+  } catch (error) {
+    const err = error as AxiosError;
+    logger.error(`[whatsapp] ❌ Erro ao enviar status de digitação: ${err.message}`, {
+      data: err.response?.data,
+    });
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 1500)); // delay pós typing
+}
 
 /**
  * Baixa um arquivo de mídia (ex: áudio) usando o media_id recebido do WhatsApp
@@ -72,7 +110,9 @@ export async function sendAudio(to: string, audioBuffer: Buffer): Promise<void> 
         messaging_product: 'whatsapp',
         to,
         type: 'audio',
-        audio: { id: mediaId },
+        audio: {
+          id: mediaId
+        }
       },
       {
         headers: {
@@ -82,17 +122,17 @@ export async function sendAudio(to: string, audioBuffer: Buffer): Promise<void> 
       }
     );
 
-    logger.info(`[whatsapp] Áudio enviado com sucesso para ${to} mediaId=${mediaId}`);
+    logger.info(`[whatsapp] Áudio enviado com sucesso para ${to}`);
   } catch (error) {
-    logger.error(`[whatsapp] Falha ao enviar áudio para ${to}`, { error });
+    logger.error(`[whatsapp] Erro ao enviar áudio para ${to}`, { error });
     throw error;
   }
 }
 
 /**
- * Envia mensagem de texto para um número via WhatsApp Cloud API.
+ * Envia um texto para um número de telefone via WhatsApp com rastreabilidade completa
  */
-export async function sendText(to: string, text: string): Promise<void> {
+export async function sendText(to: string, message: string): Promise<void> {
   const token = process.env.META_TOKEN;
   const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
 
@@ -100,17 +140,32 @@ export async function sendText(to: string, text: string): Promise<void> {
     throw new Error('META_TOKEN ou META_PHONE_NUMBER_ID não definidos no .env');
   }
 
-  logger.debug(`[whatsapp] Enviando texto para ${to}: "${text}"`);
+  if (!message || typeof message !== 'string' || message.trim().length < 2) {
+    logger.error(`[whatsapp] ❌ Mensagem inválida. Nada será enviado para ${to}. Conteúdo: "${message}"`);
+    throw new Error('Mensagem vazia ou malformada');
+  }
+
+  // 🟡 Novo log adicionado com timestamp para rastreamento
+  logger.info(`[sendText] Enviando mensagem para ${to}. Conteúdo: "${message}" Timestamp=${Date.now()}`);
+
+  const payload = {
+    messaging_product: 'whatsapp',
+    to,
+    type: 'text',
+    text: {
+      body: message
+    }
+  };
+
+  logger.info(`[whatsapp] ✉️ Preparando envio de mensagem para: ${to}`);
+  logger.debug(`[whatsapp] Conteúdo da mensagem: "${message}"`);
+  logger.debug(`[whatsapp] Payload final:`, payload);
+  logger.debug(`[whatsapp] Token usado (parcial): ${token.slice(0, 8)}...`);
 
   try {
-    await axios.post(
+    const response = await axios.post(
       `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`,
-      {
-        messaging_product: 'whatsapp',
-        to,
-        type: 'text',
-        text: { body: text },
-      },
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,9 +174,20 @@ export async function sendText(to: string, text: string): Promise<void> {
       }
     );
 
-    logger.info(`[whatsapp] Texto enviado com sucesso para ${to}`);
-  } catch (error) {
-    logger.error(`[whatsapp] Falha ao enviar texto para ${to}`, { error });
-    throw error;
+    logger.info(`[whatsapp] ✅ Mensagem enviada com sucesso para ${to}`);
+    logger.debug(`[whatsapp] Resposta da API Meta:`, response.data);
+  } catch (err: unknown) {
+    const axiosError = err as AxiosError;
+
+    const status = axiosError?.response?.status;
+    const responseData = axiosError?.response?.data;
+
+    logger.error(`[whatsapp] ❌ Erro ao enviar mensagem para ${to}`, {
+      status,
+      responseData,
+      mensagem: message
+    });
+
+    throw err;
   }
 }

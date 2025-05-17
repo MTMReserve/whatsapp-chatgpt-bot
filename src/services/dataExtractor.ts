@@ -1,5 +1,6 @@
 import { openai } from '../api/openai';
-import { logger } from '../utils/logger'; // ✅ IMPORTAÇÃO DE LOGGER
+import { logger } from '../utils/logger';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
 // --- NOME ---
 export async function extractNameSmart(text: string): Promise<string | null> {
@@ -69,17 +70,36 @@ export function extractName(text: string): string | null {
 }
 
 // --- ORÇAMENTO ---
-export function extractBudget(text: string): number | null {
+export async function extractBudget(text: string): Promise<number | null> {
   const match = text.match(/(\d{1,3}(\.\d{3})*|\d+)(,\d{2})?/g);
-  if (!match) {
-    logger.debug('[extractBudget] Nenhum valor encontrado');
-    return null;
+  if (match) {
+    const raw = match[0].replace(/\./g, '').replace(',', '.');
+    const valor = parseFloat(raw);
+    logger.debug(`[extractBudget] Valor extraído: ${valor}`);
+    return isNaN(valor) ? null : valor;
   }
 
-  const raw = match[0].replace(/\./g, '').replace(',', '.');
-  const valor = parseFloat(raw);
-  logger.debug(`[extractBudget] Valor extraído: ${valor}`);
-  return isNaN(valor) ? null : valor;
+  logger.debug('[extractBudget] Nenhum valor encontrado. Tentando fallback via IA.');
+
+  try {
+    const messages: ChatCompletionMessageParam[] = [
+      { role: 'system', content: 'Extraia o valor do orçamento citado na frase, em formato numérico. Sem explicações.' },
+      { role: 'user', content: text }
+    ];
+
+    const resposta = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages
+    });
+
+    const respostaTexto = resposta.choices[0]?.message?.content?.replace(',', '.').trim();
+    const valor = parseFloat(respostaTexto || '');
+    logger.debug(`[extractBudget] Valor extraído via IA: ${valor}`);
+    return isNaN(valor) ? null : valor;
+  } catch (error) {
+    logger.error('[extractBudget] Erro ao usar IA para extrair orçamento', { error });
+    return null;
+  }
 }
 
 export function extractNegotiatedPrice(text: string): number | null {
@@ -123,4 +143,35 @@ export function extractPaymentMethod(text: string): string | null {
 
   logger.debug('[extractPaymentMethod] Nenhuma forma de pagamento reconhecida');
   return null;
+}
+
+// --- NECESSIDADE COM IA ---
+export async function extractNeeds(text: string): Promise<string | null> {
+  const regex = /precis[ao] de (.*)/i;
+  const match = text.match(regex);
+  if (match) {
+    logger.debug(`[extractNeeds] Necessidade extraída por regex: ${match[1].trim()}`);
+    return match[1].trim();
+  }
+
+  logger.debug(`[extractNeeds] Tentando fallback via IA com texto: "${text}"`);
+
+  try {
+    const messages: ChatCompletionMessageParam[] = [
+      { role: 'system', content: 'Extraia a necessidade do cliente em poucas palavras, sem comentários.' },
+      { role: 'user', content: text }
+    ];
+
+    const resposta = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages
+    });
+
+    const output = resposta.choices[0]?.message?.content?.trim();
+    logger.debug(`[extractNeeds] Necessidade extraída via ChatGPT: ${output}`);
+    return output || null;
+  } catch (error) {
+    logger.error('[extractNeeds] Erro ao usar IA para extrair necessidade', { error });
+    return null;
+  }
 }

@@ -1,4 +1,4 @@
-import { pool } from '../../utils/db';
+import { pool } from '../../utils/db'; 
 import { ClientRepository } from '../../services/clientRepository';
 
 describe('ClientRepository Integration', () => {
@@ -7,7 +7,9 @@ describe('ClientRepository Integration', () => {
       CREATE TABLE IF NOT EXISTS clients (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(100),
-        phone VARCHAR(20)
+        phone VARCHAR(20),
+        current_state VARCHAR(50) DEFAULT 'abordagem',
+        retries INT DEFAULT 0
       );
     `);
   });

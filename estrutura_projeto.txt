@@ -1,5 +1,5 @@
 Listagem de caminhos de pasta
-O n£mero de s‚rie do volume ‚ 00000001 5A9E:B15F
+O n£mero de s‚rie do volume ‚ 0000000A 5A9E:B15F
 C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   .dockerignore
 |   .env
@@ -9,14 +9,13 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   3
 |   docker-compose.yml
 |   Dockerfile
+|   env.local
 |   eslint.config.js
-|   estrutura.txt
 |   estrutura_projeto.txt
 |   jest.config.js
 |   jest.setup.ts
 |   package-lock.json
 |   package.json
-|   README.md
 |   tsconfig.json
 |   ymbolic-ref --short HEAD
 |   
@@ -91,6 +90,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       +---src
 |       |   |   app.ts.html
 |       |   |   index.html
+|       |   |   server.ts.html
 |       |   |   
 |       |   +---api
 |       |   |       index.html
@@ -146,18 +146,30 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       webhook.routes.ts.html
 |       |   |       
 |       |   +---services
+|       |   |       audioCounter.ts.html
 |       |   |       audioService.ts.html
 |       |   |       clientRepository.ts.html
 |       |   |       conversationManager.ts.html
 |       |   |       dataExtractor.ts.html
 |       |   |       humanizer.ts.html
 |       |   |       index.html
+|       |   |       intentFallback.ts.html
 |       |   |       intentMap.ts.html
 |       |   |       stateMachine.ts.html
+|       |   |       
+|       |   +---stateMachine
+|       |   |       index.html
+|       |   |       index.ts.html
+|       |   |       
+|       |   +---types
+|       |   |       index.html
+|       |   |       swagger-modules.d.ts.html
 |       |   |       
 |       |   \---utils
 |       |           db.ts.html
 |       |           index.html
+|       |           logger.ts.html
+|       |           ngrokUpdater.ts.html
 |       |           normalizer.ts.html
 |       |           
 |       \---utils
@@ -14924,6 +14936,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       |   
 |   |       \---node
 |   |           |   agent.js
+|   |           |   decompress.js
 |   |           |   http2wrapper.js
 |   |           |   index.js
 |   |           |   response.js
@@ -18967,7 +18980,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |   
     +---api
     |       openai.ts
-    |       twilio.ts
     |       whatsapp.ts
     |       
     +---config
@@ -19005,6 +19017,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       webhook.routes.ts
     |       
     +---services
+    |       aiStateDecider.ts
     |       audioCounter.ts
     |       audioService.ts
     |       clientRepository.ts
@@ -19025,23 +19038,31 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |   +---integration
     |   |       clientRepository.integration.test.ts
     |   |       conversationManager.integration.test.ts
-    |   |       conversationManager.test.ts
     |   |       voiceMessage.integration.test.ts
     |   |       webhook.integration.test.ts
+    |   |       webhookController.test.ts
     |   |       
     |   \---unit
+    |           audioCounter.test.ts
     |           audioService.test.ts
     |           clientRepository.test.ts
     |           conversationManager.test.ts
     |           dataExtractor.test.ts
+    |           db.test.ts
     |           errorMiddleware.test.ts
+    |           funnelMachine.test.ts
     |           humanizer.test.ts
+    |           intentFallback.test.ts
     |           intentMap.test.ts
+    |           ngrokUpdater.test.ts
     |           openai.client.test.ts
+    |           openaiWrapper.test.ts
+    |           produtoMap.test.ts
+    |           prompts.test.ts
     |           rateLimiterMiddleware.test.ts
     |           stateMachine.test.ts
-    |           twilio.client.test.ts
     |           validationMiddleware.test.ts
+    |           whatsapp.test.ts
     |           
     +---types
     |       swagger-modules.d.ts
