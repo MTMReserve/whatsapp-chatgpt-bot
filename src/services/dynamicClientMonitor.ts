@@ -1,6 +1,6 @@
 // src/services/dynamicClientMonitor.ts
 
-import { getConversationByPhone } from './conversationMongoService';
+import { getConversationByPhone } from '../repositories/mongo/interactionLog.mongo';
 import { botPersona } from '../persona/botPersona';
 import { openai } from '../api/openai';
 import { logger } from '../utils/logger';
@@ -13,14 +13,14 @@ export async function monitorClientBehavior(phone: string): Promise<void> {
 
   try {
     const conversation = await getConversationByPhone(phone);
-    if (!conversation || !conversation.messages) {
+    if (!conversation || !Array.isArray(conversation)) {
       logger.warn(`[perfil-dinamico] ⚠️ Nenhuma conversa encontrada no Mongo para ${phone}`);
       return;
     }
 
-    const userMessages = conversation.messages
-      .filter(msg => msg.from === 'user')
-      .map(msg => msg.text);
+    const userMessages: string[] = conversation
+      .filter((msg: any) => msg.from === 'user')
+      .map((msg: any) => msg.messageIn || msg.text || '');
 
     logger.debug(`[perfil-dinamico] 🧮 Total de mensagens do cliente: ${userMessages.length}`);
 
@@ -29,7 +29,11 @@ export async function monitorClientBehavior(phone: string): Promise<void> {
       return;
     }
 
-    const ultimasMensagens = userMessages.slice(-3).map((msg, i) => `${i + 1}. ${msg}`).join('\n');
+    const ultimasMensagens = userMessages
+      .slice(-3)
+      .map((msg: string, i: number) => `${i + 1}. ${msg}`)
+      .join('\n');
+
     logger.debug(`[perfil-dinamico] 📋 Últimas mensagens analisadas:\n${ultimasMensagens}`);
 
     const prompt = `
@@ -47,13 +51,13 @@ Mensagens recentes:
 ${ultimasMensagens}
     `.trim();
 
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       temperature: 0.6,
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const feedback = completion.data.choices[0].message?.content || '';
+    const feedback = completion.choices?.[0]?.message?.content || '';
     logger.info(`[perfil-dinamico] 🧠 Feedback da IA:\n${feedback}`);
 
     // Análise e ajustes

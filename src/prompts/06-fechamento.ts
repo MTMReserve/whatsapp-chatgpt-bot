@@ -1,4 +1,24 @@
-const fechamentoPrompt = `
+// src/prompts/06-fechamento.ts
+import { type ProdutoID } from '../produto/produtoMap';
+import { getProdutoInfo } from '../produto/produtoMap';
+
+/**
+ * Gera dinamicamente o prompt de fechamento com base no produto selecionado.
+ * Esse conteúdo será enviado ao cliente B2C na etapa final do funil.
+ * A ficha do produto é definida pelo cliente B2B.
+ */
+const fechamentoPrompt = (produtoId: ProdutoID): string => {
+  const produto = getProdutoInfo(produtoId, 'fechamentoPrompt');
+
+  const blocoPagamento = produto.formasPagamento && produto.instrucoesPagamento
+    ? `💰 Formas de pagamento aceitas: ${produto.formasPagamento.join(', ')}\n📌 Como pagar: ${produto.instrucoesPagamento}\n`
+    : '';
+
+  const blocoEntrega = produto.entrega && produto.instrucoesEntrega
+    ? `🚚 Tipo de entrega: ${produto.entrega}\n📦 Como você recebe: ${produto.instrucoesEntrega}\n`
+    : '';
+
+  return `
 🎯 OBJETIVO DESTA ETAPA:
 - Confirmar o interesse do cliente e conduzir para a finalização da compra.
 - Coletar os dados finais (nome completo, forma de pagamento, endereço, agendamento).
@@ -12,17 +32,12 @@ const fechamentoPrompt = `
 
 ✅ ESTRATÉGIAS DE CONDUÇÃO:
 1. **Reforce o valor e crie confiança**:
-   - “Vai ser ótimo ver você com esse resultado. Posso te passar tudo agora pra gente confirmar?”
 
 2. **Ofereça um passo simples e direto**:
-   - “Quer que eu já envie o link de pagamento?”
-   - “Posso reservar o horário agora e garantir a condição que combinamos?”
 
 3. **Ajude o cliente a visualizar o depois**:
-   - “Assim que confirmar, te envio tudo certinho e te acompanho em cada etapa, tá?”
 
 4. **Se o cliente hesitar ou sumir por um momento**:
-   - “Se tiver qualquer dúvida antes de fechar, tô por aqui, viu? Só chamar 😊”
 
 📏 INSTRUÇÕES DE RESPOSTA:
 - Fale em até 2 frases curtas por vez.
@@ -38,10 +53,9 @@ const fechamentoPrompt = `
   - Horário ou data preferida (se for com agendamento)
 - Se o cliente já tiver informado, evite repetir. Apenas confirme.
 
-🌟 FRASES MODELO:
-- “Posso te mandar o link agora pra garantir essa condição que combinamos?”
-- “Você prefere fechar com Pix, cartão ou boleto?”
-- “Qual o melhor horário pra gente agendar? Manhã ou tarde?”
+${blocoPagamento}${blocoEntrega}
+
 `;
+};
 
 export default fechamentoPrompt;

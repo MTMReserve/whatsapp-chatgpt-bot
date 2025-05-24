@@ -1,16 +1,15 @@
 import { openai } from '../api/openai';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
-import type { BotState } from './intentMap';
 
 /**
- * Consulta o ChatGPT para identificar a intenção caso o intentMap falhe.
+ * Consulta o ChatGPT para identificar a intenção da mensagem do cliente.
  */
-export async function detectIntentWithFallback(message: string): Promise<BotState> {
+export async function detectIntentWithFallback(message: string): Promise<string> {
   const systemPrompt = `
   Você é um classificador de intenções para um funil de vendas. 
   Dado o conteúdo de uma mensagem de um cliente, você deve responder apenas com uma destas palavras:
-  abordagem, levantamento, proposta, objecoes, negociacao, fechamento, pos_venda, reativacao, encerramento.
+  abordagem, levantamento, proposta, objecoes, negociacao, fechamento, posvenda, reativacao, encerramento.
   Não explique, não comente, apenas retorne a palavra da intenção correta.
   `;
 
@@ -41,21 +40,21 @@ export async function detectIntentWithFallback(message: string): Promise<BotStat
 
     logger.debug('[intentFallback] 🧠 Resposta recebida do ChatGPT', { intent });
 
-    const validIntents: BotState[] = [
+    const validIntents: string[] = [
       'abordagem',
       'levantamento',
       'proposta',
       'objecoes',
       'negociacao',
       'fechamento',
-      'pos_venda',
+      'posvenda',
       'reativacao',
       'encerramento'
     ];
 
-    if (intent && validIntents.includes(intent as BotState)) {
+    if (intent && validIntents.includes(intent)) {
       logger.info(`[intentFallback] ✅ Intenção reconhecida via fallback: "${intent}"`);
-      return intent as BotState;
+      return intent;
     } else {
       logger.warn('[intentFallback] ⚠️ Intenção inválida recebida do ChatGPT', { intent });
     }

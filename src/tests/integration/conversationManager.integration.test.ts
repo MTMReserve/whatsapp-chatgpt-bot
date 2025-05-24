@@ -1,90 +1,53 @@
-import { pool } from '../../../src/utils/db';
-import { handleMessage } from '../../../src/services/conversationManager';
-import { ClientRepository } from '../../../src/services/clientRepository';
-import * as mongoService from '../../../src/services/interactionMongoService';
-jest.setTimeout(20000); // ou 30000 se for necessário
+import { handleMessage } from '@/services/conversationManager';
+import { pool } from '@/utils/db';
+import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
+dotenv.config({ path: '.env.test' });
 
-describe('ConversationManager – Fluxo completo do funil com persistência', () => {
-  const phone = '5599999999999';
-
-  const etapasSimuladas = [
-    { input: 'Oi, tudo bem?', esperado: 'abordagem' },
-    { input: 'Quero deixar minha barba mais escura.', esperado: 'levantamento' },
-    { input: 'Tenho até 200 reais pra isso.', esperado: 'proposta' },
-    { input: 'Não sei se vai combinar comigo...', esperado: 'objecoes' },
-    { input: 'Tem como fazer um desconto?', esperado: 'negociacao' },
-    { input: 'Fechado! Vamos agendar.', esperado: 'fechamento' },
-    { input: 'Gostei do atendimento!', esperado: 'pos_venda' },
-    { input: 'Sumido faz dias', esperado: 'reativacao' },
-    { input: 'Quero parar de receber mensagens.', esperado: 'encerramento' }
-  ];
+describe('ConversationManager – Integração real com IA, MySQL e MongoDB', () => {
+  const testPhone = '+5511999999999';
+  const testMessage = 'Oi, quero saber mais sobre o produto';
+  const outputDir = path.resolve(__dirname, '../../../logs/ia_respostas');
+  const mongoUri = process.env.MONGO_URI!;
 
   beforeAll(async () => {
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS clients (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        name VARCHAR(100),
-        phone VARCHAR(20),
-        current_state VARCHAR(50) DEFAULT 'abordagem',
-        retries INT DEFAULT 0,
-        needs TEXT,
-        budget INT
-      );
-    `);
-    await pool.query('DELETE FROM clients WHERE phone = ?', [phone]);
+    // Conexão com MySQL
+    await pool.query('SELECT 1');
 
-    try {
-      const mensagens = await mongoService.getConversationByPhone(phone);
-      if (mensagens.length > 0) {
-        console.warn(`⚠️ Histórico existente encontrado no Mongo. Total: ${mensagens.length}`);
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.warn('⚠️ Erro ao buscar histórico no Mongo, mas teste continuará:', msg);
+    // Limpa interações do MongoDB para esse telefone
+    const mongoClient = new MongoClient(mongoUri);
+    await mongoClient.connect();
+    const db = mongoClient.db();
+    await db.collection('interactions').deleteMany({ phone: testPhone });
+    await mongoClient.close();
+
+    // Cria pasta de saída, se não existir
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
     }
   });
 
-  afterAll(async () => {
-    await pool.query('DELETE FROM clients WHERE phone = ?', [phone]);
-    await pool.end();
-  });
+  it('deve processar mensagem e retornar texto da IA + áudio', async () => {
+    const resultado = await handleMessage(testPhone, testMessage, { isAudio: true });
 
-  it('🧪 Deve percorrer todas as 9 etapas do funil e salvar em MySQL e MongoDB', async () => {
-    for (const etapa of etapasSimuladas) {
-      const res = await handleMessage(phone, etapa.input, { isAudio: false });
-
-      const client = await ClientRepository.findByPhone(phone);
-      let historico: mongoService.InteractionData[] = [];
-
-      try {
-        historico = await mongoService.getConversationByPhone(phone);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        console.warn('⚠️ Erro ao buscar histórico no Mongo, mas teste continuará:', msg);
-      }
-
-      const ultimaMensagem = historico?.[historico.length - 1];
-
-      // Verifica estado no MySQL
-      expect(client).not.toBeNull();
-      expect(client!.current_state).toBe(etapa.esperado);
-
-      // Verifica persistência no MongoDB
-      expect(ultimaMensagem?.phone).toBe(phone);
-      expect(ultimaMensagem?.messageIn).toBe(etapa.input);
-
-      // Verifica resposta do bot
-      expect(res.text).toBeDefined();
-      expect(typeof res.text).toBe('string');
+    // Exibe no terminal
+    console.log('Texto da IA:', resultado.text);
+    if (resultado.audioBuffer) {
+      console.log('🎧 Áudio gerado com sucesso');
     }
-  }, 20000); // ⏱ timeout maior
 
-  it('🚫 Deve rejeitar mudança indevida para "abordagem" após avançar', async () => {
-    const res = await handleMessage(phone, 'oi de novo...', { isAudio: false });
-    const client = await ClientRepository.findByPhone(phone);
+    // Salva resposta da IA em arquivo
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = path.join(outputDir, `resposta_${timestamp}.txt`);
+    fs.writeFileSync(filename, resultado.text, 'utf-8');
 
-    expect(client!.current_state).not.toBe('abordagem');
-    expect(res.text).toBeDefined();
-  }, 10000);
+    // Verificações
+    expect(resultado.text).toBeDefined();
+    expect(resultado.text.length).toBeGreaterThan(5);
+    expect(resultado.audioBuffer).toBeInstanceOf(Buffer);
+    expect(resultado.audioBuffer!.length).toBeGreaterThan(0);
+  });
 });

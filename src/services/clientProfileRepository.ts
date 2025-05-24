@@ -16,13 +16,13 @@ export function getAnalyzedProfile(phone: string): PerfilCliente {
   logger.debug(`[perfilCliente] Estilo de fala atual aplicado no botPersona:`, estilo);
 
   const perfil: PerfilCliente = {
-    formalidade: estilo.formalidade,
+    formalidade: estilo.formalidade as PerfilCliente['formalidade'],
     emojis: estilo.emojis,
     fala: estilo.frasesCurtas ? 'fala pouco' : 'fala muito',
-    detalhamento: estilo.detalhamento,
-    temperamento: estilo.temperamento,
-    linguagemTecnica: 'intermediario', // padrão fixo por enquanto
-    urgencia: 'normal', // padrão fixo por enquanto
+    detalhamento: estilo.detalhamento as PerfilCliente['detalhamento'],
+    temperamento: estilo.temperamento as PerfilCliente['temperamento'],
+    linguagemTecnica: 'mista',
+    urgencia: 'paciente',
   };
 
   logger.info(`[perfilCliente] ✅ Perfil completo reconstruído para ${phone}`);

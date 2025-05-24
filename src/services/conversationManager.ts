@@ -1,3 +1,5 @@
+// src/services/conversationManager.ts
+
 import { ClientRepository } from './clientRepository';   
 import * as dataExtractor from './dataExtractor';
 import { audioService } from './audioService';
@@ -12,7 +14,8 @@ import { saveInteraction } from '../repositories/interactionsRepository';
 import { saveInteractionLog } from '../repositories/mongo/interactionLog.mongo';
 import { analyzeClientProfileIfNeeded } from './analyzeClientProfile';
 import { definirTemperaturaDinamica } from '../utils/temperatureDecider';
-import { getAnalyzedProfile } from '../repositories/clientProfileRepository'; // ✅ NOVO
+import { getAnalyzedProfile } from '../repositories/clientProfileRepository';
+import { gerarResumoDoHistorico } from './resumoDoHistorico'; // ✅ NOVO
 
 import abordagemPrompt from '../prompts/01-abordagem';
 import levantamentoPrompt from '../prompts/02-levantamento';
@@ -26,7 +29,7 @@ import encerramentoPrompt from '../prompts/09-encerramento';
 
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 
-const promptByState: Record<string, string> = {
+const promptByState: Record<string, string | ((produtoId: ProdutoID) => string)> = {
   abordagem: abordagemPrompt,
   levantamento: levantamentoPrompt,
   proposta: propostaPrompt,
@@ -117,16 +120,39 @@ export async function handleMessage(
     }
 
     const productId = (process.env.PRODUTO_ID as ProdutoID) || 'produto1';
-    const productInfo = getProdutoInfo(productId);
+    const productInfo = getProdutoInfo(productId, 'conversationManager');
 
-    const parts = [
+    let intent = 'indefinida';
+    try {
+      intent = await detectIntentWithFallback(messageText);
+      logger.info(`[handleMessage] [${executionId}] 🎯 Intenção detectada: ${intent}`);
+    } catch (err) {
+      logger.warn(`[handleMessage] [${executionId}] ⚠️ Erro ao detectar intenção, usando 'indefinida'`, { error: err });
+    }
+
+    const incluirPromocao = intent === 'objeção' && botPersona.regrasDeVenda?.exibirPromocaoSomenteComObjeção;
+
+    const promptConfig = promptByState[nextState];
+    const promptText = typeof promptConfig === 'function'
+      ? promptConfig(productId)
+      : promptConfig ?? '';
+
+    const resumoHistorico = await gerarResumoDoHistorico(phone);
+    logger.debug(`[handleMessage] [${executionId}] 🧠 Resumo histórico recuperado: ${resumoHistorico}`);
+
+    const parts: string[] = [];
+
+    if (resumoHistorico) parts.push(resumoHistorico);
+
+    parts.push(
       `Produto: ${productInfo.nome} - ${productInfo.descricao}`,
       `Benefícios:\n- ${productInfo.beneficios.join('\n- ')}`,
-      `Preço: ${productInfo.preco}`,
-      productInfo.promocao ? `Promoção: ${productInfo.promocao}` : '',
-      productInfo.garantias ? `Garantia: ${productInfo.garantias}` : '',
-      promptByState[nextState] ?? ''
-    ].filter(Boolean);
+      `Preço: ${productInfo.preco}`
+    );
+
+    if (incluirPromocao && productInfo.promocao) parts.push(`Promoção: ${productInfo.promocao}`);
+    if (productInfo.garantias) parts.push(`Garantia: ${productInfo.garantias}`);
+    if (promptText) parts.push(promptText);
 
     const systemPrompt = parts.join('\n\n');
     logger.debug(`[handleMessage] [${executionId}] Prompt gerado para IA:\n${systemPrompt}`);
@@ -136,7 +162,6 @@ export async function handleMessage(
       { role: 'user', content: messageText }
     ];
 
-    // ✅ Perfil completo recuperado dinamicamente
     const perfilCliente = getAnalyzedProfile(phone);
     logger.debug(`[handleMessage] [${executionId}] Perfil do cliente para cálculo da temperatura:`, perfilCliente);
 
@@ -151,7 +176,6 @@ export async function handleMessage(
     });
 
     let botText: string | undefined;
-
     try {
       const completion = await openai.chat.completions.create({
         model: env.OPENAI_MODEL,
@@ -173,14 +197,6 @@ export async function handleMessage(
     }
 
     logger.info(`[handleMessage] [${executionId}] ✅ Texto final gerado pela IA:`, { botText });
-
-    let intent = 'indefinida';
-    try {
-      intent = await detectIntentWithFallback(messageText);
-      logger.info(`[handleMessage] [${executionId}] 🎯 Intenção detectada: ${intent}`);
-    } catch (err) {
-      logger.warn(`[handleMessage] [${executionId}] ⚠️ Erro ao detectar intenção, usando 'indefinida'`, { error: err });
-    }
 
     try {
       await saveInteraction({

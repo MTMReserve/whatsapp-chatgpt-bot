@@ -1,13 +1,17 @@
 // jest.setup.ts
-// ⚙️ Este arquivo é carregado automaticamente antes de todos os testes via Jest
+// ⚙️ Carregado automaticamente antes de todos os testes via Jest
 
+import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 
-// Carrega o arquivo de ambiente (priorize .env.test se quiser separar ambientes)
-dotenv.config({ path: '.env' });  // ou '.env.test'
+// 1. Prioriza carregar o arquivo .env.test se existir
+const envPath = fs.existsSync('.env.test') ? '.env.test' : '.env';
+dotenv.config({ path: envPath });
 
-// Garante que os testes rodem em ambiente isolado
+// 2. Garante ambiente de teste isolado
 process.env.NODE_ENV = 'test';
 
-// 🔐 LOG opcional para confirmação (pode remover em produção)
-console.info('[Jest Setup] Ambiente de testes carregado com sucesso');
+// 3. Confirmação para o terminal
+if (process.env.LOG_LEVEL === 'debug' || process.env.NODE_ENV === 'test') {
+  console.info(`[Jest Setup] ✅ Ambiente de testes carregado (${envPath})`);
+}

@@ -1,5 +1,5 @@
 Listagem de caminhos de pasta
-O n£mero de s‚rie do volume ‚ 00000072 5A9E:B15F
+O n£mero de s‚rie do volume ‚ 000000DA 5A9E:B15F
 C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   .dockerignore
 |   .env
@@ -11,7 +11,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   Dockerfile
 |   env.local
 |   eslint.config.js
-|   estrutura_projeto.txt
 |   jest.config.js
 |   jest.setup.ts
 |   package-lock.json
@@ -129,7 +128,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       index.html
 |       |   |       
 |       |   +---produto
-|       |   |       fichaProduto.exemplo.ts.html
 |       |   |       index.html
 |       |   |       produtoMap.ts.html
 |       |   |       
@@ -182,7 +180,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       intentMap.ts.html
 |       |   |       interactionMongoService.ts.html
 |       |   |       reengagementService.ts.html
-|       |   |       resumoDoHistorico.ts.html
 |       |   |       stateMachine.ts.html
 |       |   |       
 |       |   +---stateMachine
@@ -235,20 +232,16 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       index.html
 |       |   |       swagger-modules.d.ts.html
 |       |   |       
-|       |   +---utils
-|       |   |       db.ts.html
-|       |   |       index.html
-|       |   |       logger.ts.html
-|       |   |       midiaHelper.ts.html
-|       |   |       mongo.ts.html
-|       |   |       ngrokUpdater.ts.html
-|       |   |       normalizer.ts.html
-|       |   |       temperatureDecider.ts.html
-|       |   |       typingSimulator.ts.html
-|       |   |       
-|       |   \---__deprecated__
+|       |   \---utils
+|       |           db.ts.html
 |       |           index.html
-|       |           index.ts.html
+|       |           logger.ts.html
+|       |           midiaHelper.ts.html
+|       |           mongo.ts.html
+|       |           ngrokUpdater.ts.html
+|       |           normalizer.ts.html
+|       |           temperatureDecider.ts.html
+|       |           typingSimulator.ts.html
 |       |           
 |       \---utils
 |               db.ts.html
@@ -20293,7 +20286,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       botPersona.ts
     |       
     +---produto
-    |       fichaProduto.exemplo.ts
     |       produtoMap.ts
     |       
     +---prompts
@@ -20334,7 +20326,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       intentFallback.ts
     |       interactionMongoService.ts
     |       reengagementService.ts
-    |       resumoDoHistorico.ts
     |       
     +---stateMachine
     +---tests
@@ -20345,7 +20336,6 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |   +---integration
     |   |       clientRepository.integration.test.ts
     |   |       conversationManager.integration.test.ts
-    |   |       fechamento.integration.test.ts
     |   |       test-mongo.test.ts
     |   |       test-mongo.ts
     |   |       voiceMessage.integration.test.ts

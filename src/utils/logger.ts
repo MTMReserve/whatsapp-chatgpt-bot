@@ -24,9 +24,11 @@ const customLevels = {
 const logFormat = winston.format.combine(
   winston.format.colorize({ all: true }),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  winston.format.printf(({ timestamp, level, message }) => {
-    return `[${timestamp}] ${level}: ${message}`;
-  }),
+  winston.format.printf((info) => {
+    const { timestamp, level, message, ...rest } = info;
+    const extra = Object.keys(rest).length ? JSON.stringify(rest, null, 2) : '';
+    return `[${timestamp}] ${level}: ${message} ${extra}`;
+  })
 );
 
 // Cria a instância do logger
