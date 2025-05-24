@@ -9,10 +9,14 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "typeRoots": ["./src/types", "./node_modules/@types"],
-    "baseUrl": "src",                   // 👈 necessário para importações absolutas
+    "baseUrl": "src",                  
     "paths": {
-      "*": ["*"]
+      "@/*": ["*"] // ✅ Corrigido: agora resolve "@/utils/logger" etc.
     }
   },
-  "include": ["src", "src/types"]
+  "include": [
+    "src",
+    "src/types",
+    "tests" // ✅ Adicionado para incluir seus testes fora de src/
+  ]
 }

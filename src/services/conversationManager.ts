@@ -1,4 +1,4 @@
-import { ClientRepository } from './clientRepository';
+import { ClientRepository } from './clientRepository';   
 import * as dataExtractor from './dataExtractor';
 import { audioService } from './audioService';
 import { openai } from '../api/openai';
@@ -7,8 +7,12 @@ import { getNextStateByAI } from './aiStateDecider';
 import { detectIntentWithFallback } from './intentFallback';
 import { botPersona } from '../persona/botPersona';
 import { getProdutoInfo, type ProdutoID } from '../produto/produtoMap';
-import { simulateTypingEffect, sendText } from '../api/whatsapp';
 import { logger } from '../utils/logger';
+import { saveInteraction } from '../repositories/interactionsRepository';
+import { saveInteractionLog } from '../repositories/mongo/interactionLog.mongo';
+import { analyzeClientProfileIfNeeded } from './analyzeClientProfile';
+import { definirTemperaturaDinamica } from '../utils/temperatureDecider';
+import { getAnalyzedProfile } from '../repositories/clientProfileRepository'; // ✅ NOVO
 
 import abordagemPrompt from '../prompts/01-abordagem';
 import levantamentoPrompt from '../prompts/02-levantamento';
@@ -16,7 +20,7 @@ import propostaPrompt from '../prompts/03-proposta';
 import objecoesPrompt from '../prompts/04-objecoes';
 import negociacaoPrompt from '../prompts/05-negociacao';
 import fechamentoPrompt from '../prompts/06-fechamento';
-import posVendaPrompt from '../prompts/07-posVenda';
+import posVendaPrompt from '../prompts/07-posvenda';
 import reativacaoPrompt from '../prompts/08-reativacao';
 import encerramentoPrompt from '../prompts/09-encerramento';
 
@@ -63,6 +67,8 @@ export async function handleMessage(
     await ClientRepository.updateState(phone, nextState);
     logger.info(`[handleMessage] [${executionId}] Estado atualizado: ${currentState} → ${nextState}`);
   }
+
+  await analyzeClientProfileIfNeeded(phone);
 
   try {
     switch (nextState) {
@@ -130,15 +136,18 @@ export async function handleMessage(
       { role: 'user', content: messageText }
     ];
 
-    try {
-      await simulateTypingEffect(phone);
-    } catch (err) {
-      logger.warn(`[handleMessage] [${executionId}] Erro ao simular digitação`, { error: err });
-    }
+    // ✅ Perfil completo recuperado dinamicamente
+    const perfilCliente = getAnalyzedProfile(phone);
+    logger.debug(`[handleMessage] [${executionId}] Perfil do cliente para cálculo da temperatura:`, perfilCliente);
+
+    const temperature = definirTemperaturaDinamica({
+      etapa: nextState,
+      perfil: perfilCliente
+    });
 
     logger.debug(`[handleMessage] [${executionId}] Enviando requisição para OpenAI...`, {
       model: env.OPENAI_MODEL,
-      temperature: env.OPENAI_TEMPERATURE
+      temperature,
     });
 
     let botText: string | undefined;
@@ -146,7 +155,7 @@ export async function handleMessage(
     try {
       const completion = await openai.chat.completions.create({
         model: env.OPENAI_MODEL,
-        temperature: Number(env.OPENAI_TEMPERATURE),
+        temperature,
         messages: chatMessages
       });
 
@@ -165,15 +174,58 @@ export async function handleMessage(
 
     logger.info(`[handleMessage] [${executionId}] ✅ Texto final gerado pela IA:`, { botText });
 
+    let intent = 'indefinida';
+    try {
+      intent = await detectIntentWithFallback(messageText);
+      logger.info(`[handleMessage] [${executionId}] 🎯 Intenção detectada: ${intent}`);
+    } catch (err) {
+      logger.warn(`[handleMessage] [${executionId}] ⚠️ Erro ao detectar intenção, usando 'indefinida'`, { error: err });
+    }
+
+    try {
+      await saveInteraction({
+        clientId: client.id,
+        messageIn: messageText,
+        messageOut: botText,
+        detectedIntent: intent,
+        stateBefore: currentState,
+        stateAfter: nextState,
+      });
+
+      await ClientRepository.updateLastInteraction(client.id);
+    } catch (err) {
+      logger.warn(`[handleMessage] [${executionId}] ⚠️ Erro ao salvar interação no histórico`, { error: err });
+    }
+
+    try {
+      const mongoPayload = {
+        phone,
+        clientId: client.id,
+        messageIn: messageText,
+        messageOut: botText,
+        detectedIntent: intent,
+        stateBefore: currentState,
+        stateAfter: nextState,
+        createdAt: new Date()
+      };
+
+      logger.debug(`[handleMessage] [${executionId}] Conteúdo do mongoPayload:`, mongoPayload);
+      logger.debug(`[handleMessage] [${executionId}] Enviando para saveInteractionLog:`, {
+        payload: mongoPayload
+      });
+
+      await saveInteractionLog(mongoPayload);
+    } catch (err) {
+      console.error(`[mongo][raw] ❌ ERRO ao salvar no MongoDB`, err);
+      logger.warn(`[handleMessage] [${executionId}] ⚠️ Erro ao salvar no MongoDB`, { error: err });
+    }
+
     if (options.isAudio) {
       logger.debug(`[handleMessage] [${executionId}] 🎧 Gerando áudio com ElevenLabs...`);
       const audioBuffer = await audioService.synthesizeSpeech(botText);
       return { text: botText, audioBuffer };
     }
 
-    logger.info(`[handleMessage] [${executionId}] Enviando mensagem final para o cliente...`);
-    await sendText(phone, botText);
-    logger.info(`[handleMessage] [${executionId}] Texto enviado com sucesso`);
     return { text: botText };
   } catch (err) {
     logger.error(`[handleMessage] [${executionId}] ❌ Erro geral ao processar mensagem do cliente`, { error: err });

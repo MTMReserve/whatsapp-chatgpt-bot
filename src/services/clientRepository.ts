@@ -16,6 +16,7 @@ export interface Client {
   reactivation_reason?: string;
   retries?: number;
   has_greeted?: boolean;
+  last_interaction?: Date; // <-- NOVO
   created_at?: Date;
   updated_at?: Date;
 }
@@ -79,7 +80,7 @@ export class ClientRepository {
     value: any
   ): Promise<void> {
     const allowedFields: (keyof Client)[] = [
-      'name', // ✅ Campo liberado com segurança
+      'name',
       'current_state',
       'needs',
       'budget',
@@ -106,6 +107,19 @@ export class ClientRepository {
       'UPDATE clients SET retries = ? WHERE phone = ?',
       [retries, phone]
     );
+  }
+
+  // ✅ NOVO: Atualiza o campo last_interaction para agora
+  static async updateLastInteraction(clientId: number): Promise<void> {
+    try {
+      await pool.query(
+        `UPDATE clients SET last_interaction = CURRENT_TIMESTAMP WHERE id = ?`,
+        [clientId]
+      );
+      logger.debug(`[ClientRepository] last_interaction atualizada para cliente ID ${clientId}`);
+    } catch (error) {
+      logger.error(`[ClientRepository] ❌ Erro ao atualizar last_interaction`, error);
+    }
   }
 
   // Instâncias auxiliares

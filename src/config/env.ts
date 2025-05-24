@@ -15,6 +15,9 @@ const envSchema = z.object({
   DB_PASSWORD: z.string().optional(),
   DB_NAME: z.string(),
 
+  // MongoDB
+  MONGO_URL: z.string(),  // ✅ Adicionado
+
   // OpenAI
   OPENAI_KEY: z.string(),
   OPENAI_MODEL: z.string().default('gpt-3.5-turbo'),

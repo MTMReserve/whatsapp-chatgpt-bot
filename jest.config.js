@@ -11,23 +11,26 @@ module.exports = {
     './src/**/*.ts': { lines: 100, branches: 100, functions: 100 }
   },
 
-  // Procura testes em src/tests/**/*.test.ts e em tests/e2e/**/*.e2e.ts
+  // Procura testes em src/tests, tests/e2e e agora também em tests/integration
   testMatch: [
     '**/src/tests/**/*.test.ts',
-    '**/tests/e2e/**/*.e2e.ts'
+    '**/tests/e2e/**/*.e2e.ts',
+    '**/tests/integration/**/*.test.ts' // ✅ ADICIONADO
   ],
 
   moduleFileExtensions: ['ts', 'js', 'json'],
 
-  // Se não tiver um arquivo jest.setup.ts, comente ou remova esta linha
+  // Setup opcional
   setupFiles: ['<rootDir>/jest.setup.ts'],
 
-  // Permite importações absolutas a partir da raiz 'src'
+  // ✅ Suporte a importações absolutas
   moduleDirectories: ['node_modules', 'src'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1' // ✅ ADICIONADO
+  },
 
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    }
+  // ✅ Corrige aviso deprecado do ts-jest
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {}]
   }
 };

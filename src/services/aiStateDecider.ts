@@ -16,34 +16,25 @@ interface StateDecisionOutput {
   reason?: string;
 }
 
-const systemPrompt = [
-  "Você é um especialista em vendas por WhatsApp. Receberá o estado atual de um funil de vendas e a última mensagem enviada pelo cliente.",
-  "Sua tarefa é decidir para qual etapa do funil o bot deve ir agora. Responda apenas com o nome da etapa.",
-  "",
-  "Etapas válidas:",
-  "- abordagem",
-  "- levantamento",
-  "- proposta",
-  "- objecoes",
-  "- negociacao",
-  "- fechamento",
-  "- pos_venda",
-  "- reativacao",
-  "- encerramento",
-  "",
-  "⚠️ Importante:",
-  "- Só envie para 'abordagem' se for o primeiro contato ou se a conversa estiver completamente incoerente.",
-  "- Evite retornar para 'abordagem' se o cliente já respondeu alguma coisa ou demonstrou interesse.",
-  "- Nunca envie para 'abordagem' depois de 'levantamento', 'proposta' ou estados mais avançados.",
-  "",
-  "Se o cliente estiver pronto para comprar, avance para fechamento.",
-  "Se ele ainda estiver decidindo, mantenha ou volte para objecoes ou proposta.",
-  "Se já comprou, vá para pos_venda.",
-  "Se sumiu, vá para reativacao.",
-  "Se quiser sair, vá para encerramento.",
-  "",
-  "Responda apenas com o nome da próxima etapa. Nenhuma explicação adicional."
-].join("\n");
+const etapasValidas = [
+  'abordagem',
+  'levantamento',
+  'proposta',
+  'objecoes',
+  'negociacao',
+  'fechamento',
+  'pos_venda',
+  'reativacao',
+  'encerramento'
+];
+
+const systemPrompt = `
+Você é um assistente de vendas responsável por decidir qual a próxima etapa do funil de vendas com base na mensagem do cliente e na etapa atual.
+
+Etapas possíveis: ${etapasValidas.map(e => `"${e}"`).join(', ')}
+
+Sempre retorne apenas a próxima etapa exata como uma das strings acima, sem explicações. Avance de etapa apenas se houver justificativa clara na mensagem.
+`.trim();
 
 export async function getNextStateByAI(
   input: StateDecisionInput
@@ -51,7 +42,7 @@ export async function getNextStateByAI(
   try {
     const messages: ChatCompletionMessageParam[] = [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: `Estado atual: ${input.currentState}\nÚltima mensagem: ${input.userMessage}` }
+      { role: 'user', content: `Etapa atual: ${input.currentState}\nMensagem do cliente: ${input.userMessage}` }
     ];
 
     logger.debug('[aiStateDecider] Enviando para IA decidir próximo estado', {
@@ -62,6 +53,13 @@ export async function getNextStateByAI(
     const completion = await createChatCompletion(messages);
 
     const nextState = completion.choices?.[0]?.message?.content?.trim().toLowerCase() || input.currentState;
+
+    if (!etapasValidas.includes(nextState)) {
+      logger.warn('[aiStateDecider] 🚫 Estado inválido sugerido pela IA', { nextState });
+      return { nextState: input.currentState, reason: 'estado inválido sugerido pela IA' };
+    }
+
+    logger.info(`[aiStateDecider] 🧭 Etapa atual: ${input.currentState} — Mensagem: "${input.userMessage}" — IA sugeriu: ${nextState}`);
 
     if (nextState === input.currentState) {
       logger.warn('[aiStateDecider] IA não sugeriu mudança de estado, mantendo atual', {

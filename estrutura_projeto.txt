@@ -1,5 +1,5 @@
 Listagem de caminhos de pasta
-O n£mero de s‚rie do volume ‚ 0000000A 5A9E:B15F
+O n£mero de s‚rie do volume ‚ 000000FD 5A9E:B15F
 C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   .dockerignore
 |   .env
@@ -101,6 +101,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   +---config
 |       |   |       env.ts.html
 |       |   |       index.html
+|       |   |       mongoConnect.ts.html
 |       |   |       schema.ts.html
 |       |   |       swagger.ts.html
 |       |   |       
@@ -108,11 +109,20 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       index.html
 |       |   |       webhookController.ts.html
 |       |   |       
+|       |   +---media
+|       |   |       index.html
+|       |   |       mediaMap.ts.html
+|       |   |       
 |       |   +---middlewares
 |       |   |       errorMiddleware.ts.html
 |       |   |       index.html
 |       |   |       rateLimiterMiddleware.ts.html
 |       |   |       validationMiddleware.ts.html
+|       |   |       
+|       |   +---models
+|       |   |       index.html
+|       |   |       interactionModel.ts.html
+|       |   |       Profile.ts.html
 |       |   |       
 |       |   +---persona
 |       |   |       botPersona.ts.html
@@ -141,26 +151,84 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       index.html
 |       |   |       index.ts.html
 |       |   |       
+|       |   +---repositories
+|       |   |   |   clientProfileRepository.ts.html
+|       |   |   |   index.html
+|       |   |   |   interactionsRepository.ts.html
+|       |   |   |   
+|       |   |   \---mongo
+|       |   |           index.html
+|       |   |           interactionLog.mongo.ts.html
+|       |   |           
 |       |   +---routes
 |       |   |       index.html
 |       |   |       webhook.routes.ts.html
 |       |   |       
 |       |   +---services
+|       |   |       aiStateDecider.ts.html
+|       |   |       analyzeClientProfile.ts.html
 |       |   |       audioCounter.ts.html
 |       |   |       audioService.ts.html
+|       |   |       clientProfileRepository.ts.html
 |       |   |       clientRepository.ts.html
+|       |   |       contextMemory.ts.html
 |       |   |       conversationManager.ts.html
 |       |   |       dataExtractor.ts.html
+|       |   |       dynamicClientMonitor.ts.html
 |       |   |       humanizer.ts.html
 |       |   |       index.html
 |       |   |       intentFallback.ts.html
 |       |   |       intentMap.ts.html
+|       |   |       interactionMongoService.ts.html
+|       |   |       reengagementService.ts.html
 |       |   |       stateMachine.ts.html
 |       |   |       
 |       |   +---stateMachine
 |       |   |       index.html
 |       |   |       index.ts.html
 |       |   |       
+|       |   +---tests
+|       |   |   +---e2e
+|       |   |   |       funnelFlow.e2e.ts.html
+|       |   |   |       index.html
+|       |   |   |       webhook.e2e.test.ts.html
+|       |   |   |       
+|       |   |   +---integration
+|       |   |   |       clientRepository.integration.test.ts.html
+|       |   |   |       conversationManager.integration.test.ts.html
+|       |   |   |       index.html
+|       |   |   |       test-mongo.test.ts.html
+|       |   |   |       test-mongo.ts.html
+|       |   |   |       voiceMessage.integration.test.ts.html
+|       |   |   |       webhook.integration.test.ts.html
+|       |   |   |       webhookController.duplicate.integration.test.ts.html
+|       |   |   |       webhookController.test.ts.html
+|       |   |   |       
+|       |   |   \---unit
+|       |   |           audioCounter.test.ts.html
+|       |   |           audioService.test.ts.html
+|       |   |           clientRepository.test.ts.html
+|       |   |           conversationManager.duplicate.test.ts.html
+|       |   |           conversationManager.test.ts.html
+|       |   |           dataExtractor.test.ts.html
+|       |   |           db.test.ts.html
+|       |   |           errorMiddleware.test.ts.html
+|       |   |           funnelMachine.test.ts.html
+|       |   |           humanizer.test.ts.html
+|       |   |           index.html
+|       |   |           intentFallback.test.ts.html
+|       |   |           intentMap.test.ts.html
+|       |   |           ngrokUpdater.test.ts.html
+|       |   |           openai.client.test.ts.html
+|       |   |           openaiWrapper.test.ts.html
+|       |   |           produtoMap.test.ts.html
+|       |   |           prompts.test.ts.html
+|       |   |           rateLimiterMiddleware.test.ts.html
+|       |   |           sendText.duplicate.test.ts.html
+|       |   |           stateMachine.test.ts.html
+|       |   |           validationMiddleware.test.ts.html
+|       |   |           whatsapp.test.ts.html
+|       |   |           
 |       |   +---types
 |       |   |       index.html
 |       |   |       swagger-modules.d.ts.html
@@ -169,13 +237,19 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |           db.ts.html
 |       |           index.html
 |       |           logger.ts.html
+|       |           midiaHelper.ts.html
+|       |           mongo.ts.html
 |       |           ngrokUpdater.ts.html
 |       |           normalizer.ts.html
+|       |           temperatureDecider.ts.html
+|       |           typingSimulator.ts.html
 |       |           
 |       \---utils
 |               db.ts.html
 |               index.html
 |               
++---data
+|   \---mongo
 +---dist
 |   |   app.js
 |   |   server.js
@@ -187,16 +261,24 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       
 |   +---config
 |   |       env.js
+|   |       mongoConnect.js
 |   |       openai.js
 |   |       swagger.js
 |   |       
 |   +---controllers
 |   |       webhookController.js
 |   |       
+|   +---media
+|   |       mediaMap.js
+|   |       
 |   +---middlewares
 |   |       errorMiddleware.js
 |   |       rateLimiterMiddleware.js
 |   |       validationMiddleware.js
+|   |       
+|   +---models
+|   |       interactionModel.js
+|   |       Profile.js
 |   |       
 |   +---persona
 |   |       botPersona.js
@@ -222,43 +304,77 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       09-encerramento.js
 |   |       index.js
 |   |       
+|   +---repositories
+|   |   |   clientProfileRepository.js
+|   |   |   interactionsRepository.js
+|   |   |   
+|   |   \---mongo
+|   |           interactionLog.mongo.js
+|   |           
 |   +---routes
 |   |       webhook.routes.js
 |   |       
 |   +---services
+|   |       aiStateDecider.js
+|   |       analyzeClientProfile.js
 |   |       audioCounter.js
 |   |       audioService.js
+|   |       clientProfileRepository.js
 |   |       clientRepository.js
+|   |       contextMemory.js
 |   |       conversationManager.js
 |   |       dataExtractor.js
+|   |       dynamicClientMonitor.js
 |   |       humanizer.js
+|   |       intentFallback.js
 |   |       intentMap.js
+|   |       interactionMongoService.js
+|   |       reengagementService.js
 |   |       stateMachine.js
+|   |       
+|   +---stateMachine
+|   |       index.js
 |   |       
 |   +---tests
 |   |   +---e2e
+|   |   |       funnelFlow.e2e.js
 |   |   |       webhook.e2e.test.js
 |   |   |       
 |   |   +---integration
 |   |   |       clientRepository.integration.test.js
 |   |   |       conversationManager.integration.test.js
 |   |   |       conversationManager.test.js
+|   |   |       test-mongo.js
+|   |   |       test-mongo.test.js
 |   |   |       voiceMessage.integration.test.js
 |   |   |       webhook.integration.test.js
+|   |   |       webhookController.duplicate.integration.test.js
+|   |   |       webhookController.test.js
 |   |   |       
 |   |   \---unit
+|   |           audioCounter.test.js
 |   |           audioService.test.js
 |   |           clientRepository.test.js
+|   |           conversationManager.duplicate.test.js
 |   |           conversationManager.test.js
 |   |           dataExtractor.test.js
+|   |           db.test.js
 |   |           errorMiddleware.test.js
+|   |           funnelMachine.test.js
 |   |           humanizer.test.js
+|   |           intentFallback.test.js
 |   |           intentMap.test.js
+|   |           ngrokUpdater.test.js
 |   |           openai.client.test.js
+|   |           openaiWrapper.test.js
+|   |           produtoMap.test.js
+|   |           prompts.test.js
 |   |           rateLimiterMiddleware.test.js
+|   |           sendText.duplicate.test.js
 |   |           stateMachine.test.js
 |   |           twilio.client.test.js
 |   |           validationMiddleware.test.js
+|   |           whatsapp.test.js
 |   |           
 |   +---types
 |   |       botState.js
@@ -266,7 +382,11 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   \---utils
 |           db.js
 |           logger.js
+|           midiaHelper.js
+|           mongo.js
 |           ngrokUpdater.js
+|           temperatureDecider.js
+|           typingSimulator.js
 |           
 +---docs
 |       changelog.md
@@ -2673,6 +2793,51 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |               types.js
 |   |               types.js.map
 |   |               
+|   +---@mongodb-js
+|   |   \---saslprep
+|   |       |   LICENSE
+|   |       |   package.json
+|   |       |   readme.md
+|   |       |   
+|   |       \---dist
+|   |               .esm-wrapper.mjs
+|   |               browser.d.ts
+|   |               browser.d.ts.map
+|   |               browser.js
+|   |               browser.js.map
+|   |               code-points-data-browser.d.ts
+|   |               code-points-data-browser.d.ts.map
+|   |               code-points-data-browser.js
+|   |               code-points-data-browser.js.map
+|   |               code-points-data.d.ts
+|   |               code-points-data.d.ts.map
+|   |               code-points-data.js
+|   |               code-points-data.js.map
+|   |               code-points-src.d.ts
+|   |               code-points-src.d.ts.map
+|   |               code-points-src.js
+|   |               code-points-src.js.map
+|   |               generate-code-points.d.ts
+|   |               generate-code-points.d.ts.map
+|   |               generate-code-points.js
+|   |               generate-code-points.js.map
+|   |               index.d.ts
+|   |               index.d.ts.map
+|   |               index.js
+|   |               index.js.map
+|   |               memory-code-points.d.ts
+|   |               memory-code-points.d.ts.map
+|   |               memory-code-points.js
+|   |               memory-code-points.js.map
+|   |               node.d.ts
+|   |               node.d.ts.map
+|   |               node.js
+|   |               node.js.map
+|   |               util.d.ts
+|   |               util.d.ts.map
+|   |               util.js
+|   |               util.js.map
+|   |               
 |   +---@noble
 |   |   \---hashes
 |   |       |   argon2.d.ts
@@ -3520,6 +3685,25 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   |       package.json
 |   |   |       README.md
 |   |   |       
+|   |   +---webidl-conversions
+|   |   |       index.d.ts
+|   |   |       LICENSE
+|   |   |       package.json
+|   |   |       README.md
+|   |   |       
+|   |   +---whatwg-url
+|   |   |   |   index.d.ts
+|   |   |   |   LICENSE
+|   |   |   |   package.json
+|   |   |   |   README.md
+|   |   |   |   webidl2js-wrapper.d.ts
+|   |   |   |   
+|   |   |   \---lib
+|   |   |           URL-impl.d.ts
+|   |   |           URL.d.ts
+|   |   |           URLSearchParams-impl.d.ts
+|   |   |           URLSearchParams.d.ts
+|   |   |           
 |   |   +---yargs
 |   |   |       helpers.d.mts
 |   |   |       helpers.d.ts
@@ -6218,6 +6402,82 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       package.json
 |   |       README.md
 |   |       
+|   +---bson
+|   |   |   bson.d.ts
+|   |   |   LICENSE.md
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---etc
+|   |   |       prepare.js
+|   |   |       
+|   |   +---lib
+|   |   |       bson.bundle.js
+|   |   |       bson.bundle.js.map
+|   |   |       bson.cjs
+|   |   |       bson.cjs.map
+|   |   |       bson.mjs
+|   |   |       bson.mjs.map
+|   |   |       bson.rn.cjs
+|   |   |       bson.rn.cjs.map
+|   |   |       
+|   |   +---src
+|   |   |   |   binary.ts
+|   |   |   |   bson.ts
+|   |   |   |   bson_value.ts
+|   |   |   |   code.ts
+|   |   |   |   constants.ts
+|   |   |   |   db_ref.ts
+|   |   |   |   decimal128.ts
+|   |   |   |   double.ts
+|   |   |   |   error.ts
+|   |   |   |   extended_json.ts
+|   |   |   |   index.ts
+|   |   |   |   int_32.ts
+|   |   |   |   long.ts
+|   |   |   |   max_key.ts
+|   |   |   |   min_key.ts
+|   |   |   |   objectid.ts
+|   |   |   |   parse_utf8.ts
+|   |   |   |   regexp.ts
+|   |   |   |   symbol.ts
+|   |   |   |   timestamp.ts
+|   |   |   |   
+|   |   |   +---parser
+|   |   |   |   |   calculate_size.ts
+|   |   |   |   |   deserializer.ts
+|   |   |   |   |   serializer.ts
+|   |   |   |   |   utils.ts
+|   |   |   |   |   
+|   |   |   |   \---on_demand
+|   |   |   |           index.ts
+|   |   |   |           parse_to_elements.ts
+|   |   |   |           
+|   |   |   \---utils
+|   |   |           byte_utils.ts
+|   |   |           latin.ts
+|   |   |           node_byte_utils.ts
+|   |   |           number_utils.ts
+|   |   |           string_utils.ts
+|   |   |           web_byte_utils.ts
+|   |   |           
+|   |   \---vendor
+|   |       +---base64
+|   |       |       base64.js
+|   |       |       LICENSE-MIT.txt
+|   |       |       package.json
+|   |       |       README.md
+|   |       |       
+|   |       \---text-encoding
+|   |           |   index.js
+|   |           |   LICENSE.md
+|   |           |   package.json
+|   |           |   README.md
+|   |           |   
+|   |           \---lib
+|   |                   encoding-indexes.js
+|   |                   encoding.js
+|   |                   
 |   +---buffer-equal-constant-time
 |   |       .npmignore
 |   |       .travis.yml
@@ -11344,6 +11604,15 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |           tostring.js
 |   |           verify-stream.js
 |   |           
+|   +---kareem
+|   |       CHANGELOG.md
+|   |       index.d.ts
+|   |       index.js
+|   |       LICENSE
+|   |       package.json
+|   |       README.md
+|   |       SECURITY.md
+|   |       
 |   +---keyv
 |   |   |   package.json
 |   |   |   README.md
@@ -11708,6 +11977,14 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       package.json
 |   |       README.md
 |   |       
+|   +---memory-pager
+|   |       .travis.yml
+|   |       index.js
+|   |       LICENSE
+|   |       package.json
+|   |       README.md
+|   |       test.js
+|   |       
 |   +---merge-descriptors
 |   |       HISTORY.md
 |   |       index.js
@@ -11832,6 +12109,953 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |           path-arg.js
 |   |           use-native.js
 |   |           
+|   +---mongodb
+|   |   |   LICENSE.md
+|   |   |   mongodb.d.ts
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   tsconfig.json
+|   |   |   
+|   |   +---etc
+|   |   |       prepare.js
+|   |   |       
+|   |   +---lib
+|   |   |   |   admin.js
+|   |   |   |   admin.js.map
+|   |   |   |   beta.d.ts
+|   |   |   |   beta.js
+|   |   |   |   beta.js.map
+|   |   |   |   bson.js
+|   |   |   |   bson.js.map
+|   |   |   |   change_stream.js
+|   |   |   |   change_stream.js.map
+|   |   |   |   collection.js
+|   |   |   |   collection.js.map
+|   |   |   |   connection_string.js
+|   |   |   |   connection_string.js.map
+|   |   |   |   constants.js
+|   |   |   |   constants.js.map
+|   |   |   |   db.js
+|   |   |   |   db.js.map
+|   |   |   |   deps.js
+|   |   |   |   deps.js.map
+|   |   |   |   encrypter.js
+|   |   |   |   encrypter.js.map
+|   |   |   |   error.js
+|   |   |   |   error.js.map
+|   |   |   |   explain.js
+|   |   |   |   explain.js.map
+|   |   |   |   index.js
+|   |   |   |   index.js.map
+|   |   |   |   mongo_client.js
+|   |   |   |   mongo_client.js.map
+|   |   |   |   mongo_client_auth_providers.js
+|   |   |   |   mongo_client_auth_providers.js.map
+|   |   |   |   mongo_logger.js
+|   |   |   |   mongo_logger.js.map
+|   |   |   |   mongo_types.js
+|   |   |   |   mongo_types.js.map
+|   |   |   |   read_concern.js
+|   |   |   |   read_concern.js.map
+|   |   |   |   read_preference.js
+|   |   |   |   read_preference.js.map
+|   |   |   |   resource_management.js
+|   |   |   |   resource_management.js.map
+|   |   |   |   sessions.js
+|   |   |   |   sessions.js.map
+|   |   |   |   sort.js
+|   |   |   |   sort.js.map
+|   |   |   |   timeout.js
+|   |   |   |   timeout.js.map
+|   |   |   |   transactions.js
+|   |   |   |   transactions.js.map
+|   |   |   |   utils.js
+|   |   |   |   utils.js.map
+|   |   |   |   write_concern.js
+|   |   |   |   write_concern.js.map
+|   |   |   |   
+|   |   |   +---bulk
+|   |   |   |       common.js
+|   |   |   |       common.js.map
+|   |   |   |       ordered.js
+|   |   |   |       ordered.js.map
+|   |   |   |       unordered.js
+|   |   |   |       unordered.js.map
+|   |   |   |       
+|   |   |   +---client-side-encryption
+|   |   |   |   |   auto_encrypter.js
+|   |   |   |   |   auto_encrypter.js.map
+|   |   |   |   |   client_encryption.js
+|   |   |   |   |   client_encryption.js.map
+|   |   |   |   |   crypto_callbacks.js
+|   |   |   |   |   crypto_callbacks.js.map
+|   |   |   |   |   errors.js
+|   |   |   |   |   errors.js.map
+|   |   |   |   |   mongocryptd_manager.js
+|   |   |   |   |   mongocryptd_manager.js.map
+|   |   |   |   |   state_machine.js
+|   |   |   |   |   state_machine.js.map
+|   |   |   |   |   
+|   |   |   |   \---providers
+|   |   |   |           aws.js
+|   |   |   |           aws.js.map
+|   |   |   |           azure.js
+|   |   |   |           azure.js.map
+|   |   |   |           gcp.js
+|   |   |   |           gcp.js.map
+|   |   |   |           index.js
+|   |   |   |           index.js.map
+|   |   |   |           
+|   |   |   +---cmap
+|   |   |   |   |   commands.js
+|   |   |   |   |   commands.js.map
+|   |   |   |   |   command_monitoring_events.js
+|   |   |   |   |   command_monitoring_events.js.map
+|   |   |   |   |   connect.js
+|   |   |   |   |   connect.js.map
+|   |   |   |   |   connection.js
+|   |   |   |   |   connection.js.map
+|   |   |   |   |   connection_pool.js
+|   |   |   |   |   connection_pool.js.map
+|   |   |   |   |   connection_pool_events.js
+|   |   |   |   |   connection_pool_events.js.map
+|   |   |   |   |   errors.js
+|   |   |   |   |   errors.js.map
+|   |   |   |   |   metrics.js
+|   |   |   |   |   metrics.js.map
+|   |   |   |   |   stream_description.js
+|   |   |   |   |   stream_description.js.map
+|   |   |   |   |   
+|   |   |   |   +---auth
+|   |   |   |   |   |   auth_provider.js
+|   |   |   |   |   |   auth_provider.js.map
+|   |   |   |   |   |   aws_temporary_credentials.js
+|   |   |   |   |   |   aws_temporary_credentials.js.map
+|   |   |   |   |   |   gssapi.js
+|   |   |   |   |   |   gssapi.js.map
+|   |   |   |   |   |   mongodb_aws.js
+|   |   |   |   |   |   mongodb_aws.js.map
+|   |   |   |   |   |   mongodb_oidc.js
+|   |   |   |   |   |   mongodb_oidc.js.map
+|   |   |   |   |   |   mongo_credentials.js
+|   |   |   |   |   |   mongo_credentials.js.map
+|   |   |   |   |   |   plain.js
+|   |   |   |   |   |   plain.js.map
+|   |   |   |   |   |   providers.js
+|   |   |   |   |   |   providers.js.map
+|   |   |   |   |   |   scram.js
+|   |   |   |   |   |   scram.js.map
+|   |   |   |   |   |   x509.js
+|   |   |   |   |   |   x509.js.map
+|   |   |   |   |   |   
+|   |   |   |   |   \---mongodb_oidc
+|   |   |   |   |           automated_callback_workflow.js
+|   |   |   |   |           automated_callback_workflow.js.map
+|   |   |   |   |           azure_machine_workflow.js
+|   |   |   |   |           azure_machine_workflow.js.map
+|   |   |   |   |           callback_workflow.js
+|   |   |   |   |           callback_workflow.js.map
+|   |   |   |   |           command_builders.js
+|   |   |   |   |           command_builders.js.map
+|   |   |   |   |           gcp_machine_workflow.js
+|   |   |   |   |           gcp_machine_workflow.js.map
+|   |   |   |   |           human_callback_workflow.js
+|   |   |   |   |           human_callback_workflow.js.map
+|   |   |   |   |           k8s_machine_workflow.js
+|   |   |   |   |           k8s_machine_workflow.js.map
+|   |   |   |   |           machine_workflow.js
+|   |   |   |   |           machine_workflow.js.map
+|   |   |   |   |           token_cache.js
+|   |   |   |   |           token_cache.js.map
+|   |   |   |   |           token_machine_workflow.js
+|   |   |   |   |           token_machine_workflow.js.map
+|   |   |   |   |           
+|   |   |   |   +---handshake
+|   |   |   |   |       client_metadata.js
+|   |   |   |   |       client_metadata.js.map
+|   |   |   |   |       
+|   |   |   |   \---wire_protocol
+|   |   |   |       |   compression.js
+|   |   |   |       |   compression.js.map
+|   |   |   |       |   constants.js
+|   |   |   |       |   constants.js.map
+|   |   |   |       |   on_data.js
+|   |   |   |       |   on_data.js.map
+|   |   |   |       |   responses.js
+|   |   |   |       |   responses.js.map
+|   |   |   |       |   shared.js
+|   |   |   |       |   shared.js.map
+|   |   |   |       |   
+|   |   |   |       \---on_demand
+|   |   |   |               document.js
+|   |   |   |               document.js.map
+|   |   |   |               
+|   |   |   +---cursor
+|   |   |   |       abstract_cursor.js
+|   |   |   |       abstract_cursor.js.map
+|   |   |   |       aggregation_cursor.js
+|   |   |   |       aggregation_cursor.js.map
+|   |   |   |       change_stream_cursor.js
+|   |   |   |       change_stream_cursor.js.map
+|   |   |   |       client_bulk_write_cursor.js
+|   |   |   |       client_bulk_write_cursor.js.map
+|   |   |   |       find_cursor.js
+|   |   |   |       find_cursor.js.map
+|   |   |   |       list_collections_cursor.js
+|   |   |   |       list_collections_cursor.js.map
+|   |   |   |       list_indexes_cursor.js
+|   |   |   |       list_indexes_cursor.js.map
+|   |   |   |       list_search_indexes_cursor.js
+|   |   |   |       list_search_indexes_cursor.js.map
+|   |   |   |       run_command_cursor.js
+|   |   |   |       run_command_cursor.js.map
+|   |   |   |       
+|   |   |   +---gridfs
+|   |   |   |       download.js
+|   |   |   |       download.js.map
+|   |   |   |       index.js
+|   |   |   |       index.js.map
+|   |   |   |       upload.js
+|   |   |   |       upload.js.map
+|   |   |   |       
+|   |   |   +---operations
+|   |   |   |   |   aggregate.js
+|   |   |   |   |   aggregate.js.map
+|   |   |   |   |   bulk_write.js
+|   |   |   |   |   bulk_write.js.map
+|   |   |   |   |   collections.js
+|   |   |   |   |   collections.js.map
+|   |   |   |   |   command.js
+|   |   |   |   |   command.js.map
+|   |   |   |   |   count.js
+|   |   |   |   |   count.js.map
+|   |   |   |   |   create_collection.js
+|   |   |   |   |   create_collection.js.map
+|   |   |   |   |   delete.js
+|   |   |   |   |   delete.js.map
+|   |   |   |   |   distinct.js
+|   |   |   |   |   distinct.js.map
+|   |   |   |   |   drop.js
+|   |   |   |   |   drop.js.map
+|   |   |   |   |   estimated_document_count.js
+|   |   |   |   |   estimated_document_count.js.map
+|   |   |   |   |   execute_operation.js
+|   |   |   |   |   execute_operation.js.map
+|   |   |   |   |   find.js
+|   |   |   |   |   find.js.map
+|   |   |   |   |   find_and_modify.js
+|   |   |   |   |   find_and_modify.js.map
+|   |   |   |   |   get_more.js
+|   |   |   |   |   get_more.js.map
+|   |   |   |   |   indexes.js
+|   |   |   |   |   indexes.js.map
+|   |   |   |   |   insert.js
+|   |   |   |   |   insert.js.map
+|   |   |   |   |   is_capped.js
+|   |   |   |   |   is_capped.js.map
+|   |   |   |   |   kill_cursors.js
+|   |   |   |   |   kill_cursors.js.map
+|   |   |   |   |   list_collections.js
+|   |   |   |   |   list_collections.js.map
+|   |   |   |   |   list_databases.js
+|   |   |   |   |   list_databases.js.map
+|   |   |   |   |   operation.js
+|   |   |   |   |   operation.js.map
+|   |   |   |   |   options_operation.js
+|   |   |   |   |   options_operation.js.map
+|   |   |   |   |   profiling_level.js
+|   |   |   |   |   profiling_level.js.map
+|   |   |   |   |   remove_user.js
+|   |   |   |   |   remove_user.js.map
+|   |   |   |   |   rename.js
+|   |   |   |   |   rename.js.map
+|   |   |   |   |   run_command.js
+|   |   |   |   |   run_command.js.map
+|   |   |   |   |   set_profiling_level.js
+|   |   |   |   |   set_profiling_level.js.map
+|   |   |   |   |   stats.js
+|   |   |   |   |   stats.js.map
+|   |   |   |   |   update.js
+|   |   |   |   |   update.js.map
+|   |   |   |   |   validate_collection.js
+|   |   |   |   |   validate_collection.js.map
+|   |   |   |   |   
+|   |   |   |   +---client_bulk_write
+|   |   |   |   |       client_bulk_write.js
+|   |   |   |   |       client_bulk_write.js.map
+|   |   |   |   |       command_builder.js
+|   |   |   |   |       command_builder.js.map
+|   |   |   |   |       common.js
+|   |   |   |   |       common.js.map
+|   |   |   |   |       executor.js
+|   |   |   |   |       executor.js.map
+|   |   |   |   |       results_merger.js
+|   |   |   |   |       results_merger.js.map
+|   |   |   |   |       
+|   |   |   |   \---search_indexes
+|   |   |   |           create.js
+|   |   |   |           create.js.map
+|   |   |   |           drop.js
+|   |   |   |           drop.js.map
+|   |   |   |           update.js
+|   |   |   |           update.js.map
+|   |   |   |           
+|   |   |   \---sdam
+|   |   |           common.js
+|   |   |           common.js.map
+|   |   |           events.js
+|   |   |           events.js.map
+|   |   |           monitor.js
+|   |   |           monitor.js.map
+|   |   |           server.js
+|   |   |           server.js.map
+|   |   |           server_description.js
+|   |   |           server_description.js.map
+|   |   |           server_selection.js
+|   |   |           server_selection.js.map
+|   |   |           server_selection_events.js
+|   |   |           server_selection_events.js.map
+|   |   |           srv_polling.js
+|   |   |           srv_polling.js.map
+|   |   |           topology.js
+|   |   |           topology.js.map
+|   |   |           topology_description.js
+|   |   |           topology_description.js.map
+|   |   |           
+|   |   \---src
+|   |       |   admin.ts
+|   |       |   beta.ts
+|   |       |   bson.ts
+|   |       |   change_stream.ts
+|   |       |   collection.ts
+|   |       |   connection_string.ts
+|   |       |   constants.ts
+|   |       |   db.ts
+|   |       |   deps.ts
+|   |       |   encrypter.ts
+|   |       |   error.ts
+|   |       |   explain.ts
+|   |       |   index.ts
+|   |       |   mongo_client.ts
+|   |       |   mongo_client_auth_providers.ts
+|   |       |   mongo_logger.ts
+|   |       |   mongo_types.ts
+|   |       |   read_concern.ts
+|   |       |   read_preference.ts
+|   |       |   resource_management.ts
+|   |       |   sessions.ts
+|   |       |   sort.ts
+|   |       |   timeout.ts
+|   |       |   transactions.ts
+|   |       |   utils.ts
+|   |       |   write_concern.ts
+|   |       |   
+|   |       +---bulk
+|   |       |       common.ts
+|   |       |       ordered.ts
+|   |       |       unordered.ts
+|   |       |       
+|   |       +---client-side-encryption
+|   |       |   |   auto_encrypter.ts
+|   |       |   |   client_encryption.ts
+|   |       |   |   crypto_callbacks.ts
+|   |       |   |   errors.ts
+|   |       |   |   mongocryptd_manager.ts
+|   |       |   |   state_machine.ts
+|   |       |   |   
+|   |       |   \---providers
+|   |       |           aws.ts
+|   |       |           azure.ts
+|   |       |           gcp.ts
+|   |       |           index.ts
+|   |       |           
+|   |       +---cmap
+|   |       |   |   commands.ts
+|   |       |   |   command_monitoring_events.ts
+|   |       |   |   connect.ts
+|   |       |   |   connection.ts
+|   |       |   |   connection_pool.ts
+|   |       |   |   connection_pool_events.ts
+|   |       |   |   errors.ts
+|   |       |   |   metrics.ts
+|   |       |   |   stream_description.ts
+|   |       |   |   
+|   |       |   +---auth
+|   |       |   |   |   auth_provider.ts
+|   |       |   |   |   aws_temporary_credentials.ts
+|   |       |   |   |   gssapi.ts
+|   |       |   |   |   mongodb_aws.ts
+|   |       |   |   |   mongodb_oidc.ts
+|   |       |   |   |   mongo_credentials.ts
+|   |       |   |   |   plain.ts
+|   |       |   |   |   providers.ts
+|   |       |   |   |   scram.ts
+|   |       |   |   |   x509.ts
+|   |       |   |   |   
+|   |       |   |   \---mongodb_oidc
+|   |       |   |           automated_callback_workflow.ts
+|   |       |   |           azure_machine_workflow.ts
+|   |       |   |           callback_workflow.ts
+|   |       |   |           command_builders.ts
+|   |       |   |           gcp_machine_workflow.ts
+|   |       |   |           human_callback_workflow.ts
+|   |       |   |           k8s_machine_workflow.ts
+|   |       |   |           machine_workflow.ts
+|   |       |   |           token_cache.ts
+|   |       |   |           token_machine_workflow.ts
+|   |       |   |           
+|   |       |   +---handshake
+|   |       |   |       client_metadata.ts
+|   |       |   |       
+|   |       |   \---wire_protocol
+|   |       |       |   compression.ts
+|   |       |       |   constants.ts
+|   |       |       |   on_data.ts
+|   |       |       |   responses.ts
+|   |       |       |   shared.ts
+|   |       |       |   
+|   |       |       \---on_demand
+|   |       |               document.ts
+|   |       |               
+|   |       +---cursor
+|   |       |       abstract_cursor.ts
+|   |       |       aggregation_cursor.ts
+|   |       |       change_stream_cursor.ts
+|   |       |       client_bulk_write_cursor.ts
+|   |       |       find_cursor.ts
+|   |       |       list_collections_cursor.ts
+|   |       |       list_indexes_cursor.ts
+|   |       |       list_search_indexes_cursor.ts
+|   |       |       run_command_cursor.ts
+|   |       |       
+|   |       +---gridfs
+|   |       |       download.ts
+|   |       |       index.ts
+|   |       |       upload.ts
+|   |       |       
+|   |       +---operations
+|   |       |   |   aggregate.ts
+|   |       |   |   bulk_write.ts
+|   |       |   |   collections.ts
+|   |       |   |   command.ts
+|   |       |   |   count.ts
+|   |       |   |   create_collection.ts
+|   |       |   |   delete.ts
+|   |       |   |   distinct.ts
+|   |       |   |   drop.ts
+|   |       |   |   estimated_document_count.ts
+|   |       |   |   execute_operation.ts
+|   |       |   |   find.ts
+|   |       |   |   find_and_modify.ts
+|   |       |   |   get_more.ts
+|   |       |   |   indexes.ts
+|   |       |   |   insert.ts
+|   |       |   |   is_capped.ts
+|   |       |   |   kill_cursors.ts
+|   |       |   |   list_collections.ts
+|   |       |   |   list_databases.ts
+|   |       |   |   operation.ts
+|   |       |   |   options_operation.ts
+|   |       |   |   profiling_level.ts
+|   |       |   |   remove_user.ts
+|   |       |   |   rename.ts
+|   |       |   |   run_command.ts
+|   |       |   |   set_profiling_level.ts
+|   |       |   |   stats.ts
+|   |       |   |   update.ts
+|   |       |   |   validate_collection.ts
+|   |       |   |   
+|   |       |   +---client_bulk_write
+|   |       |   |       client_bulk_write.ts
+|   |       |   |       command_builder.ts
+|   |       |   |       common.ts
+|   |       |   |       executor.ts
+|   |       |   |       results_merger.ts
+|   |       |   |       
+|   |       |   \---search_indexes
+|   |       |           create.ts
+|   |       |           drop.ts
+|   |       |           update.ts
+|   |       |           
+|   |       \---sdam
+|   |               common.ts
+|   |               events.ts
+|   |               monitor.ts
+|   |               server.ts
+|   |               server_description.ts
+|   |               server_selection.ts
+|   |               server_selection_events.ts
+|   |               srv_polling.ts
+|   |               topology.ts
+|   |               topology_description.ts
+|   |               
+|   +---mongodb-connection-string-url
+|   |   |   .esm-wrapper.mjs
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   +---lib
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       index.js.map
+|   |   |       redact.d.ts
+|   |   |       redact.js
+|   |   |       redact.js.map
+|   |   |       
+|   |       +---tr46
+|   |       |   |   index.js
+|   |       |   |   LICENSE.md
+|   |       |   |   package.json
+|   |       |   |   README.md
+|   |       |   |   
+|   |       |   \---lib
+|   |       |           mappingTable.json
+|   |       |           regexes.js
+|   |       |           statusMapping.js
+|   |       |           
+|   |       +---webidl-conversions
+|   |       |   |   LICENSE.md
+|   |       |   |   package.json
+|   |       |   |   README.md
+|   |       |   |   
+|   |       |   \---lib
+|   |       |           index.js
+|   |       |           
+|   |       \---whatwg-url
+|   |           |   index.js
+|   |           |   LICENSE.txt
+|   |           |   package.json
+|   |           |   README.md
+|   |           |   webidl2js-wrapper.js
+|   |           |   
+|   |           \---lib
+|   |                   encoding.js
+|   |                   Function.js
+|   |                   infra.js
+|   |                   percent-encoding.js
+|   |                   URL-impl.js
+|   |                   url-state-machine.js
+|   |                   URL.js
+|   |                   urlencoded.js
+|   |                   URLSearchParams-impl.js
+|   |                   URLSearchParams.js
+|   |                   utils.js
+|   |                   VoidFunction.js
+|   |                   
+|   +---mongoose
+|   |   |   browser.js
+|   |   |   index.js
+|   |   |   LICENSE.md
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   SECURITY.md
+|   |   |   
+|   |   +---dist
+|   |   |       browser.umd.js
+|   |   |       
+|   |   +---lib
+|   |   |   |   aggregate.js
+|   |   |   |   browser.js
+|   |   |   |   browserDocument.js
+|   |   |   |   cast.js
+|   |   |   |   collection.js
+|   |   |   |   connection.js
+|   |   |   |   connectionState.js
+|   |   |   |   constants.js
+|   |   |   |   document.js
+|   |   |   |   documentProvider.js
+|   |   |   |   driver.js
+|   |   |   |   index.js
+|   |   |   |   internal.js
+|   |   |   |   model.js
+|   |   |   |   modifiedPathsSnapshot.js
+|   |   |   |   mongoose.js
+|   |   |   |   options.js
+|   |   |   |   query.js
+|   |   |   |   queryHelpers.js
+|   |   |   |   schema.js
+|   |   |   |   schemaType.js
+|   |   |   |   stateMachine.js
+|   |   |   |   utils.js
+|   |   |   |   validOptions.js
+|   |   |   |   virtualType.js
+|   |   |   |   
+|   |   |   +---cast
+|   |   |   |       bigint.js
+|   |   |   |       boolean.js
+|   |   |   |       date.js
+|   |   |   |       decimal128.js
+|   |   |   |       double.js
+|   |   |   |       int32.js
+|   |   |   |       number.js
+|   |   |   |       objectid.js
+|   |   |   |       string.js
+|   |   |   |       uuid.js
+|   |   |   |       
+|   |   |   +---cursor
+|   |   |   |       aggregationCursor.js
+|   |   |   |       changeStream.js
+|   |   |   |       queryCursor.js
+|   |   |   |       
+|   |   |   +---drivers
+|   |   |   |   |   SPEC.md
+|   |   |   |   |   
+|   |   |   |   +---browser
+|   |   |   |   |       binary.js
+|   |   |   |   |       decimal128.js
+|   |   |   |   |       index.js
+|   |   |   |   |       objectid.js
+|   |   |   |   |       
+|   |   |   |   \---node-mongodb-native
+|   |   |   |           bulkWriteResult.js
+|   |   |   |           collection.js
+|   |   |   |           connection.js
+|   |   |   |           index.js
+|   |   |   |           
+|   |   |   +---error
+|   |   |   |       browserMissingSchema.js
+|   |   |   |       bulkSaveIncompleteError.js
+|   |   |   |       bulkWriteError.js
+|   |   |   |       cast.js
+|   |   |   |       createCollectionsError.js
+|   |   |   |       divergentArray.js
+|   |   |   |       eachAsyncMultiError.js
+|   |   |   |       index.js
+|   |   |   |       invalidSchemaOption.js
+|   |   |   |       messages.js
+|   |   |   |       missingSchema.js
+|   |   |   |       mongooseError.js
+|   |   |   |       notFound.js
+|   |   |   |       objectExpected.js
+|   |   |   |       objectParameter.js
+|   |   |   |       overwriteModel.js
+|   |   |   |       parallelSave.js
+|   |   |   |       parallelValidate.js
+|   |   |   |       serverSelection.js
+|   |   |   |       setOptionError.js
+|   |   |   |       strict.js
+|   |   |   |       strictPopulate.js
+|   |   |   |       syncIndexes.js
+|   |   |   |       validation.js
+|   |   |   |       validator.js
+|   |   |   |       version.js
+|   |   |   |       
+|   |   |   +---helpers
+|   |   |   |   |   arrayDepth.js
+|   |   |   |   |   clone.js
+|   |   |   |   |   common.js
+|   |   |   |   |   createJSONSchemaTypeDefinition.js
+|   |   |   |   |   each.js
+|   |   |   |   |   firstKey.js
+|   |   |   |   |   get.js
+|   |   |   |   |   getConstructorName.js
+|   |   |   |   |   getDefaultBulkwriteResult.js
+|   |   |   |   |   getFunctionName.js
+|   |   |   |   |   immediate.js
+|   |   |   |   |   isAsyncFunction.js
+|   |   |   |   |   isBsonType.js
+|   |   |   |   |   isMongooseObject.js
+|   |   |   |   |   isObject.js
+|   |   |   |   |   isPOJO.js
+|   |   |   |   |   isPromise.js
+|   |   |   |   |   isSimpleValidator.js
+|   |   |   |   |   minimize.js
+|   |   |   |   |   omitUndefined.js
+|   |   |   |   |   once.js
+|   |   |   |   |   parallelLimit.js
+|   |   |   |   |   pluralize.js
+|   |   |   |   |   printJestWarning.js
+|   |   |   |   |   processConnectionOptions.js
+|   |   |   |   |   promiseOrCallback.js
+|   |   |   |   |   setDefaultsOnInsert.js
+|   |   |   |   |   specialProperties.js
+|   |   |   |   |   symbols.js
+|   |   |   |   |   timers.js
+|   |   |   |   |   updateValidators.js
+|   |   |   |   |   
+|   |   |   |   +---aggregate
+|   |   |   |   |       prepareDiscriminatorPipeline.js
+|   |   |   |   |       stringifyFunctionOperators.js
+|   |   |   |   |       
+|   |   |   |   +---cursor
+|   |   |   |   |       eachAsync.js
+|   |   |   |   |       
+|   |   |   |   +---discriminator
+|   |   |   |   |       applyEmbeddedDiscriminators.js
+|   |   |   |   |       areDiscriminatorValuesEqual.js
+|   |   |   |   |       checkEmbeddedDiscriminatorKeyProjection.js
+|   |   |   |   |       getConstructor.js
+|   |   |   |   |       getDiscriminatorByValue.js
+|   |   |   |   |       getSchemaDiscriminatorByValue.js
+|   |   |   |   |       mergeDiscriminatorSchema.js
+|   |   |   |   |       
+|   |   |   |   +---document
+|   |   |   |   |       applyDefaults.js
+|   |   |   |   |       applyTimestamps.js
+|   |   |   |   |       applyVirtuals.js
+|   |   |   |   |       cleanModifiedSubpaths.js
+|   |   |   |   |       compile.js
+|   |   |   |   |       getDeepestSubdocumentForPath.js
+|   |   |   |   |       getEmbeddedDiscriminatorPath.js
+|   |   |   |   |       handleSpreadDoc.js
+|   |   |   |   |       
+|   |   |   |   +---error
+|   |   |   |   |       combinePathErrors.js
+|   |   |   |   |       
+|   |   |   |   +---indexes
+|   |   |   |   |       applySchemaCollation.js
+|   |   |   |   |       decorateDiscriminatorIndexOptions.js
+|   |   |   |   |       getRelatedIndexes.js
+|   |   |   |   |       isDefaultIdIndex.js
+|   |   |   |   |       isIndexEqual.js
+|   |   |   |   |       isIndexSpecEqual.js
+|   |   |   |   |       isTextIndex.js
+|   |   |   |   |       isTimeseriesIndex.js
+|   |   |   |   |       
+|   |   |   |   +---model
+|   |   |   |   |       applyDefaultsToPOJO.js
+|   |   |   |   |       applyHooks.js
+|   |   |   |   |       applyMethods.js
+|   |   |   |   |       applyStaticHooks.js
+|   |   |   |   |       applyStatics.js
+|   |   |   |   |       castBulkWrite.js
+|   |   |   |   |       decorateBulkWriteResult.js
+|   |   |   |   |       discriminator.js
+|   |   |   |   |       pushNestedArrayPaths.js
+|   |   |   |   |       
+|   |   |   |   +---path
+|   |   |   |   |       parentPaths.js
+|   |   |   |   |       setDottedPath.js
+|   |   |   |   |       
+|   |   |   |   +---populate
+|   |   |   |   |       assignRawDocsToIdStructure.js
+|   |   |   |   |       assignVals.js
+|   |   |   |   |       createPopulateQueryFilter.js
+|   |   |   |   |       getModelsMapForPopulate.js
+|   |   |   |   |       getSchemaTypes.js
+|   |   |   |   |       getVirtual.js
+|   |   |   |   |       leanPopulateMap.js
+|   |   |   |   |       lookupLocalFields.js
+|   |   |   |   |       markArraySubdocsPopulated.js
+|   |   |   |   |       modelNamesFromRefPath.js
+|   |   |   |   |       removeDeselectedForeignField.js
+|   |   |   |   |       setPopulatedVirtualValue.js
+|   |   |   |   |       skipPopulateValue.js
+|   |   |   |   |       validateRef.js
+|   |   |   |   |       
+|   |   |   |   +---projection
+|   |   |   |   |       applyProjection.js
+|   |   |   |   |       hasIncludedChildren.js
+|   |   |   |   |       isDefiningProjection.js
+|   |   |   |   |       isExclusive.js
+|   |   |   |   |       isInclusive.js
+|   |   |   |   |       isNestedProjection.js
+|   |   |   |   |       isPathExcluded.js
+|   |   |   |   |       isPathSelectedInclusive.js
+|   |   |   |   |       isSubpath.js
+|   |   |   |   |       parseProjection.js
+|   |   |   |   |       
+|   |   |   |   +---query
+|   |   |   |   |       applyGlobalOption.js
+|   |   |   |   |       cast$expr.js
+|   |   |   |   |       castFilterPath.js
+|   |   |   |   |       castUpdate.js
+|   |   |   |   |       getEmbeddedDiscriminatorPath.js
+|   |   |   |   |       handleImmutable.js
+|   |   |   |   |       handleReadPreferenceAliases.js
+|   |   |   |   |       hasDollarKeys.js
+|   |   |   |   |       isOperator.js
+|   |   |   |   |       sanitizeFilter.js
+|   |   |   |   |       sanitizeProjection.js
+|   |   |   |   |       selectPopulatedFields.js
+|   |   |   |   |       trusted.js
+|   |   |   |   |       validOps.js
+|   |   |   |   |       
+|   |   |   |   +---schema
+|   |   |   |   |       addAutoId.js
+|   |   |   |   |       applyBuiltinPlugins.js
+|   |   |   |   |       applyPlugins.js
+|   |   |   |   |       applyReadConcern.js
+|   |   |   |   |       applyWriteConcern.js
+|   |   |   |   |       cleanPositionalOperators.js
+|   |   |   |   |       getIndexes.js
+|   |   |   |   |       getKeysInSchemaOrder.js
+|   |   |   |   |       getPath.js
+|   |   |   |   |       getSubdocumentStrictValue.js
+|   |   |   |   |       handleIdOption.js
+|   |   |   |   |       handleTimestampOption.js
+|   |   |   |   |       idGetter.js
+|   |   |   |   |       merge.js
+|   |   |   |   |       
+|   |   |   |   +---schematype
+|   |   |   |   |       handleImmutable.js
+|   |   |   |   |       
+|   |   |   |   +---timestamps
+|   |   |   |   |       setDocumentTimestamps.js
+|   |   |   |   |       setupTimestamps.js
+|   |   |   |   |       
+|   |   |   |   +---topology
+|   |   |   |   |       allServersUnknown.js
+|   |   |   |   |       isAtlas.js
+|   |   |   |   |       isSSLError.js
+|   |   |   |   |       
+|   |   |   |   \---update
+|   |   |   |           applyTimestampsToChildren.js
+|   |   |   |           applyTimestampsToUpdate.js
+|   |   |   |           castArrayFilters.js
+|   |   |   |           decorateUpdateWithVersionKey.js
+|   |   |   |           modifiedPaths.js
+|   |   |   |           moveImmutableProperties.js
+|   |   |   |           removeUnusedArrayFilters.js
+|   |   |   |           updatedPathsByArrayFilter.js
+|   |   |   |           
+|   |   |   +---options
+|   |   |   |       populateOptions.js
+|   |   |   |       propertyOptions.js
+|   |   |   |       saveOptions.js
+|   |   |   |       schemaArrayOptions.js
+|   |   |   |       schemaBufferOptions.js
+|   |   |   |       schemaDateOptions.js
+|   |   |   |       schemaDocumentArrayOptions.js
+|   |   |   |       schemaMapOptions.js
+|   |   |   |       schemaNumberOptions.js
+|   |   |   |       schemaObjectIdOptions.js
+|   |   |   |       schemaStringOptions.js
+|   |   |   |       schemaSubdocumentOptions.js
+|   |   |   |       schemaTypeOptions.js
+|   |   |   |       virtualOptions.js
+|   |   |   |       
+|   |   |   +---plugins
+|   |   |   |       index.js
+|   |   |   |       saveSubdocs.js
+|   |   |   |       sharding.js
+|   |   |   |       trackTransaction.js
+|   |   |   |       validateBeforeSave.js
+|   |   |   |       
+|   |   |   +---schema
+|   |   |   |   |   array.js
+|   |   |   |   |   bigint.js
+|   |   |   |   |   boolean.js
+|   |   |   |   |   buffer.js
+|   |   |   |   |   date.js
+|   |   |   |   |   decimal128.js
+|   |   |   |   |   documentArray.js
+|   |   |   |   |   documentArrayElement.js
+|   |   |   |   |   double.js
+|   |   |   |   |   index.js
+|   |   |   |   |   int32.js
+|   |   |   |   |   map.js
+|   |   |   |   |   mixed.js
+|   |   |   |   |   number.js
+|   |   |   |   |   objectId.js
+|   |   |   |   |   string.js
+|   |   |   |   |   subdocument.js
+|   |   |   |   |   symbols.js
+|   |   |   |   |   uuid.js
+|   |   |   |   |   
+|   |   |   |   \---operators
+|   |   |   |           bitwise.js
+|   |   |   |           exists.js
+|   |   |   |           geospatial.js
+|   |   |   |           helpers.js
+|   |   |   |           text.js
+|   |   |   |           type.js
+|   |   |   |           
+|   |   |   \---types
+|   |   |       |   arraySubdocument.js
+|   |   |       |   buffer.js
+|   |   |       |   decimal128.js
+|   |   |       |   double.js
+|   |   |       |   index.js
+|   |   |       |   map.js
+|   |   |       |   objectid.js
+|   |   |       |   subdocument.js
+|   |   |       |   uuid.js
+|   |   |       |   
+|   |   |       +---array
+|   |   |       |   |   index.js
+|   |   |       |   |   isMongooseArray.js
+|   |   |       |   |   
+|   |   |       |   \---methods
+|   |   |       |           index.js
+|   |   |       |           
+|   |   |       \---documentArray
+|   |   |           |   index.js
+|   |   |           |   isMongooseDocumentArray.js
+|   |   |           |   
+|   |   |           \---methods
+|   |   |                   index.js
+|   |   |                   
+|   |   \---types
+|   |           aggregate.d.ts
+|   |           augmentations.d.ts
+|   |           callback.d.ts
+|   |           collection.d.ts
+|   |           connection.d.ts
+|   |           cursor.d.ts
+|   |           document.d.ts
+|   |           error.d.ts
+|   |           expressions.d.ts
+|   |           helpers.d.ts
+|   |           index.d.ts
+|   |           indexes.d.ts
+|   |           inferrawdoctype.d.ts
+|   |           inferschematype.d.ts
+|   |           middlewares.d.ts
+|   |           models.d.ts
+|   |           mongooseoptions.d.ts
+|   |           pipelinestage.d.ts
+|   |           populate.d.ts
+|   |           query.d.ts
+|   |           schemaoptions.d.ts
+|   |           schematypes.d.ts
+|   |           session.d.ts
+|   |           types.d.ts
+|   |           utility.d.ts
+|   |           validation.d.ts
+|   |           virtuals.d.ts
+|   |           
+|   +---mpath
+|   |   |   .travis.yml
+|   |   |   History.md
+|   |   |   index.js
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   SECURITY.md
+|   |   |   
+|   |   +---lib
+|   |   |       index.js
+|   |   |       stringToParts.js
+|   |   |       
+|   |   \---test
+|   |           .eslintrc.yml
+|   |           index.js
+|   |           stringToParts.js
+|   |           
+|   +---mquery
+|   |   |   History.md
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   SECURITY.md
+|   |   |   
+|   |   +---.github
+|   |   |       ISSUE_TEMPLATE.md
+|   |   |       PULL_REQUEST_TEMPLATE.md
+|   |   |       
+|   |   \---lib
+|   |       |   env.js
+|   |       |   mquery.js
+|   |       |   permissions.js
+|   |       |   utils.js
+|   |       |   
+|   |       \---collection
+|   |               collection.js
+|   |               index.js
+|   |               node.js
+|   |               
 |   +---ms
 |   |       index.js
 |   |       license.md
@@ -14732,6 +15956,39 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   \---test
 |   |           index.js
 |   |           
+|   +---sift
+|   |   |   index.d.ts
+|   |   |   index.js
+|   |   |   MIT-LICENSE.txt
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   sift.csp.min.js
+|   |   |   sift.csp.min.js.map
+|   |   |   sift.min.js
+|   |   |   sift.min.js.map
+|   |   |   
+|   |   +---es
+|   |   |       index.js
+|   |   |       index.js.map
+|   |   |       
+|   |   +---es5m
+|   |   |       index.js
+|   |   |       index.js.map
+|   |   |       
+|   |   +---lib
+|   |   |       core.d.ts
+|   |   |       index.d.ts
+|   |   |       index.js
+|   |   |       index.js.map
+|   |   |       operations.d.ts
+|   |   |       utils.d.ts
+|   |   |       
+|   |   \---src
+|   |           core.ts
+|   |           index.ts
+|   |           operations.ts
+|   |           utils.ts
+|   |           
 |   +---signal-exit
 |   |       index.js
 |   |       LICENSE.txt
@@ -14802,6 +16059,15 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       register-hook-require.js
 |   |       register.js
 |   |       source-map-support.js
+|   |       
+|   +---sparse-bitfield
+|   |       .npmignore
+|   |       .travis.yml
+|   |       index.js
+|   |       LICENSE
+|   |       package.json
+|   |       README.md
+|   |       test.js
 |   |       
 |   +---sprintf-js
 |   |   |   .npmignore
@@ -18984,15 +20250,45 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       
     +---config
     |       env.ts
+    |       mongoConnect.ts
     |       swagger.ts
     |       
     +---controllers
     |       webhookController.ts
     |       
+    +---media
+    |   |   mediaMap.ts
+    |   |   
+    |   +---images
+    |   |   \---produto1
+    |   |       +---01-abordagem
+    |   |       +---02-levantamento
+    |   |       +---03-proposta
+    |   |       +---04-objecoes
+    |   |       +---05-negociacao
+    |   |       +---06-fechamento
+    |   |       +---07-posvenda
+    |   |       +---08-reativacao
+    |   |       \---09-encerramento
+    |   \---videos
+    |       \---produto1
+    |           +---01-abordagem
+    |           +---02-levantamento
+    |           +---03-proposta
+    |           +---04-objecoes
+    |           +---05-negociacao
+    |           +---06-fechamento
+    |           +---07-posvenda
+    |           +---08-reativacao
+    |           \---09-encerramento
     +---middlewares
     |       errorMiddleware.ts
     |       rateLimiterMiddleware.ts
     |       validationMiddleware.ts
+    |       
+    +---models
+    |       interactionModel.ts
+    |       Profile.ts
     |       
     +---persona
     |       botPersona.ts
@@ -19008,24 +20304,37 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       04-objecoes.ts
     |       05-negociacao.ts
     |       06-fechamento.ts
-    |       07-posVenda.ts
+    |       07-posvenda.ts
     |       08-reativacao.ts
     |       09-encerramento.ts
     |       index.ts
     |       
+    +---repositories
+    |   |   clientProfileRepository.ts
+    |   |   interactionsRepository.ts
+    |   |   
+    |   \---mongo
+    |           interactionLog.mongo.ts
+    |           
     +---routes
     |       webhook.routes.ts
     |       
     +---services
     |       aiStateDecider.ts
+    |       analyzeClientProfile.ts
     |       audioCounter.ts
     |       audioService.ts
+    |       clientProfileRepository.ts
     |       clientRepository.ts
+    |       contextMemory.ts
     |       conversationManager.ts
     |       dataExtractor.ts
+    |       dynamicClientMonitor.ts
     |       humanizer.ts
     |       intentFallback.ts
     |       intentMap.ts
+    |       interactionMongoService.ts
+    |       reengagementService.ts
     |       
     +---stateMachine
     |       index.ts
@@ -19038,14 +20347,18 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |   +---integration
     |   |       clientRepository.integration.test.ts
     |   |       conversationManager.integration.test.ts
+    |   |       test-mongo.test.ts
+    |   |       test-mongo.ts
     |   |       voiceMessage.integration.test.ts
     |   |       webhook.integration.test.ts
+    |   |       webhookController.duplicate.integration.test.ts
     |   |       webhookController.test.ts
     |   |       
     |   \---unit
     |           audioCounter.test.ts
     |           audioService.test.ts
     |           clientRepository.test.ts
+    |           conversationManager.duplicate.test.ts
     |           conversationManager.test.ts
     |           dataExtractor.test.ts
     |           db.test.ts
@@ -19060,6 +20373,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |           produtoMap.test.ts
     |           prompts.test.ts
     |           rateLimiterMiddleware.test.ts
+    |           sendText.duplicate.test.ts
     |           stateMachine.test.ts
     |           validationMiddleware.test.ts
     |           whatsapp.test.ts
@@ -19070,5 +20384,9 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     \---utils
             db.ts
             logger.ts
+            midiaHelper.ts
+            mongo.ts
             ngrokUpdater.ts
+            temperatureDecider.ts
+            typingSimulator.ts
             

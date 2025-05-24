@@ -4,6 +4,7 @@ import 'dotenv/config';
 import createApp from './app';
 import { createDbPool, testDbConnection } from './utils/db';
 import { logger } from './utils/logger';
+import { connectToMongo } from './config/mongoConnect'; // ✅ Conexão MongoDB
 
 async function bootstrap() {
   try {
@@ -13,14 +14,25 @@ async function bootstrap() {
     logger.info(`🌍 Ambiente: ${nodeEnv}`);
     logger.info(`📡 Iniciando servidor na porta ${port}...`);
 
-    // Inicializa conexão com banco (cria pool)
+    // 🧪 Etapa 1: criar pool de conexão com MySQL
+    logger.debug('🔄 Criando pool do MySQL...');
     createDbPool();
 
-    // Verifica a conexão antes de subir o servidor
+    // 🧪 Etapa 2: testar conexão com MySQL
+    logger.debug('🔄 Testando conexão MySQL...');
     await testDbConnection();
+    logger.debug('✅ MySQL conectado com sucesso');
 
-    // Cria e inicia servidor
+    // 🧪 Etapa 3: conectar ao MongoDB
+    logger.debug('🔄 Conectando ao MongoDB...');
+    await connectToMongo();
+    logger.debug('✅ MongoDB conectado com sucesso');
+
+    // 🧪 Etapa 4: criar aplicação Express
+    logger.debug('🚧 Criando app Express...');
     const app = createApp();
+
+    // 🧪 Etapa 5: iniciar servidor HTTP
     app.listen(port, () => {
       logger.info(`🚀 Servidor rodando em http://localhost:${port}`);
     });
