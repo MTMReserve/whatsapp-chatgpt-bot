@@ -1,4 +1,3 @@
-// src/prompts/06-fechamento.ts
 import { type ProdutoID } from '../produto/produtoMap';
 import { getProdutoInfo } from '../produto/produtoMap';
 
@@ -19,6 +18,11 @@ const fechamentoPrompt = (produtoId: ProdutoID): string => {
     : '';
 
   return `
+⚠️ DICA PARA A IA:
+- Antes de pedir dados finais, verifique no histórico acima se já estão presentes.
+- Se o cliente já informou nome, forma de pagamento, endereço ou agendamento, apenas confirme com gentileza.
+- Evite perguntas repetitivas que possam parecer desatenção ou falta de personalização.
+
 🎯 OBJETIVO DESTA ETAPA:
 - Confirmar o interesse do cliente e conduzir para a finalização da compra.
 - Coletar os dados finais (nome completo, forma de pagamento, endereço, agendamento).
@@ -53,8 +57,13 @@ const fechamentoPrompt = (produtoId: ProdutoID): string => {
   - Horário ou data preferida (se for com agendamento)
 - Se o cliente já tiver informado, evite repetir. Apenas confirme.
 
-${blocoPagamento}${blocoEntrega}
+📏 INSTRUÇÃO CRÍTICA:
+- Responda com a menor quantidade de palavras possível.
+- Use **apenas 1 frase curta e objetiva**.
+- Só forneça mais detalhes **se o cliente pedir**.
+- Nunca explique mais do que o necessário.
 
+${blocoPagamento}${blocoEntrega}
 `;
 };
 

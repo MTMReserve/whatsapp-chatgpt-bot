@@ -80,7 +80,7 @@ export async function handleWebhook(req: Request, res: Response): Promise<Respon
         logger.debug(`[webhook] Áudio transcrito: ${transcribedText}`);
         logger.info(`[mensagem] 📥 Mensagem recebida do cliente (${phone}): "${transcribedText}"`);
 
-        const response = await handleMessage(phone, transcribedText, { isAudio: true });
+        const response = await handleMessage(phone, transcribedText, 'produto1');
 
         if (response.audioBuffer) {
           await simulateRealisticTyping(async () => {
@@ -104,7 +104,7 @@ export async function handleWebhook(req: Request, res: Response): Promise<Respon
       logger.debug(`[webhook] Texto recebido: ${text}`);
       logger.info(`[mensagem] 📥 Mensagem recebida do cliente (${phone}): "${text}"`);
 
-      const response = await handleMessage(phone, text, { isAudio: false });
+      const response = await handleMessage(phone, text, 'produto1');
 
       if (response.audioBuffer) {
         await simulateRealisticTyping(async () => {

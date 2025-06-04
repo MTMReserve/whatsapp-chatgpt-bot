@@ -1,25 +1,8 @@
 import { pool } from '../utils/db';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { logger } from '../utils/logger';
-
-export interface Client {
-  id: number;
-  name: string;
-  phone: string;
-  current_state?: string;
-  needs?: string;
-  budget?: number;
-  negotiated_price?: number;
-  address?: string;
-  payment_method?: string;
-  feedback?: string;
-  reactivation_reason?: string;
-  retries?: number;
-  has_greeted?: boolean;
-  last_interaction?: Date; // <-- NOVO
-  created_at?: Date;
-  updated_at?: Date;
-}
+import { CampoCliente } from '../types/CampoCliente';
+import type { Client } from '../types/Client'; // ✅ Importação oficial
 
 export class ClientRepository {
   static async create(data: Omit<Client, 'id'>): Promise<Client> {
@@ -29,7 +12,7 @@ export class ClientRepository {
       [data.name, data.phone]
     );
     const id = result.insertId;
-    return { id, name: data.name, phone: data.phone };
+    return { id, name: data.name, phone: data.phone } as Client;
   }
 
   static async getAll(): Promise<Client[]> {
@@ -60,45 +43,54 @@ export class ClientRepository {
     let client = await this.findByPhone(phone);
     if (!client) {
       logger.warn(`[ClientRepository] Cliente não encontrado, criando novo para: ${phone}`);
-      await this.create({ name: 'Cliente', phone });
+      await this.create({ name: 'Cliente', phone } as Omit<Client, 'id'>);
       client = await this.findByPhone(phone);
     }
+
+    // ✅ Correção: tratar nome padrão "Cliente" como valor inválido
+    if (client?.name?.toLowerCase() === 'cliente') {
+      logger.debug(`[ClientRepository] Ignorando nome padrão "Cliente" — será tratado como null`);
+      client.name = null;
+    }
+
     return client!;
   }
 
   static async updateState(phone: string, state: string): Promise<void> {
     logger.info(`[ClientRepository] Atualizando estado do cliente: ${phone} → ${state}`);
     await pool.query(
-      'UPDATE clients SET current_state = ? WHERE phone = ?',
+      'UPDATE clients SET current_state = ?, retries = 0 WHERE phone = ?',
       [state, phone]
     );
+    logger.debug(`[ClientRepository] current_state atualizado para '${state}' e retries resetado`);
   }
 
   static async updateField(
     phone: string,
-    field: keyof Client,
+    field: CampoCliente,
     value: any
-  ): Promise<void> {
-    const allowedFields: (keyof Client)[] = [
-      'name',
-      'current_state',
-      'needs',
-      'budget',
-      'negotiated_price',
-      'address',
-      'payment_method',
-      'feedback',
-      'reactivation_reason',
-      'has_greeted'
+  ): Promise<boolean> {
+    const camposValidos: (keyof Client)[] = [
+      'name', 'phone', 'current_state', 'needs', 'budget', 'negotiated_price', 'address',
+      'payment_method', 'schedule_time', 'feedback', 'reactivation_reason', 'attempted_solutions',
+      'expectations', 'urgency_level', 'client_stage', 'objection_type', 'purchase_intent',
+      'scheduling_preference', 'disponibilidade', 'motivo_objeção', 'alternativa', 'desconto',
+      'forma_pagamento', 'confirmacao', 'indicacao', 'retries', 'has_greeted',
+      'last_interaction', 'created_at', 'updated_at', 'produto_id' // ✅ incluído
     ];
-    if (!allowedFields.includes(field)) {
-      const msg = `[ClientRepository] Campo não permitido para update: ${field}`;
+
+    if (!camposValidos.includes(field as keyof Client)) {
+      const msg = `[ClientRepository] ❌ Campo inválido (não está na interface Client): ${field}`;
       logger.error(msg);
       throw new Error(msg);
     }
+
     logger.info(`[ClientRepository] Atualizando campo ${field} para ${phone}: ${value}`);
     const query = `UPDATE clients SET \`${field}\` = ? WHERE phone = ?`;
-    await pool.query(query, [value, phone]);
+    const [result] = await pool.query<ResultSetHeader>(query, [value, phone]);
+    logger.debug(`[ClientRepository] Resultado do update:`, result);
+
+    return 'affectedRows' in result && result.affectedRows > 0;
   }
 
   static async updateRetries(phone: string, retries: number): Promise<void> {
@@ -107,9 +99,9 @@ export class ClientRepository {
       'UPDATE clients SET retries = ? WHERE phone = ?',
       [retries, phone]
     );
+    logger.info(`[ClientRepository] retries atualizado para ${retries} no cliente ${phone}`);
   }
 
-  // ✅ NOVO: Atualiza o campo last_interaction para agora
   static async updateLastInteraction(clientId: number): Promise<void> {
     try {
       await pool.query(
@@ -122,7 +114,7 @@ export class ClientRepository {
     }
   }
 
-  // Instâncias auxiliares
+  // Métodos de instância — reaproveitam os estáticos
   create(data: Omit<Client, 'id'>): Promise<Client> {
     return ClientRepository.create(data);
   }
@@ -137,9 +129,9 @@ export class ClientRepository {
   }
   updateFieldInstance(
     phone: string,
-    field: keyof Client,
+    field: CampoCliente,
     value: any
-  ): Promise<void> {
+  ): Promise<boolean> {
     return ClientRepository.updateField(phone, field, value);
   }
   updateRetriesInstance(phone: string, retries: number): Promise<void> {

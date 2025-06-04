@@ -15,6 +15,17 @@ export type ProdutoID = 'produto1' | 'produto2';
 type FormaPagamento = 'pix' | 'debito' | 'credito' | 'boleto' | 'dinheiro';
 
 /**
+ * 💰 Estrutura de negociação para cada produto
+ */
+type Negociacao = {
+  preco_base: number;
+  desconto_pix: number; // Ex: 0.1 para 10%
+  preco_com_desconto: number;
+  condicao_para_desconto: string;
+  observacoes?: string;
+};
+
+/**
  * 🧱 Estrutura de dados de cada produto, preenchida pelo cliente B2B.
  * Esses campos são usados pelo bot para instruir o cliente B2C na etapa de fechamento.
  */
@@ -26,11 +37,16 @@ export const produtoMap: Record<ProdutoID, {
   promocao?: string;
   garantias?: string;
 
-  // 🔽 Campos específicos para o fechamento da venda
   formasPagamento?: FormaPagamento[];
   instrucoesPagamento?: string;
   entrega?: 'retirada' | 'envio' | 'digital';
   instrucoesEntrega?: string;
+
+  requires_address?: boolean;
+
+  negociacao?: Negociacao;
+
+  local_realizacao?: string; // ✅ Adicionado para controle de endereço fixo
 }> = {
   produto1: {
     nome: 'Micropigmentação de Barba',
@@ -54,7 +70,18 @@ export const produtoMap: Record<ProdutoID, {
     formasPagamento: ['pix', 'credito', 'debito'],
     instrucoesPagamento: 'Pagamento via Pix na chave CNPJ: 00.000.000/0001-00 ou com cartão de débito/crédito na barbearia.',
     entrega: 'retirada',
-    instrucoesEntrega: 'Compareça à barbearia no horário agendado com documento de identificação.',
+    instrucoesEntrega: 'Compareça na barbearia O MOTIM - Avenida Santa Cruz dos Lázaros, 58 - São João, Jacareí, no horário agendado. Leve um documento de identificação.',
+    requires_address: false,
+
+    negociacao: {
+      preco_base: 497,
+      desconto_pix: 0.1,
+      preco_com_desconto: 447.3,
+      condicao_para_desconto: 'Pagamento à vista via PIX',
+      observacoes: 'Promoção válida até o fim do mês'
+    },
+
+    local_realizacao: 'Jacareí/SP - Avenida Santa Cruz dos Lázaros, 58, bairro São João, dentro da barbearia O MOTIM' // ✅ Endereço fixo padronizado
   },
 
   produto2: {
@@ -67,7 +94,7 @@ export const produtoMap: Record<ProdutoID, {
       'Atendimento personalizado por visagistas experientes'
     ],
     preco: 'R$ 290',
-    // ⚠️ Este produto ainda não contém dados completos para o fechamento.
+    requires_address: false
   }
 };
 

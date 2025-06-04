@@ -1,45 +1,54 @@
 import type { PerfilCliente } from '../models/Profile';
 import { botPersona } from '../persona/botPersona';
 import { logger } from '../utils/logger';
+import { PerfilClienteModel } from '../models/PerfilCliente.mongo'; // ✅
 
 /**
- * Traduz o estilo de fala do botPersona em um PerfilCliente válido.
+ * Recupera o perfil real salvo no MongoDB para o telefone informado.
+ * Se não encontrar, retorna um perfil padrão (fallback).
  */
-export function getAnalyzedProfile(phone: string): PerfilCliente {
-  logger.info(`[perfilCliente] 🔍 Recuperando perfil para ${phone} baseado no botPersona`);
+export async function getAnalyzedProfileFromMongo(phone: string): Promise<PerfilCliente> {
+  logger.info(`[perfilCliente] 🔍 Buscando perfil no MongoDB para phone: ${phone}`);
+
+  const doc = await PerfilClienteModel.findOne({ phone }).lean();
+
+  if (doc?.perfilCompleto) {
+    logger.info(`[perfilCliente] ✅ Perfil encontrado no MongoDB para ${phone}`);
+    return doc.perfilCompleto as PerfilCliente;
+  }
+
+  logger.warn(`[perfilCliente] ⚠️ Perfil não encontrado para ${phone}. Retornando perfil padrão.`);
+  return {
+    formalidade: 'informal',
+    emojis: false,
+    fala: 'fala muito',
+    detalhamento: 'direto',
+    temperamento: 'sanguíneo',
+    linguagemTecnica: 'mista',
+    urgencia: 'paciente',
+  };
+}
+
+/**
+ * Versão anterior – ainda usa botPersona como fonte do perfil.
+ * Utilizar apenas para debug ou fallback local.
+ */
+export function getAnalyzedProfileByClientId(clientId: string): PerfilCliente {
+  logger.info(`[perfilCliente] 🔍 Recuperando perfil local para clientId ${clientId} baseado no botPersona`);
 
   const estilo = botPersona.estiloDeFala;
 
-  logger.debug(`[perfilCliente] Estilo de fala atual aplicado no botPersona:`, estilo);
-
-  // Traduções seguras com fallback
-  const formalidade: PerfilCliente['formalidade'] =
-    estilo.formalidade === 'informal' ? 'informal' : 'formal';
-
-  const detalhamento: PerfilCliente['detalhamento'] =
-    estilo.detalhamento === 'detalhista' || estilo.detalhamento === 'direto'
-      ? estilo.detalhamento
-      : 'detalhista';
-
-  const temperamento: PerfilCliente['temperamento'] =
-    ['sanguíneo', 'colérico', 'melancólico', 'fleumático'].includes(estilo.temperamento)
-      ? (estilo.temperamento as PerfilCliente['temperamento'])
-      : 'sanguíneo';
-
-  const linguagemTecnica: PerfilCliente['linguagemTecnica'] = 'mista'; // valor válido
-  const urgencia: PerfilCliente['urgencia'] = 'paciente'; // valor válido
-
   const perfil: PerfilCliente = {
-    formalidade,
+    formalidade: estilo.formalidade as PerfilCliente['formalidade'],
     emojis: estilo.emojis,
     fala: estilo.frasesCurtas ? 'fala pouco' : 'fala muito',
-    detalhamento,
-    temperamento,
-    linguagemTecnica,
-    urgencia,
+    detalhamento: estilo.detalhamento as PerfilCliente['detalhamento'],
+    temperamento: estilo.temperamento as PerfilCliente['temperamento'],
+    linguagemTecnica: 'mista',
+    urgencia: 'paciente',
   };
 
-  logger.info(`[perfilCliente] ✅ Perfil completo reconstruído para ${phone}`);
+  logger.info(`[perfilCliente] ✅ Perfil local reconstruído para clientId ${clientId}`);
   logger.debug(`[perfilCliente] PerfilCliente resultante:`, perfil);
 
   return perfil;

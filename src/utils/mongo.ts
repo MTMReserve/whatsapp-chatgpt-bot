@@ -1,3 +1,7 @@
+// ===============================
+// File: src/utils/mongo.ts
+// ===============================
+
 import mongoose from 'mongoose';
 import { logger } from './logger';
 import { env } from '../config/env'; // ✅ Correção: usa env tipado

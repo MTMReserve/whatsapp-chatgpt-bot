@@ -1,0 +1,64 @@
+C:\projetos\whatsapp-chatgpt-bot> git log --oneline --decorate --graph --all
+
+* 612f3bf (HEAD -> master, tag: v1.9.2, tag: v1.9.1) feat: salvar progresso e preparar nova versão
+* aac1fe7 chore(cleanup): move arquivos obsoletos da state machine para __deprecated__
+* f5f520f (tag: v1.9.0, tag: v1.8.2, origin/master) feat(v1.8.2): salva alterações locais, novos testes e melhorias internas (sem arquivos sensíveis)
+* b7e3e6a (tag: v1.8.1) feat(v1.8.1): ajustes finais, limpeza e melhorias com segurança garantida
+* 6df2ec5 (tag: v1.8.0) feat(v1.8.0): atualiza projeto com novos testes, extratores e ajustes finais (sem arquivos sensíveis)
+* 4af7005 (tag: v1.7.1) fix(v1.7.1): recria commit sem chaves sensíveis e adiciona .env.local ao .gitignore
+* e383f4e (tag: v1.7.0) feat(v1.7.0): inicia extração e persistência de dados por etapa do funil com testes
+* 4d53a68 (tag: v1.6.0) feat(v1.6.0): adiciona suporte a mensagens de voz com transcrição e síntese
+* e26e026 (tag: v1.5.0) feat: nova estrutura de prompts, intentMap e stateMachine atualizada
+* cb1ee7a chore: atualiza swagger e exemplo de env, adiciona dockerignore
+* d92f572 fix: remove uso de 'any' em env.ts para passar lint
+* 771c725 docs: adiciona seção de exclusão de dados conforme exigência da Meta
+* 446853d Create privacy-policy.html
+* 014a999 (origin/fix/webhook-verification, fix/webhook-verification) fix: implementa verificação GET do webhook para validação Meta
+* 53f9373 fix: move swagger-jsdoc and swagger-ui-express to dependencies
+* b56207e chore: add Dockerfile for docker-compose
+* 3801fbc chore: add docker-compose.yml to project
+| * aba257c (tag: v1.4.0, stable/v1.1.0-meta) feat: implementa intentMap, stateMachine e roteamento por estágio [v1.4.0]
+| * f309041 (tag: v1.3.0) feat(v1.3.0): estrutura de persona, prompts por estágio, delay e humanização aplicada
+| * d6d423f docs: update changelog for v1.3.0
+| * ef10c93 fix: atualização env.ts e .env para uso com Meta API
+|/
+* 7da4be3 (tag: v1.1.0) chore(release): bump version to v1.1.0
+*   9c0f872 (ci) Merge pull request #3 from MTMReserve/ci
+|\
+| * 7cddc87 (origin/ci) test(humanizer): usa importação nomeada da classe Humanizer
+| * e99fdc4 test(humanizer): corrige import e usa métodos estáticos da classe
+| * 46b4474 test(humanizer): importa funções nomeadas delay/randomDelay
+| * 067cb0b test(humanizer): corrige importação para namespace e ajusta teste
+| * 00e745a chore(gitignore): ignora coverage/ e dist/ no repositório
+| * d920ad6 test(humanizer): adiciona import e ajusta tolerância de tempo
+| * e909df1 test(humanizer): torna o teste determinístico com fake timers
+| * bb28214 test(validationMiddleware): corrige setup local de express.json
+| * 84e6ff0 chore(ci): ajusta workflow e mantém testes verdes
+| * 774e80e fix: corrigido tipo de retorno e exportação nomeada do middleware
+| * d4f27f6 fix: corrigido erros de lint para CI
+| * f700842 ci: atualizar workflow CI (build, cache e MySQL)
+| * 5a69227 ci: refatorar workflow CI com cache, build e serviço MySQL
+* | 99a234d Merge pull request #2 from MTMReserve/ci
+|\|
+| * 7435582 fix: remover unused next e ajustar tipagem em errorMiddleware
+| * 63de374 fix: tipagem de retorno em webhookController
+| * d9db137 ci: add GitHub Actions for lint and tests
+|/
+*   1ef77e1 Merge pull request #1 from MTMReserve/docs
+|\
+| * e4bfb93 (origin/docs, docs) docs: add Swagger JSDoc annotations for /webhook
+|/
+* 04f274f (tag: v1.0.1) chore(release): v1.0.1
+* 75c3ef6 chore: versão estável final com testes e cobertura OK
+* 900f787 (tag: v0.4.0, origin/feat/app-server, test, restaurar-v040, feat/app-server, backup-estavel-v1) feat(app-server): add express app and server entrypoint
+* e16e233 (tag: v0.3.0, origin/feat/services, feat/services) feat: finaliza etapa 7 - serviços e atualiza changelog detalhado
+| * 9beb123 (origin/feat/controllers, feat/controllers) feat: add webhook controller, middlewares finalizados e testes integrados
+|/
+* 4006fec (tag: v0.2.0) feat: middlewares de error, validation e rate limiter implementados
+* e60e21e (tag: v0.1.1-mvp1) docs: criação do changelog v0.1.1-mvp1
+* 003b229 (tag: v0.1.0-mvp1) feat: infraestrutura de teste e clients OpenAI/Twilio funcionando
+* 8ebe6cb (tag: v0.0.1-alpha) chore(setup): estrutura inicial do projeto
+
+
+
+

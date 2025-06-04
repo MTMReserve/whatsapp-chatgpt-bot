@@ -1,12 +1,14 @@
 Listagem de caminhos de pasta
-O n£mero de s‚rie do volume ‚ 00000072 5A9E:B15F
+O n£mero de s‚rie do volume ‚ 00000040 5A9E:B15F
 C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   .dockerignore
 |   .env
 |   .env.example
+|   .env.test
 |   .gitignore
 |   .prettierrc
 |   3
+|   dir
 |   docker-compose.yml
 |   Dockerfile
 |   env.local
@@ -16,6 +18,10 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   jest.setup.ts
 |   package-lock.json
 |   package.json
+|   referencias.txt
+|   relatorio conversar versao 1.15.txt
+|   tatus
+|   testar-update.ts
 |   tsconfig.json
 |   ymbolic-ref --short HEAD
 |   
@@ -160,6 +166,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |   \---mongo
 |       |   |           index.html
 |       |   |           interactionLog.mongo.ts.html
+|       |   |           rejectionLog.mongo.ts.html
 |       |   |           
 |       |   +---routes
 |       |   |       index.html
@@ -181,9 +188,12 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |       |   |       intentFallback.ts.html
 |       |   |       intentMap.ts.html
 |       |   |       interactionMongoService.ts.html
+|       |   |       metaPorEtapa.ts.html
 |       |   |       reengagementService.ts.html
 |       |   |       resumoDoHistorico.ts.html
 |       |   |       stateMachine.ts.html
+|       |   |       validadorIA.ts.html
+|       |   |       validadorMultiplos.ts.html
 |       |   |       
 |       |   +---stateMachine
 |       |   |       index.html
@@ -288,6 +298,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       botPersona.js
 |   |       
 |   +---produto
+|   |       fichaProduto.exemplo.js
 |   |       produtoMap.js
 |   |       
 |   +---prompts
@@ -298,7 +309,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       04-objecoes.js
 |   |       05-negociacao.js
 |   |       06-fechamento.js
-|   |       07-posVenda.js
+|   |       07-posvenda.js
 |   |       08-reativacao.js
 |   |       09-encerramento.js
 |   |       index.js
@@ -309,6 +320,8 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   |   
 |   |   \---mongo
 |   |           interactionLog.mongo.js
+|   |           logsEstrategia.mongo.js
+|   |           rejectionLog.mongo.js
 |   |           
 |   +---routes
 |   |       webhook.routes.js
@@ -318,6 +331,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       analyzeClientProfile.js
 |   |       audioCounter.js
 |   |       audioService.js
+|   |       checklistFechamento.js
 |   |       clientProfileRepository.js
 |   |       clientRepository.js
 |   |       contextMemory.js
@@ -326,12 +340,16 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |       dynamicClientMonitor.js
 |   |       humanizer.js
 |   |       intentFallback.js
-|   |       intentMap.js
 |   |       interactionMongoService.js
+|   |       levantamentoAdaptativo.js
+|   |       metaPorEtapa.js
+|   |       objectionMonitor.js
 |   |       reengagementService.js
-|   |       
-|   +---stateMachine
-|   |       index.js
+|   |       resumoDoHistorico.js
+|   |       validadorIA.js
+|   |       validadorMultiplos.js
+|   |       verificadorContradicoes.js
+|   |       verificadorPropostaNegociacao.js
 |   |       
 |   +---tests
 |   |   +---e2e
@@ -339,8 +357,11 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   |       webhook.e2e.test.js
 |   |   |       
 |   |   +---integration
+|   |   |       aiStateDecider.integration.test.js
 |   |   |       clientRepository.integration.test.js
+|   |   |       conversationManager.fechamento.integration.test.js
 |   |   |       conversationManager.integration.test.js
+|   |   |       fechamento.integration.test.js
 |   |   |       test-mongo.js
 |   |   |       test-mongo.test.js
 |   |   |       voiceMessage.integration.test.js
@@ -349,6 +370,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |   |       webhookController.test.js
 |   |   |       
 |   |   \---unit
+|   |           aiStateDecider.test.js
 |   |           audioCounter.test.js
 |   |           audioService.test.js
 |   |           clientRepository.test.js
@@ -357,10 +379,8 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |           dataExtractor.test.js
 |   |           db.test.js
 |   |           errorMiddleware.test.js
-|   |           funnelMachine.test.js
 |   |           humanizer.test.js
 |   |           intentFallback.test.js
-|   |           intentMap.test.js
 |   |           ngrokUpdater.test.js
 |   |           openai.client.test.js
 |   |           openaiWrapper.test.js
@@ -368,29 +388,43 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |           prompts.test.js
 |   |           rateLimiterMiddleware.test.js
 |   |           sendText.duplicate.test.js
-|   |           stateMachine.test.js
+|   |           validadorMultiplos.extra.test.js
+|   |           validadorMultiplos.test.js
 |   |           validationMiddleware.test.js
 |   |           whatsapp.test.js
 |   |           
+|   +---tools
+|   |       listarVozesEleven.js
+|   |       
+|   +---types
+|   |       CampoCliente.js
+|   |       Client.js
+|   |       MongoSchemas.js
+|   |       
 |   +---utils
 |   |       db.js
+|   |       formatarRespostaIA.js
 |   |       logger.js
 |   |       midiaHelper.js
 |   |       mongo.js
+|   |       naturalizarTexto.js
 |   |       ngrokUpdater.js
 |   |       temperatureDecider.js
 |   |       typingSimulator.js
 |   |       
 |   \---__deprecated__
-|           funnelMachine.test.js
 |           index.js
-|           stateMachine.test.js
 |           
 +---docs
 |       changelog.md
 |       documentacao-basica.txt
+|       lista-de-versoes.txt
 |       privacy-policy.html
 |       
++---logs
+|   \---ia_respostas
+|           resposta_2025-05-24T19-01-42-072Z.txt
+|           
 |   |   .package-lock.json
 |   |   
 |   +---.bin
@@ -9585,6 +9619,16 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |   |                   stringify.js
 |   |                   utils.js
 |   |                   
+|   +---extenso
+|   |   |   index.d.ts
+|   |   |   LICENSE
+|   |   |   package.json
+|   |   |   README.md
+|   |   |   
+|   |   \---dist
+|   |           extenso.js
+|   |           extenso.min.js
+|   |           
 |   +---fast-deep-equal
 |   |   |   index.d.ts
 |   |   |   index.js
@@ -20240,7 +20284,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
 |                   
 \---src
     |   app.ts
-    |   estrutura_projeto.txt
+    |   prompts.zip
     |   server.ts
     |   
     +---api
@@ -20314,7 +20358,11 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |   |   interactionsRepository.ts
     |   |   
     |   \---mongo
+    |           auditLog.mongo.ts
+    |           feedbackIA.mongo.ts
     |           interactionLog.mongo.ts
+    |           logsEstrategia.mongo.ts
+    |           rejectionLog.mongo.ts
     |           
     +---routes
     |       webhook.routes.ts
@@ -20324,6 +20372,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       analyzeClientProfile.ts
     |       audioCounter.ts
     |       audioService.ts
+    |       checklistFechamento.ts
     |       clientProfileRepository.ts
     |       clientRepository.ts
     |       contextMemory.ts
@@ -20333,17 +20382,26 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |       humanizer.ts
     |       intentFallback.ts
     |       interactionMongoService.ts
+    |       levantamentoAdaptativo.ts
+    |       metaPorEtapa.ts
+    |       objectionMonitor.ts
     |       reengagementService.ts
+    |       registrarAuditoriaIA.ts
     |       resumoDoHistorico.ts
+    |       validadorIA.ts
+    |       validadorMultiplos.ts
+    |       verificadorContradicoes.ts
+    |       verificadorPropostaNegociacao.ts
     |       
-    +---stateMachine
     +---tests
     |   +---e2e
     |   |       funnelFlow.e2e.ts
     |   |       webhook.e2e.test.ts
     |   |       
     |   +---integration
+    |   |       aiStateDecider.integration.test.ts
     |   |       clientRepository.integration.test.ts
+    |   |       conversationManager.fechamento.integration.test.ts
     |   |       conversationManager.integration.test.ts
     |   |       fechamento.integration.test.ts
     |   |       test-mongo.test.ts
@@ -20354,6 +20412,7 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |   |       webhookController.test.ts
     |   |       
     |   \---unit
+    |           aiStateDecider.test.ts
     |           audioCounter.test.ts
     |           audioService.test.ts
     |           clientRepository.test.ts
@@ -20371,17 +20430,27 @@ C:\PROJETOS\WHATSAPP-CHATGPT-BOT
     |           prompts.test.ts
     |           rateLimiterMiddleware.test.ts
     |           sendText.duplicate.test.ts
+    |           validadorMultiplos.extra.test.ts
+    |           validadorMultiplos.test.ts
     |           validationMiddleware.test.ts
     |           whatsapp.test.ts
     |           
+    +---tools
+    |       listarVozesEleven.ts
+    |       
     +---types
+    |       CampoCliente.ts
+    |       Client.ts
+    |       MongoSchemas.ts
     |       swagger-modules.d.ts
     |       
     +---utils
     |       db.ts
+    |       formatarRespostaIA.ts
     |       logger.ts
     |       midiaHelper.ts
     |       mongo.ts
+    |       naturalizarTexto.ts
     |       ngrokUpdater.ts
     |       temperatureDecider.ts
     |       typingSimulator.ts

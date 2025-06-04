@@ -4,41 +4,48 @@ import 'dotenv/config';
 import createApp from './app';
 import { createDbPool, testDbConnection } from './utils/db';
 import { logger } from './utils/logger';
-import { connectToMongo } from './config/mongoConnect'; // ✅ Conexão MongoDB
+import { connectToMongo } from './config/mongoConnect';
 
-async function bootstrap() {
+/**
+ * Função de inicialização do servidor principal da aplicação.
+ * Responsável por:
+ * - Criar conexões com bancos (MySQL, MongoDB)
+ * - Inicializar a aplicação Express
+ * - Subir o servidor HTTP
+ */
+async function bootstrap(): Promise<void> {
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
   try {
-    const nodeEnv = process.env.NODE_ENV || 'development';
-    const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+    logger.info(`[bootstrap] 🌍 Ambiente: ${nodeEnv}`);
+    logger.info(`[bootstrap] 📡 Iniciando servidor na porta ${port}...`);
 
-    logger.info(`🌍 Ambiente: ${nodeEnv}`);
-    logger.info(`📡 Iniciando servidor na porta ${port}...`);
-
-    // 🧪 Etapa 1: criar pool de conexão com MySQL
-    logger.debug('🔄 Criando pool do MySQL...');
+    // 🧪 Etapa 1: Criar pool de conexão com MySQL
+    logger.debug('[bootstrap] 🔄 Criando pool do MySQL...');
     createDbPool();
 
-    // 🧪 Etapa 2: testar conexão com MySQL
-    logger.debug('🔄 Testando conexão MySQL...');
+    // 🧪 Etapa 2: Testar conexão com MySQL
+    logger.debug('[bootstrap] 🔄 Testando conexão MySQL...');
     await testDbConnection();
-    logger.debug('✅ MySQL conectado com sucesso');
+    logger.debug('[bootstrap] ✅ MySQL conectado com sucesso');
 
-    // 🧪 Etapa 3: conectar ao MongoDB
-    logger.debug('🔄 Conectando ao MongoDB...');
+    // 🧪 Etapa 3: Conectar ao MongoDB
+    logger.debug('[bootstrap] 🔄 Conectando ao MongoDB...');
     await connectToMongo();
-    logger.debug('✅ MongoDB conectado com sucesso');
+    logger.debug('[bootstrap] ✅ MongoDB conectado com sucesso');
 
-    // 🧪 Etapa 4: criar aplicação Express
-    logger.debug('🚧 Criando app Express...');
+    // 🧪 Etapa 4: Criar aplicação Express
+    logger.debug('[bootstrap] 🚧 Criando app Express...');
     const app = createApp();
 
-    // 🧪 Etapa 5: iniciar servidor HTTP
+    // 🧪 Etapa 5: Iniciar servidor HTTP
     app.listen(port, () => {
-      logger.info(`🚀 Servidor rodando em http://localhost:${port}`);
+      logger.info(`[bootstrap] 🚀 Servidor rodando em http://localhost:${port}`);
     });
   } catch (err) {
-    logger.error('❌ Falha ao iniciar o servidor', err as Error);
-    process.exit(1);
+    logger.error('[bootstrap] ❌ Falha ao iniciar o servidor', err as Error);
+    process.exit(1); // Encerra a aplicação com erro
   }
 }
 

@@ -10,7 +10,13 @@ export const openai = new OpenAI({
   apiKey: env.OPENAI_KEY,
 });
 
-// Wrapper opcional com logs
+/**
+ * Wrapper para criação de chat completion com logs detalhados e fallback de parâmetros.
+ *
+ * @param messages - Lista de mensagens no formato esperado pela OpenAI
+ * @param options - Configurações opcionais (modelo, temperatura, estágio do funil)
+ * @returns Completion gerada pela API OpenAI
+ */
 export async function createChatCompletion(
   messages: OpenAI.Chat.ChatCompletionMessageParam[],
   options?: { model?: string; temperature?: number; funnelStage?: string }
@@ -42,7 +48,10 @@ export async function createChatCompletion(
       model,
       temperature,
       origem,
-      mensagens: messages.map(m => ({ role: m.role, preview: m.content?.slice(0, 60) }))
+      mensagens: messages.map(m => ({
+        role: m.role,
+        preview: typeof m.content === 'string' ? m.content.slice(0, 60) : '[não string]',
+      })),
     });
 
     const completion = await openai.chat.completions.create({
@@ -63,8 +72,10 @@ export async function createChatCompletion(
     });
 
     return completion;
-  } catch (error: any) {
-    logger.error('[openai] Erro na criação do chat completion', { error });
+  } catch (error: unknown) {
+    logger.error('[openai] Erro na criação do chat completion', {
+      error: error instanceof Error ? error.message : error,
+    });
     throw error;
   }
 }
