@@ -11,6 +11,7 @@ export interface InteractionData {
   stateAfter: string;
   responseTimeMs?: number;
   createdAt?: Date;
+  from: 'user' | 'bot'; // ✅ Adicionado para rastrear origem da mensagem
 }
 
 export interface InteractionDocument extends Document, InteractionData {}
@@ -24,6 +25,7 @@ const InteractionSchema = new Schema<InteractionDocument>({
   stateBefore: { type: String, required: true },
   stateAfter: { type: String, required: true },
   responseTimeMs: { type: Number },
+  from: { type: String, enum: ['user', 'bot'], required: true }, // ✅ Campo adicionado no schema
 }, {
   timestamps: { createdAt: true, updatedAt: false },
   collection: 'interactions',
@@ -42,7 +44,8 @@ function isValidInteraction(data: InteractionData): boolean {
     typeof data.messageOut === 'string' &&
     typeof data.detectedIntent === 'string' &&
     typeof data.stateBefore === 'string' &&
-    typeof data.stateAfter === 'string'
+    typeof data.stateAfter === 'string' &&
+    typeof data.from === 'string' // ✅ Validação do novo campo
   );
 }
 

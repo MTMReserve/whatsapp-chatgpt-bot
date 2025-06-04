@@ -1,7 +1,3 @@
-// ===============================
-// File: src/services/conversationManager/index.ts
-// ===============================
-
 import { logger } from '../../utils/logger';
 import { extractAll } from '../dataExtractor';
 import { ClientRepository } from '../clientRepository';
@@ -17,15 +13,18 @@ import { verificadorPropostaNegociacao } from '../verificadorPropostaNegociacao'
 import { saveNegociacaoLog } from '../../repositories/mongo/logsEstrategia.mongo';
 import { EtapaFunil } from '../metaPorEtapa';
 import type { ProdutoID } from '../../produto/produtoMap';
-import { getAnalyzedProfileFromMongo } from '../../repositories/clientProfileRepository'; // ✅ ALTERADO
+import { getAnalyzedProfileFromMongo } from '../../repositories/clientProfileRepository';
 import { analyzeClientProfileIfNeeded } from '../analyzeClientProfile';
 import { audioService } from '../audioService';
 import { clientePrefereAudio } from '../audioPreferenceAnalyzer';
 import type { Client } from '../../types/Client';
 import { detectIntentWithFallback } from '../intentFallback';
-import { validarTodosCamposPorEtapa } from '../validadorMultiplos'; // ✅ NOVO IMPORT
-import { randomUUID } from 'crypto'; // ✅ Para rastreabilidade
-import { mapearClienteParaFieldValidation } from '../../utils/fieldMapper'; // ✅ NOVO IMPORT
+import { validarTodosCamposPorEtapa } from '../validadorMultiplos';
+import { randomUUID } from 'crypto';
+import { mapearClienteParaFieldValidation } from '../../utils/fieldMapper';
+import { getContextVar, setContextVar } from '../contextMemory';
+import { getConversationByPhone } from '../../repositories/mongo/interactionLog.mongo';
+import { monitorClientBehavior } from '../dynamicClientMonitor';
 
 export async function handleMessage(
   phone: string,
@@ -36,11 +35,22 @@ export async function handleMessage(
 
   const clienteAtual = await ClientRepository.findOrCreate(phone);
   const etapaAtual = clienteAtual.current_state as EtapaFunil;
-  const perfil = await getAnalyzedProfileFromMongo(phone); // ✅ CORRIGIDO
+  const perfil = await getAnalyzedProfileFromMongo(phone);
   const temperatura = definirTemperaturaDinamica({ etapa: etapaAtual, perfil });
-  const executionId = randomUUID(); // ✅ ID de rastreabilidade para logs
+  const executionId = randomUUID();
 
   const { fields } = await extractAll(userMessage, phone, etapaAtual);
+
+  for (const campo of Object.keys(fields)) {
+    const info = fields[campo];
+    const isCampoDaInterface = campo in clienteAtual;
+
+    if (!isCampoDaInterface && info.valid && info.value !== null) {
+      await setContextVar(clienteAtual.id, campo, info.value);
+      logger.info(`[contextMemory] 💾 Variável "${campo}" salva via extractAll para client_id=${clienteAtual.id}`);
+    }
+  }
+
   const camposSensiveis: (keyof typeof clienteAtual)[] = ['name', 'budget', 'address', 'payment_method', 'schedule_time'];
 
   for (const campo of camposSensiveis) {
@@ -48,6 +58,14 @@ export async function handleMessage(
     const valorAnterior = clienteAtual[campo] != null ? String(clienteAtual[campo]) : null;
     const alerta = verificarMudancaEmCampoSensivel(campo, valorAnterior, novoValor);
     if (alerta) logger.warn(`[handleMessage] Mudança detectada em campo sensível: ${alerta}`);
+  }
+
+  let camposAusentes = Object.keys(fields).filter((f) => !fields[f].valid);
+
+  const cursoNivel = await getContextVar(clienteAtual.id, 'curso_nivel');
+  if (cursoNivel) {
+    camposAusentes = camposAusentes.filter((f) => f !== 'curso_nivel');
+    logger.info(`[contextMemory] 🧠 curso_nivel já preenchido no contexto para client_id=${clienteAtual.id}`);
   }
 
   let {
@@ -60,7 +78,7 @@ export async function handleMessage(
     etapaAtual,
     mensagemCliente: userMessage,
     produtoId,
-    camposAusentes: Object.keys(fields).filter((f) => !fields[f].valid)
+    camposAusentes
   });
 
   if (!nextState) {
@@ -69,7 +87,6 @@ export async function handleMessage(
     nextState = fallback as EtapaFunil;
   }
 
-  // ✅ Validação múltipla dos campos exigidos pela etapa
   const validacoes = await validarTodosCamposPorEtapa({
     phone,
     texto: userMessage,
@@ -99,7 +116,8 @@ export async function handleMessage(
     messageOut: replyFinal,
     detectedIntent: nextState,
     stateBefore: etapaAtual,
-    stateAfter: nextState
+    stateAfter: nextState,
+    from: 'user' // ✅ Campo obrigatório adicionado
   });
 
   await registrarAuditoriaIA({
@@ -125,12 +143,11 @@ export async function handleMessage(
 
     if (resultado.deveRefazerComMaisTemperatura) {
       logger.warn(`[handleMessage] 🚨 Resposta insuficiente, IA será chamada novamente com temperatura ${resultado.novaTemperatura}`);
-      // (opcional) lógica de reenvio pode ser implementada aqui
     }
   }
 
   if (nextState === 'fechamento') {
-    const camposValidados = mapearClienteParaFieldValidation(clienteAtual); // ✅ CORREÇÃO APLICADA
+    const camposValidados = mapearClienteParaFieldValidation(clienteAtual);
     const checklist = checklistFechamento(camposValidados);
     if (!checklist.aprovado) {
       logger.warn(`[handleMessage] Checklist de fechamento NÃO aprovado. Motivo: ${checklist.faltando.join(', ')}`);
@@ -145,6 +162,14 @@ export async function handleMessage(
 
   if (clientePrefereAudio(phone)) {
     response.audioBuffer = await audioService.synthesizeSpeech(replyFinal);
+  }
+
+  const mensagensUser = await getConversationByPhone(phone);
+  const totalUserMessages = mensagensUser.filter((m) => m.from === 'user').length;
+
+  if (totalUserMessages % 5 === 0) {
+    logger.info(`[monitorClient] 🎭 Avaliação emocional acionada para ${phone}`);
+    await monitorClientBehavior(phone);
   }
 
   return response;

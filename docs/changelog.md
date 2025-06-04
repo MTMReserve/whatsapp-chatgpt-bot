@@ -1,7 +1,160 @@
-📦 Versão sugerida: v1.13.0
-🧠 Justificativa: trata-se de uma entrega de alto impacto funcional, com reintegração estratégica da inteligência do bot, reativação de módulos críticos, e correções em múltiplos serviços centrais. Embora boa parte da estrutura tenha sido criada na v1.12.0, esta versão completa e estabiliza a arquitetura com lógica adaptativa, resumos reativados, compatibilidade garantida e correções críticas.
+## [v1.13.3] - 2025-06-04
 
-[v1.13.0] - 2025-06-03
+**Tipo:** 🧠 Inteligência Contextual + 🎭 Monitoramento Emocional  
+**Responsável:** Dev Full Stack
+
+---
+
+### ✨ Novos Recursos
+
+- **Integração do monitoramento emocional com o fluxo do bot**, via `monitorClientBehavior(phone)`:
+
+  - A cada 5 mensagens do cliente (`from: 'user'`), o comportamento do bot é ajustado com base em sinais como pressa, desinteresse ou formalidade.
+  - O resultado da análise ajusta dinamicamente a `botPersona`, permitindo variação de estilo e empatia.
+
+- **Persistência do campo `from` nas interações salvas no MongoDB**:
+  - Campo obrigatório `from: 'user' | 'bot'` adicionado à interface `InteractionData` e ao schema `InteractionSchema`.
+  - Agora é possível distinguir quem enviou cada mensagem (usuário ou bot), essencial para rastreamento emocional e futuras análises.
+
+---
+
+### 🛠️ Refatorações
+
+- Arquivo `src/services/conversationManager/index.ts`:
+
+  - Inserida chamada condicional ao `monitorClientBehavior` no final de `handleMessage()`.
+  - Cálculo de mensagens do cliente feito via `getConversationByPhone(phone)` com filtro `m.from === 'user'`.
+
+- Arquivo `src/repositories/mongo/interactionLog.mongo.ts`:
+  - Interface e schema atualizados com o novo campo `from`.
+  - Função `saveInteractionLog()` adaptada para exigir `from` explicitamente (evitando erro de tipagem).
+
+---
+
+### 🧪 Testes e Validações
+
+- Logs confirmam que o monitoramento é acionado corretamente a cada 5 mensagens.
+- IA responde com ajuste de tom conforme o perfil emocional detectado.
+- `build` 100% validado (`tsc` sem erros).
+
+---
+
+### 📁 Arquivos Modificados
+
+| Tipo | Caminho                                          | Descrição                             |
+| ---- | ------------------------------------------------ | ------------------------------------- |
+| ✏️   | `src/services/conversationManager/index.ts`      | Integração do `monitorClientBehavior` |
+| ✏️   | `src/repositories/mongo/interactionLog.mongo.ts` | Adição do campo `from` no schema      |
+
+---
+
+### 🔍 Rastreabilidade
+
+- Campo `from` agora é usado como critério primário para ativação do monitor emocional.
+- Log completo da origem de cada mensagem (cliente ou bot) salvo no MongoDB com `createdAt`.
+- Garante base futura para análise de comportamento por IA e dashboards em tempo real.
+
+---
+
+🏁 **Status da Versão**  
+🟢 Concluída – Integração funcional, logs rastreáveis e comportamento do bot validado.
+
+## [v1.13.2] - 2025-06-04
+
+Tipo: 🧠 Inteligência Contextual + 🧱 Persistência Dinâmica
+Responsável: Dev Full Stack
+
+✨ Novos recursos
+🧠 Suporte completo à memória de contexto por cliente, com persistência em context_vars no MySQL.
+
+Criado módulo contextMemory.ts com funções:
+
+setContextVar(clientId, key, value)
+
+getContextVar(clientId, key)
+
+getAllContextVars(clientId)
+
+clearContextVars(clientId)
+
+Variáveis dinâmicas agora podem ser lidas e salvas no fluxo do bot, permitindo personalização inteligente por cliente e produto.
+
+🛠️ Integrações no Fluxo do Bot
+No conversationManager/index.ts:
+
+Campos dinâmicos já preenchidos (ex: curso_nivel) são removidos de camposAusentes antes da chamada à IA.
+
+Ao final do extractAndValidateAll(), os campos que não fazem parte do modelo Client são salvos automaticamente com setContextVar(...).
+
+Se o atendimento for encerrado (nextState === 'encerramento'), o contexto do cliente é totalmente apagado com clearContextVars(...).
+
+🔍 Rastreabilidade e Logs
+Cada operação do contextMemory.ts possui log com prefixo temático:
+
+💾 set
+
+📥 get
+
+📦 getAll
+
+🧹 clear
+
+❌ erro
+
+📁 Arquivos Criados ou Modificados
+Tipo Caminho Descrição
+🆕 src/services/contextMemory.ts Novo módulo de memória de contexto com persistência
+🔁 src/services/conversationManager/index.ts Integração total com leitura e salvamento de contexto
+
+✅ Resultados da Entrega
+Recurso Status
+Tabela context_vars criada ✅
+Funções de leitura e escrita ✅
+Integração ao fluxo do bot ✅
+Limpeza automática no encerramento ✅
+Logs com rastreabilidade ✅
+
+🔄 Status da Versão
+🟢 Concluída – Testes locais e SQL realizados, integração funcional validada.
+
+## [v1.13.1] - 2025-06-04
+
+Tipo: 🧠 Integração Inteligente com MongoDB + 🔁 Refatoração Funcional
+Responsável: Dev Full Stack
+
+✨ Novos recursos
+Implementada função getAnalyzedProfileFromMongo(phone) para recuperar o perfil psicológico real do cliente salvo no MongoDB, com fallback seguro.
+
+Criado novo arquivo PerfilCliente.mongo.ts contendo o schema completo do perfil, com suporte a histórico (analyzedAt).
+
+Chamada ao getAnalyzedProfile(...) no conversationManager/index.ts foi substituída pela nova função que usa leitura real do banco.
+
+🛠️ Refatorações
+Função getAnalyzedProfileByClientId(clientId) mantida como versão local com botPersona, para debug ou fallback manual.
+
+O repositório clientProfileRepository.ts foi dividido logicamente em dois fluxos: leitura de memória (botPersona) e leitura persistente (Mongo).
+
+Removido uso de getMongoCollection() inexistente, adaptado para uso correto com PerfilClienteModel.findOne() (via Mongoose).
+
+📁 Arquivos Criados ou Modificados
+Tipo Caminho Observação
+🆕 novo src/models/PerfilCliente.mongo.ts Novo schema para perfis
+✏️ mod src/repositories/clientProfileRepository.ts Leitura real do Mongo + fallback
+✏️ mod src/services/conversationManager/index.ts Uso da função real getAnalyzedProfileFromMongo()
+
+🔍 Rastreabilidade e Segurança
+Logs detalhados adicionados para rastrear busca no Mongo e fallback.
+
+Garantido comportamento previsível mesmo quando o perfil não foi analisado ainda.
+
+Nenhuma quebra de compatibilidade com chamadas antigas.
+
+🏁 Status da Versão
+🟢 Concluída – Testes locais validados, leitura real de perfil confirmada com dados reais no banco.
+
+## [v1.13.0] - 2025-06-03
+
+🧠 Justificativa: trata-se de uma entrega de alto impacto funcional, com reintegração estratégica da inteligência do bot, reativação de módulos críticos, e correções em múltiplos serviços centrais. Embora boa parte da estrutura tenha sido criada na v1.12.0, esta versão completa e estabiliza a arquitetura com lógica adaptativa, resumos reativados, compatibilidade garantida e correções críticas
 ✨ Novos recursos
 Ativação condicional do levantamento adaptativo por IA, com lógica leve ou profunda conforme nível de objeção.
 
@@ -51,7 +204,8 @@ Dev Full Stack
 🔄 Status da Versão
 🟢 Concluída – testes locais validados, arquitetura consolidada, IA com comportamento previsível e rastreável.
 
-[v1.12.0] - 2025-06-03
+## [v1.12.0] - 2025-06-03
+
 ✨ Novos recursos
 Implementado serviço StateService.ts para unificação de decisão de estado e resposta da IA em um único prompt.
 
